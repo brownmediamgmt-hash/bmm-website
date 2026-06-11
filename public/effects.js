@@ -5,15 +5,37 @@
    All effects respect prefers-reduced-motion. */
 (function () {
   'use strict';
+  // v2 — resilient: each effect isolated; reduced-motion gets static flow lines
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  console.log('[BMM effects v2] loaded — reducedMotion:', reduced);
+  const safe = fn => { try { fn(); } catch (e) { console.warn('[BMM effects]', e); } };
 
   /* ============ 1. FLOW FIELD BACKGROUND ============ */
-  (function flowField() {
-    if (reduced) return;
+  safe(function flowField() {
     const canvas = document.getElementById('flow');
     if (!canvas) return;
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
+
+    if (reduced) {
+      // accessibility: no animation, but still a designed background — static strokes
+      const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+      const W = canvas.width = Math.floor(innerWidth * DPR);
+      const H = canvas.height = Math.floor(innerHeight * DPR);
+      ctx.lineWidth = DPR * 0.8;
+      for (let i = 0; i < 170; i++) {
+        let x = Math.random() * W, y = Math.random() * H;
+        ctx.strokeStyle = Math.random() < 0.3 ? 'rgba(185,124,46,0.10)' : 'rgba(111,103,89,0.07)';
+        ctx.beginPath(); ctx.moveTo(x, y);
+        for (let j = 0; j < 26; j++) {
+          const a = (Math.sin(x * 0.0016) + Math.sin(y * 0.0021) + Math.sin((x + y) * 0.0009) * 0.7) * 1.35;
+          x += Math.cos(a) * 4 * DPR; y += Math.sin(a) * 4 * DPR;
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+      return;
+    }
 
     const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
     let W, H, particles = [];
@@ -81,10 +103,10 @@
     window.addEventListener('resize', resize, { passive: true });
     resize();
     requestAnimationFrame(frame);
-  })();
+  });
 
   /* ============ 2. TYPEWRITER ON SCROLL ============ */
-  (function typewriter() {
+  safe(function typewriter() {
     const targets = document.querySelectorAll('.hero h1, section h2, .tc');
     if (!targets.length) return;
     if (reduced) return; // text simply stays visible
@@ -133,10 +155,10 @@
       });
     }, { threshold: 0.3 });
     targets.forEach(el => io.observe(el));
-  })();
+  });
 
   /* ============ 3. EASED ANCHOR SCROLL ============ */
-  (function smoothAnchors() {
+  safe(function smoothAnchors() {
     const NAV_OFFSET = 72;
     document.querySelectorAll('a[href^="#"]').forEach(a => {
       a.addEventListener('click', e => {
@@ -161,5 +183,5 @@
         history.pushState(null, '', id);
       });
     });
-  })();
+  });
 })();
