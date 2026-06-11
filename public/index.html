@@ -108,6 +108,8 @@ h2{font-family:var(--display);font-variation-settings:'wdth' 115;font-weight:800
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow:hidden;transition:border-color .25s,transform .25s;position:relative;box-shadow:0 1px 2px rgba(26,23,18,.04)}
 .card:hover{border-color:var(--amber-dim);transform:translateY(-3px)}
+.frame.tall{aspect-ratio:4/5;background:#FBF8F1}
+.frame.tall::before,.frame.tall::after{display:none}
 .frame{aspect-ratio:2.39/1;background:#000;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .frame iframe,.frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0}
 .frame .empty{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:#C9A468;text-transform:uppercase}
@@ -432,14 +434,19 @@ function embedUrl(u){
   if(!u) return null;
   try{
     const url = new URL(u);
-    if (url.hostname.includes('youtu.be')) return 'https://www.youtube.com/embed/' + url.pathname.slice(1);
+    if (url.hostname.includes('youtu.be')) return { src: 'https://www.youtube.com/embed/' + url.pathname.slice(1) };
     if (url.hostname.includes('youtube.com')) {
-      const id = url.searchParams.get('v'); if (id) return 'https://www.youtube.com/embed/' + id;
-      if (url.pathname.startsWith('/embed/')) return u;
+      const id = url.searchParams.get('v'); if (id) return { src: 'https://www.youtube.com/embed/' + id };
+      if (url.pathname.startsWith('/embed/')) return { src: u };
     }
     if (url.hostname.includes('vimeo.com')) {
       const id = url.pathname.split('/').filter(Boolean)[0];
-      if (/^\d+$/.test(id)) return 'https://player.vimeo.com/video/' + id;
+      if (/^\d+$/.test(id)) return { src: 'https://player.vimeo.com/video/' + id };
+    }
+    if (url.hostname.includes('instagram.com')) {
+      // instagram.com/reel/CODE/ or /p/CODE/ or /tv/CODE/ → embed endpoint, vertical frame
+      const m = url.pathname.match(/^\/(reel|p|tv)\/([A-Za-z0-9_-]+)/);
+      if (m) return { src: 'https://www.instagram.com/' + m[1] + '/' + m[2] + '/embed/', tall: true };
     }
   }catch(e){}
   return null;
@@ -453,11 +460,11 @@ function renderWork(){
     const desc = lang==='nl' ? (p.description_nl||'') : (p.description_en||'');
     const emb = embedUrl(p.video_url);
     const media = emb
-      ? `<iframe src="${emb}" loading="lazy" allowfullscreen title="${title}"></iframe>`
+      ? `<iframe src="${emb.src}" loading="lazy" allowfullscreen scrolling="no" title="${title}"></iframe>`
       : p.thumb_url ? `<img src="${p.thumb_url}" alt="${title}" loading="lazy">`
       : `<span class="empty">${I18N[lang].no_video}</span>`;
     return `<article class="card reveal in">
-      <div class="frame">${media}</div>
+      <div class="frame${emb && emb.tall ? ' tall' : ''}">${media}</div>
       <div class="meta">
         <span class="cat">${I18N[lang][catKey[p.category]] || p.category}</span>
         <h3>${title}</h3>
