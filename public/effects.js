@@ -5,9 +5,10 @@
    All effects respect prefers-reduced-motion. */
 (function () {
   'use strict';
-  // v2 — resilient: each effect isolated; reduced-motion gets static flow lines
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  console.log('[BMM effects v2] loaded — reducedMotion:', reduced);
+  // v3 — animations always on (owner preference); OS reduce-motion is logged but not applied
+  const reduced = false;
+  const osReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  console.log('[BMM effects v3] loaded — OS reducedMotion:', osReduced, '(overridden: animations always on)');
   const safe = fn => { try { fn(); } catch (e) { console.warn('[BMM effects]', e); } };
 
   /* ============ 1. FLOW FIELD BACKGROUND ============ */
