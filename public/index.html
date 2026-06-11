@@ -56,7 +56,6 @@
   --display:'Archivo',sans-serif; --body:'Instrument Sans',sans-serif; --mono:'JetBrains Mono',monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
 body{background:var(--ink);color:var(--paper);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
@@ -166,17 +165,20 @@ footer{border-top:1px solid var(--line);padding:40px clamp(16px,6vw,72px);displa
   flex-wrap:wrap;gap:16px;font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.08em;max-width:1280px;margin:0 auto}
 footer a:hover{color:var(--amber)}
 
+#flow{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+nav,section,footer{position:relative;z-index:1}
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s}
 .reveal.in{opacity:1;transform:none}
 @media (prefers-reduced-motion: reduce){
   .reveal{opacity:1;transform:none;transition:none}
   .rec{animation:none}
-  html{scroll-behavior:auto}
 }
 @media(max-width:720px){.nav-links a.hide-m{display:none}}
 </style>
 </head>
 <body>
+
+<canvas id="flow" aria-hidden="true"></canvas>
 
 <nav>
   <a class="brand" href="#top"><span class="rec" aria-hidden="true"></span>BROWN&nbsp;MEDIA&nbsp;MGMT</a>
@@ -505,5 +507,6 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
 applyLang();
 </script>
+<script src="/effects.js" defer></script>
 </body>
 </html>
