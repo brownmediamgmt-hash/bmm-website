@@ -40,7 +40,7 @@
     {"@type": "Question", "name": "Werken jullie alleen in Groningen?",
      "acceptedAnswer": {"@type": "Answer", "text": "Brown Media Management is gevestigd in Groningen en werkt door heel Nederland. Engelstalige producties voor internationale klanten zijn ook mogelijk."}},
     {"@type": "Question", "name": "Hoe snel wordt mijn video opgeleverd?",
-     "acceptedAnswer": {"@type": "Answer", "text": "Social media content wordt doorgaans binnen enkele dagen geleverd. Grotere producties zoals bedrijfsvideo's en brand films binnen één tot twee weken."}},
+     "acceptedAnswer": {"@type": "Answer", "text": "Social media content lever ik doorgaans binnen één tot twee weken na de draaidag. Grotere producties zoals bedrijfsvideo's en brand films binnen twee tot drie weken."}},
     {"@type": "Question", "name": "Wat maakt een video die converteert?",
      "acceptedAnswer": {"@type": "Answer", "text": "Een sterke hook in de eerste seconden, een verhaal dat vertrouwen opbouwt, een duidelijke call-to-action en optimalisatie per platform. Elke productie wordt gemaakt met dat doel."}}
   ]
@@ -405,7 +405,7 @@ footer a:hover{color:var(--amber)}
   <div class="faq">
     <details><summary data-i18n="q1">Wat kost een bedrijfsvideo laten maken?</summary><p data-i18n="a1">De prijs hangt af van het concept, het aantal draaidagen en het aantal video's. Na één gesprek ontvang je binnen 24 uur een offerte op maat — zonder verplichtingen.</p></details>
     <details><summary data-i18n="q2">Werken jullie alleen in Groningen?</summary><p data-i18n="a2">Brown Media Management is gevestigd in Groningen en werkt door heel Nederland. Engelstalige producties voor internationale klanten zijn ook mogelijk.</p></details>
-    <details><summary data-i18n="q3">Hoe snel wordt mijn video opgeleverd?</summary><p data-i18n="a3">Social media content lever ik doorgaans binnen enkele dagen. Grotere producties zoals bedrijfsvideo's en brand films binnen één tot twee weken.</p></details>
+    <details><summary data-i18n="q3">Hoe snel wordt mijn video opgeleverd?</summary><p data-i18n="a3">Social media content lever ik doorgaans binnen één tot twee weken na de draaidag. Grotere producties zoals bedrijfsvideo's en brand films binnen twee tot drie weken.</p></details>
     <details><summary data-i18n="q4">Wat maakt een video die converteert?</summary><p data-i18n="a4">Een sterke hook in de eerste seconden, een verhaal dat vertrouwen opbouwt, een duidelijke call-to-action en optimalisatie per platform. Elke productie wordt met dat doel gemaakt.</p></details>
   </div>
 </section>
@@ -455,7 +455,7 @@ const I18N = {
     faq_h2:"Veelgestelde vragen",
     q1:"Wat kost een bedrijfsvideo laten maken?", a1:"De prijs hangt af van het concept, het aantal draaidagen en het aantal video's. Na één gesprek ontvang je binnen 24 uur een offerte op maat — zonder verplichtingen.",
     q2:"Werken jullie alleen in Groningen?", a2:"Brown Media Management is gevestigd in Groningen en werkt door heel Nederland. Engelstalige producties voor internationale klanten zijn ook mogelijk.",
-    q3:"Hoe snel wordt mijn video opgeleverd?", a3:"Social media content lever ik doorgaans binnen enkele dagen. Grotere producties zoals bedrijfsvideo's en brand films binnen één tot twee weken.",
+    q3:"Hoe snel wordt mijn video opgeleverd?", a3:"Social media content lever ik doorgaans binnen één tot twee weken na de draaidag. Grotere producties zoals bedrijfsvideo's en brand films binnen twee tot drie weken.",
     q4:"Wat maakt een video die converteert?", a4:"Een sterke hook in de eerste seconden, een verhaal dat vertrouwen opbouwt, een duidelijke call-to-action en optimalisatie per platform. Elke productie wordt met dat doel gemaakt.",
     sent_ok:"Verstuurd. Ik neem binnen 24 uur contact op.", sent_err:"Er ging iets mis — probeer opnieuw of mail direct.",
     no_video:"PREVIEW VOLGT"
@@ -496,7 +496,7 @@ const I18N = {
     faq_h2:"Frequently asked questions",
     q1:"What does a corporate video cost?", a1:"The price depends on the concept, the number of shoot days and the number of videos. After one call you'll receive a tailored quote within 24 hours — no strings attached.",
     q2:"Do you only work in Groningen?", a2:"Brown Media Management is based in Groningen and works across the Netherlands. English-language productions for international clients are available too.",
-    q3:"How fast is my video delivered?", a3:"Social media content is typically delivered within days. Larger productions like corporate videos and brand films within one to two weeks.",
+    q3:"How fast is my video delivered?", a3:"Social media content is typically delivered within one to two weeks after the shoot. Larger productions like corporate videos and brand films within two to three weeks.",
     q4:"What makes a video convert?", a4:"A strong hook in the first seconds, a story that builds trust, a clear call-to-action and platform-specific optimisation. Every production is made with that goal.",
     sent_ok:"Sent. I'll be in touch within 24 hours.", sent_err:"Something went wrong — try again or email directly.",
     no_video:"PREVIEW COMING"
@@ -608,21 +608,21 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 const PRICING = {
   reels: [8, 12, 16],
   full: [
-    { price: 895,  nl:{name:"Starter", shoot:"1 draaidag · 4 uur on-location", items:["8 bewerkte reels (30–60 sec)","Vertical format 9:16","Kleurcorrectie + muziek","Levering binnen 5 werkdagen"]},
-                   en:{name:"Starter", shoot:"1 shoot day · 4 hrs on location", items:["8 edited reels (30–60 sec)","Vertical 9:16 format","Colour grade + music","Delivery within 5 working days"]} },
+    { price: 895,  nl:{name:"Starter", shoot:"1 draaidag · 4 uur on-location", items:["8 bewerkte reels (30–60 sec)","Vertical format 9:16","Kleurcorrectie + muziek","Levering binnen 7–10 werkdagen"]},
+                   en:{name:"Starter", shoot:"1 shoot day · 4 hrs on location", items:["8 edited reels (30–60 sec)","Vertical 9:16 format","Colour grade + music","Delivery within 7–10 working days"]} },
     { price: 1250, hl:true,
-                   nl:{name:"Groei", shoot:"1–2 draaidagen · 6–8 uur on-location", items:["12 bewerkte reels (30–60 sec)","9:16 + 16:9 formaat","Kleurcorrectie + muziek + ondertiteling","Contentkalender op maat","Levering binnen 4 werkdagen"]},
-                   en:{name:"Growth", shoot:"1–2 shoot days · 6–8 hrs on location", items:["12 edited reels (30–60 sec)","9:16 + 16:9 formats","Colour grade + music + subtitles","Custom content calendar","Delivery within 4 working days"]} },
-    { price: 1650, nl:{name:"Pro", shoot:"2 draaidagen · 8–10 uur on-location", items:["16 bewerkte reels (30–60 sec)","Alle formats: 9:16 + 16:9","Kleurcorrectie + muziek + ondertiteling","Contentkalender + strategie advies","Prioriteit levering binnen 3 werkdagen"]},
-                   en:{name:"Pro", shoot:"2 shoot days · 8–10 hrs on location", items:["16 edited reels (30–60 sec)","All formats: 9:16 + 16:9","Colour grade + music + subtitles","Content calendar + strategy advice","Priority delivery within 3 working days"]} }
+                   nl:{name:"Groei", shoot:"1–2 draaidagen · 6–8 uur on-location", items:["12 bewerkte reels (30–60 sec)","9:16 + 16:9 formaat","Kleurcorrectie + muziek + ondertiteling","Contentkalender op maat","Levering binnen 10–14 werkdagen"]},
+                   en:{name:"Growth", shoot:"1–2 shoot days · 6–8 hrs on location", items:["12 edited reels (30–60 sec)","9:16 + 16:9 formats","Colour grade + music + subtitles","Custom content calendar","Delivery within 10–14 working days"]} },
+    { price: 1650, nl:{name:"Pro", shoot:"2 draaidagen · 8–10 uur on-location", items:["16 bewerkte reels (30–60 sec)","Alle formats: 9:16 + 16:9","Kleurcorrectie + muziek + ondertiteling","Contentkalender + strategie advies","Levering binnen 10–14 werkdagen (prioriteit)"]},
+                   en:{name:"Pro", shoot:"2 shoot days · 8–10 hrs on location", items:["16 edited reels (30–60 sec)","All formats: 9:16 + 16:9","Colour grade + music + subtitles","Content calendar + strategy advice","Delivery within 10–14 working days (priority)"]} }
   ],
   editing: [
-    { price: 595,  nl:{name:"Editing 8",  items:["8 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 5 werkdagen"]},
-                   en:{name:"Editing 8",  items:["8 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 5 working days"]} },
-    { price: 850,  nl:{name:"Editing 12", items:["12 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 4 werkdagen"]},
-                   en:{name:"Editing 12", items:["12 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 4 working days"]} },
-    { price: 1100, nl:{name:"Editing 16", items:["16 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 3 werkdagen"]},
-                   en:{name:"Editing 16", items:["16 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 3 working days"]} }
+    { price: 595,  nl:{name:"Editing 8",  items:["8 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 7–10 werkdagen"]},
+                   en:{name:"Editing 8",  items:["8 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 7–10 working days"]} },
+    { price: 850,  nl:{name:"Editing 12", items:["12 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 10–14 werkdagen"]},
+                   en:{name:"Editing 12", items:["12 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 10–14 working days"]} },
+    { price: 1100, nl:{name:"Editing 16", items:["16 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 10–14 werkdagen"]},
+                   en:{name:"Editing 16", items:["16 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 10–14 working days"]} }
   ],
   note: { nl:"Maandelijks opzegbaar na 2 maanden", en:"Cancel monthly after 2 months" },
   perReel: { nl:"per reel", en:"per reel" },
