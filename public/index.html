@@ -149,6 +149,49 @@ h2{font-family:var(--display);font-variation-settings:'wdth' 115;font-weight:800
 .faq details[open] summary::after{content:"–"}
 .faq details p{color:var(--muted);padding:0 0 22px;font-size:15px;max-width:640px}
 
+
+/* pricing configurator */
+.config{display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:start}
+@media(max-width:900px){.config{grid-template-columns:1fr}}
+.cfg-q{font-family:var(--display);font-variation-settings:'wdth' 112;font-weight:700;font-size:20px;text-transform:uppercase;color:var(--paper);display:block;margin-bottom:18px;letter-spacing:.01em}
+.cfg-slider{margin-bottom:30px}
+.cfg-slider input[type=range]{width:100%;accent-color:var(--amber);height:32px;cursor:pointer}
+.cfg-ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;color:var(--muted);padding:0 2px}
+.cfg-ticks span.on{color:var(--amber);font-weight:500}
+.cfg-toggle{display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:30px;font-family:var(--body);font-size:14px;color:var(--paper);text-transform:none;letter-spacing:0}
+.cfg-toggle input{display:none}
+.cfg-toggle .switch{width:42px;height:24px;border-radius:12px;background:var(--line);position:relative;transition:background .2s;flex-shrink:0}
+.cfg-toggle .switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px rgba(26,23,18,.25);transition:left .2s}
+.cfg-toggle input:checked+.switch{background:var(--amber)}
+.cfg-toggle input:checked+.switch::after{left:21px}
+.addons{border:1px solid var(--line);border-radius:4px;background:var(--surface);margin-bottom:20px}
+.addons summary{cursor:pointer;list-style:none;padding:14px 18px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);display:flex;justify-content:space-between}
+.addons summary::-webkit-details-marker{display:none}
+.addons summary::after{content:"+";color:var(--amber)}
+.addons[open] summary::after{content:"–"}
+.addons .ao{display:flex;justify-content:space-between;gap:12px;padding:10px 18px;border-top:1px solid var(--line);font-size:13.5px}
+.addons .ao b{font-family:var(--mono);font-weight:500;color:var(--paper);white-space:nowrap}
+.addons .ao span{color:var(--muted)}
+.cfg-foot{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8;letter-spacing:.04em}
+.cfg-card{border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:34px 30px;position:relative;transition:border-color .3s;box-shadow:0 1px 2px rgba(26,23,18,.04)}
+.cfg-card.hl{border-color:var(--amber)}
+.cfg-badge{position:absolute;top:0;right:0;background:var(--amber);color:#FFF8EC;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:6px 14px;border-bottom-left-radius:4px;display:none}
+.cfg-card.hl .cfg-badge{display:block}
+.cfg-tcode{font-family:var(--mono);font-size:12px;color:var(--amber);letter-spacing:.16em;margin-bottom:14px}
+.cfg-name{font-family:var(--display);font-variation-settings:'wdth' 114;font-weight:800;font-size:30px;text-transform:uppercase;margin-bottom:14px}
+.cfg-price{margin-bottom:18px}
+.cfg-price .cur{font-family:var(--mono);font-size:16px;color:var(--muted);vertical-align:super}
+.cfg-price .num{font-family:var(--display);font-variation-settings:'wdth' 110;font-weight:850;font-size:54px;letter-spacing:-.02em;line-height:1;color:var(--paper)}
+.cfg-price .unit{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:8px}
+.cfg-shoot{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:20px}
+.cfg-shoot::before{content:"🎬";font-size:13px}
+.cfg-list{list-style:none;border-top:1px solid var(--line);margin-bottom:20px}
+.cfg-list li{font-size:14px;color:var(--paper);padding:8px 0;border-bottom:1px solid var(--line)}
+.cfg-list li::before{content:"▸";color:var(--amber);margin-right:10px}
+.cfg-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.cfg-perreel{font-family:var(--mono);font-size:12px;color:var(--amber);border:1px solid var(--amber-dim);border-radius:20px;padding:5px 14px}
+.cfg-note{font-family:var(--mono);font-size:11px;color:var(--muted);font-style:italic}
+.cfg-cta{width:100%;justify-content:center}
 .form-wrap{display:grid;grid-template-columns:1fr 1fr;gap:64px}
 @media(max-width:900px){.form-wrap{grid-template-columns:1fr}}
 form{display:grid;gap:14px}
@@ -183,6 +226,7 @@ footer a:hover{color:var(--amber)}
   <div class="nav-links">
     <a href="#work" data-i18n="nav_work" class="hide-m">Werk</a>
     <a href="#services" data-i18n="nav_services" class="hide-m">Diensten</a>
+    <a href="#pricing" data-i18n="nav_pricing" class="hide-m">Prijzen</a>
     <a href="#booking" data-i18n="nav_booking">Boeken</a>
     <a href="#faq" class="hide-m">FAQ</a>
     <div class="lang-toggle" id="langToggle" role="button" tabindex="0" aria-label="Switch language">
@@ -268,8 +312,46 @@ footer a:hover{color:var(--amber)}
   </div>
 </section>
 
+<section id="pricing">
+  <div class="tc" data-i18n="tc_pr">SCENE 04 — PRIJZEN</div>
+  <h2 data-i18n="pr_h2">Stel je pakket samen</h2>
+  <p class="lede" data-i18n="pr_lede">Short form content voor Instagram & TikTok — filmen, editen en leveren. Schuif, kies, klaar.</p>
+  <div class="config">
+    <div class="cfg-controls">
+      <span class="cfg-q" data-i18n="pr_q">Hoeveel reels per maand?</span>
+      <div class="cfg-slider">
+        <input type="range" id="reelRange" min="0" max="2" step="1" value="1" aria-label="Aantal reels per maand">
+        <div class="cfg-ticks" id="cfgTicks"><span>8</span><span class="on">12</span><span>16</span></div>
+      </div>
+      <label class="cfg-toggle">
+        <input type="checkbox" id="ownFootage">
+        <span class="switch"></span>
+        <span data-i18n="pr_own">Ik lever eigen beelden aan — alleen editing</span>
+      </label>
+      <details class="addons">
+        <summary data-i18n="pr_addons">Add-ons</summary>
+        <div id="addonList"></div>
+      </details>
+      <p class="cfg-foot" data-i18n="pr_foot">Alle prijzen ex 21% BTW · Maandelijks opzegbaar na 2 maanden · Reiskosten binnen Groningen gratis, daarbuiten €0,35/km · Maatwerk altijd bespreekbaar</p>
+    </div>
+    <div class="cfg-card" id="pkgCard">
+      <div class="cfg-badge" data-i18n="pr_badge">★ Meest gekozen</div>
+      <div class="cfg-tcode" id="pkgTcode">02:00:00:00</div>
+      <div class="cfg-name" id="pkgName">Groei</div>
+      <div class="cfg-price"><span class="cur">€</span><span class="num" id="pkgPrice">1.250</span><span class="unit" data-i18n="pr_unit">ex BTW / maand</span></div>
+      <div class="cfg-shoot" id="pkgShoot"></div>
+      <ul class="cfg-list" id="pkgList"></ul>
+      <div class="cfg-meta">
+        <span class="cfg-perreel" id="pkgPerReel"></span>
+        <span class="cfg-note" id="pkgNote"></span>
+      </div>
+      <a class="btn solid cfg-cta" href="#booking" id="pkgCta" data-i18n="pr_cta">Plan dit pakket</a>
+    </div>
+  </div>
+</section>
+
 <section id="booking">
-  <div class="tc" data-i18n="tc4">SCENE 04 — BOOKING & CONTACT</div>
+  <div class="tc" data-i18n="tc4">SCENE 05 — BOEKEN & CONTACT</div>
   <div class="form-wrap">
     <div>
       <h2 data-i18n="book_h2">Plan een gesprek</h2>
@@ -318,7 +400,7 @@ footer a:hover{color:var(--amber)}
 </section>
 
 <section id="faq">
-  <div class="tc" data-i18n="tc5">SCENE 05 — FAQ</div>
+  <div class="tc" data-i18n="tc5">SCENE 06 — FAQ</div>
   <h2 data-i18n="faq_h2">Veelgestelde vragen</h2>
   <div class="faq">
     <details><summary data-i18n="q1">Wat kost een bedrijfsvideo laten maken?</summary><p data-i18n="a1">De prijs hangt af van het concept, het aantal draaidagen en het aantal video's. Na één gesprek ontvang je binnen 24 uur een offerte op maat — zonder verplichtingen.</p></details>
@@ -352,13 +434,19 @@ const I18N = {
     svc2_l1:"Maandpakketten (4–12 video's)", svc2_l2:"Hooks, captions & contentstrategie", svc2_l3:"Geoptimaliseerd per platform",
     svc3_h:"Brand films & personal brands", svc3_p:"Storytelling die vertrouwen opbouwt vóór het eerste gesprek. Voor ondernemers en merken die meer willen dan een advertentie.",
     svc3_l1:"Brand film & merkverhaal", svc3_l2:"Personal brand content", svc3_l3:"Cutdowns voor social & ads",
-    tc2:"SCENE 02 — DIENSTEN", tc3:"SCENE 03 — WERKWIJZE", tc4:"SCENE 04 — BOEKEN & CONTACT", tc5:"SCENE 05 — FAQ",
+    tc2:"SCENE 02 — DIENSTEN", tc3:"SCENE 03 — WERKWIJZE", tc4:"SCENE 05 — BOEKEN & CONTACT", tc5:"SCENE 06 — FAQ",
     step1:"STAP 01", step2:"STAP 02", step3:"STAP 03", step4:"STAP 04",
     proc_h2:"Van idee naar resultaat", proc_lede:"Een vaste aanpak, zodat jij weet wat je krijgt — en wanneer.",
     p1_h:"Strategie", p1_p:"We bepalen het doel, de doelgroep en de boodschap. Daar wordt het concept op gebouwd.",
     p2_h:"Productie", p2_p:"Eén of meerdere draaidagen, strak gepland. Jij blijft gewoon doen waar je goed in bent.",
     p3_h:"Edit & oplevering", p3_p:"Cinematische edit, kleurbewerking en formats per platform. Klaar om te publiceren.",
     p4_h:"Resultaat", p4_p:"Video's gemaakt om te converteren: meer aanvragen, meer zichtbaarheid, meer klanten.",
+    nav_pricing:"Prijzen",
+    tc_pr:"SCENE 04 — PRIJZEN", pr_h2:"Stel je pakket samen",
+    pr_lede:"Short form content voor Instagram & TikTok — filmen, editen en leveren. Schuif, kies, klaar.",
+    pr_q:"Hoeveel reels per maand?", pr_own:"Ik lever eigen beelden aan — alleen editing",
+    pr_addons:"Add-ons", pr_unit:"ex BTW / maand", pr_badge:"★ Meest gekozen", pr_cta:"Plan dit pakket",
+    pr_foot:"Alle prijzen ex 21% BTW · Maandelijks opzegbaar na 2 maanden · Reiskosten binnen Groningen gratis, daarbuiten €0,35/km · Maatwerk altijd bespreekbaar",
     book_h2:"Plan een gesprek", book_lede:"Kies een dienst en voorkeursdatum — ik reageer binnen 24 uur.",
     f_name:"Naam", f_phone:"Telefoon", f_service:"Dienst", f_date:"Voorkeursdatum", f_loc:"Locatie",
     f_details:"Details", f_company:"Bedrijf", f_msg:"Bericht",
@@ -387,13 +475,19 @@ const I18N = {
     svc2_l1:"Monthly packs (4–12 videos)", svc2_l2:"Hooks, captions & content strategy", svc2_l3:"Optimised per platform",
     svc3_h:"Brand films & personal brands", svc3_p:"Storytelling that builds trust before the first call. For founders and brands that want more than an ad.",
     svc3_l1:"Brand film & brand story", svc3_l2:"Personal brand content", svc3_l3:"Cutdowns for social & ads",
-    tc2:"SCENE 02 — SERVICES", tc3:"SCENE 03 — PROCESS", tc4:"SCENE 04 — BOOKING & CONTACT", tc5:"SCENE 05 — FAQ",
+    tc2:"SCENE 02 — SERVICES", tc3:"SCENE 03 — PROCESS", tc4:"SCENE 05 — BOOKING & CONTACT", tc5:"SCENE 06 — FAQ",
     step1:"STEP 01", step2:"STEP 02", step3:"STEP 03", step4:"STEP 04",
     proc_h2:"From idea to results", proc_lede:"A fixed process, so you know exactly what you get — and when.",
     p1_h:"Strategy", p1_p:"We define the goal, audience and message. The concept is built on that.",
     p2_h:"Production", p2_p:"One or more shoot days, tightly planned. You keep doing what you're good at.",
     p3_h:"Edit & delivery", p3_p:"Cinematic edit, colour grading and formats per platform. Ready to publish.",
     p4_h:"Results", p4_p:"Videos built to convert: more enquiries, more visibility, more customers.",
+    nav_pricing:"Pricing",
+    tc_pr:"SCENE 04 — PRICING", pr_h2:"Build your package",
+    pr_lede:"Short form content for Instagram & TikTok — filmed, edited and delivered. Slide, pick, done.",
+    pr_q:"How many reels per month?", pr_own:"I supply my own footage — editing only",
+    pr_addons:"Add-ons", pr_unit:"ex VAT / month", pr_badge:"★ Most chosen", pr_cta:"Book this package",
+    pr_foot:"All prices ex 21% VAT · Cancel monthly after 2 months · Travel free within Groningen, beyond €0.35/km · Custom plans always possible",
     book_h2:"Book a call", book_lede:"Pick a service and preferred date — I respond within 24 hours.",
     f_name:"Name", f_phone:"Phone", f_service:"Service", f_date:"Preferred date", f_loc:"Location",
     f_details:"Details", f_company:"Company", f_msg:"Message",
@@ -420,6 +514,7 @@ function applyLang(){
   });
   document.querySelectorAll('#langToggle span').forEach(s => s.classList.toggle('on', s.dataset.lang === lang));
   renderWork();
+  if (typeof renderPricing === 'function') renderPricing();
 }
 const toggle = document.getElementById('langToggle');
 function flipLang(){ lang = lang === 'nl' ? 'en' : 'nl'; localStorage.setItem('bmm_lang', lang); applyLang(); }
@@ -507,6 +602,85 @@ if (dateInput) dateInput.min = new Date().toISOString().slice(0,10);
 
 const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), {threshold:.15});
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+
+/* ---------- pricing configurator ---------- */
+const PRICING = {
+  reels: [8, 12, 16],
+  full: [
+    { price: 895,  nl:{name:"Starter", shoot:"1 draaidag · 4 uur on-location", items:["8 bewerkte reels (30–60 sec)","Vertical format 9:16","Kleurcorrectie + muziek","Levering binnen 5 werkdagen"]},
+                   en:{name:"Starter", shoot:"1 shoot day · 4 hrs on location", items:["8 edited reels (30–60 sec)","Vertical 9:16 format","Colour grade + music","Delivery within 5 working days"]} },
+    { price: 1250, hl:true,
+                   nl:{name:"Groei", shoot:"1–2 draaidagen · 6–8 uur on-location", items:["12 bewerkte reels (30–60 sec)","9:16 + 16:9 formaat","Kleurcorrectie + muziek + ondertiteling","Contentkalender op maat","Levering binnen 4 werkdagen"]},
+                   en:{name:"Growth", shoot:"1–2 shoot days · 6–8 hrs on location", items:["12 edited reels (30–60 sec)","9:16 + 16:9 formats","Colour grade + music + subtitles","Custom content calendar","Delivery within 4 working days"]} },
+    { price: 1650, nl:{name:"Pro", shoot:"2 draaidagen · 8–10 uur on-location", items:["16 bewerkte reels (30–60 sec)","Alle formats: 9:16 + 16:9","Kleurcorrectie + muziek + ondertiteling","Contentkalender + strategie advies","Prioriteit levering binnen 3 werkdagen"]},
+                   en:{name:"Pro", shoot:"2 shoot days · 8–10 hrs on location", items:["16 edited reels (30–60 sec)","All formats: 9:16 + 16:9","Colour grade + music + subtitles","Content calendar + strategy advice","Priority delivery within 3 working days"]} }
+  ],
+  editing: [
+    { price: 595,  nl:{name:"Editing 8",  items:["8 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 5 werkdagen"]},
+                   en:{name:"Editing 8",  items:["8 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 5 working days"]} },
+    { price: 850,  nl:{name:"Editing 12", items:["12 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 4 werkdagen"]},
+                   en:{name:"Editing 12", items:["12 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 4 working days"]} },
+    { price: 1100, nl:{name:"Editing 16", items:["16 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 3 werkdagen"]},
+                   en:{name:"Editing 16", items:["16 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 3 working days"]} }
+  ],
+  note: { nl:"Maandelijks opzegbaar na 2 maanden", en:"Cancel monthly after 2 months" },
+  perReel: { nl:"per reel", en:"per reel" },
+  addons: {
+    nl: [["Extra reel (losse toevoeging)","€125"],["Extra draaidag","€350"],["Ondertiteling (indien niet inbegrepen)","€15/reel"],["Opstartkosten (eenmalig)","€150"],["Reiskosten buiten Groningen","€0,35/km"]],
+    en: [["Extra reel (one-off)","€125"],["Extra shoot day","€350"],["Subtitles (if not included)","€15/reel"],["One-time onboarding","€150"],["Travel outside Groningen","€0.35/km"]]
+  }
+};
+const fmtEUR = n => n.toLocaleString('nl-NL');
+let shownPrice = 1250;
+
+function renderPricing(){
+  const card = document.getElementById('pkgCard');
+  if (!card) return;
+  const idx = Number(document.getElementById('reelRange').value);
+  const own = document.getElementById('ownFootage').checked;
+  const pkg = (own ? PRICING.editing : PRICING.full)[idx];
+  const t = pkg[lang];
+  const reels = PRICING.reels[idx];
+
+  card.classList.toggle('hl', !own && !!pkg.hl);
+  document.getElementById('pkgTcode').textContent = `0${idx+1}:00:00:00`;
+  document.getElementById('pkgName').textContent = t.name;
+  document.getElementById('pkgShoot').style.display = own ? 'none' : '';
+  if (!own) document.getElementById('pkgShoot').textContent = t.shoot;
+  document.getElementById('pkgList').innerHTML = t.items.map(i => `<li>${i}</li>`).join('');
+  document.getElementById('pkgPerReel').textContent = `€${Math.round(pkg.price/reels)} ${PRICING.perReel[lang]}`;
+  document.getElementById('pkgNote').textContent = PRICING.note[lang];
+  document.getElementById('addonList').innerHTML = PRICING.addons[lang].map(([n,p]) => `<div class="ao"><span>${n}</span><b>${p}</b></div>`).join('');
+  document.querySelectorAll('#cfgTicks span').forEach((el,i) => el.classList.toggle('on', i===idx));
+
+  // animate price
+  const el = document.getElementById('pkgPrice');
+  const from = shownPrice, to = pkg.price;
+  if (from !== to) {
+    const t0 = performance.now(), dur = 380;
+    (function tick(now){
+      const k = Math.min((now-t0)/dur, 1), e = 1-Math.pow(1-k,3);
+      el.textContent = fmtEUR(Math.round(from + (to-from)*e));
+      if (k<1) requestAnimationFrame(tick); else shownPrice = to;
+    })(t0);
+  } else el.textContent = fmtEUR(to);
+}
+document.getElementById('reelRange').addEventListener('input', renderPricing);
+document.getElementById('ownFootage').addEventListener('change', renderPricing);
+
+// CTA: prefill booking form, eased scroll handled by effects.js (anchor)
+document.getElementById('pkgCta').addEventListener('click', () => {
+  const idx = Number(document.getElementById('reelRange').value);
+  const own = document.getElementById('ownFootage').checked;
+  const pkg = (own ? PRICING.editing : PRICING.full)[idx];
+  const form = document.getElementById('bookingForm');
+  form.service.value = 'social';
+  form.details.value = (lang==='nl'
+    ? `Pakket: ${pkg[lang].name} — ${PRICING.reels[idx]} reels/maand (€${fmtEUR(pkg.price)} ex BTW${own ? ', editing only' : ''})`
+    : `Package: ${pkg[lang].name} — ${PRICING.reels[idx]} reels/month (€${fmtEUR(pkg.price)} ex VAT${own ? ', editing only' : ''})`);
+});
+renderPricing();
 
 applyLang();
 </script>
