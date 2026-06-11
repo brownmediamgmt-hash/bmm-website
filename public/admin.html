@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMM — Admin</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0B0B0D;--surface:#131316;--line:#232328;--paper:#ECE7DD;--muted:#9C958A;--amber:#E0A35C;
+  --body:'Instrument Sans',sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);font-size:15px;line-height:1.5;padding:24px;max-width:1100px;margin:0 auto}
+h1{font-family:var(--mono);font-size:16px;letter-spacing:.14em;margin-bottom:24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h1 .dot{width:8px;height:8px;border-radius:50%;background:var(--amber)}
+.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tabs button{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:9px 18px;
+  background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:3px;cursor:pointer}
+.tabs button.on{border-color:var(--amber);color:var(--amber)}
+.panel{display:none}.panel.on{display:block}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+select,input,textarea,button{font-family:var(--body);font-size:13px}
+select,input,textarea{background:var(--surface);border:1px solid var(--line);color:var(--paper);border-radius:3px;padding:8px 10px;width:100%}
+textarea{min-height:60px;resize:vertical}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--amber)}
+.btn{background:var(--amber);color:var(--ink);border:0;border-radius:3px;padding:10px 18px;font-weight:600;cursor:pointer;
+  font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.btn.ghost:hover{border-color:#c4554d;color:#e0837c}
+.login{max-width:360px;margin:18vh auto;display:grid;gap:12px}
+.badge{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:3px;border:1px solid var(--line)}
+.badge.new,.badge.pending{border-color:var(--amber);color:var(--amber)}
+.badge.confirmed,.badge.won{border-color:#7dbb7d;color:#7dbb7d}
+.badge.declined,.badge.lost{border-color:#c4554d;color:#e0837c}
+.badge.done,.badge.contacted{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.muted{color:var(--muted);font-size:12px}
+.err{color:#e0837c;font-family:var(--mono);font-size:12px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+.wrap{overflow-x:auto}
+label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:grid;gap:5px}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="login">
+  <h1><span class="dot"></span>BMM ADMIN</h1>
+  <label>Password<input type="password" id="pw" autocomplete="current-password"></label>
+  <div class="err" id="loginErr"></div>
+  <button class="btn" id="loginBtn">Log in</button>
+</div>
+
+<div id="appView" style="display:none">
+  <div class="topbar">
+    <h1><span class="dot"></span>BMM ADMIN</h1>
+    <button class="btn ghost" id="logoutBtn">Log out</button>
+  </div>
+  <div class="tabs">
+    <button data-t="bookings" class="on">Bookings</button>
+    <button data-t="leads">Leads</button>
+    <button data-t="portfolio">Portfolio</button>
+  </div>
+
+  <div class="panel on" id="p-bookings"><div class="wrap"><table>
+    <thead><tr><th>Date</th><th>Name</th><th>Contact</th><th>Service</th><th>Location / details</th><th>Status</th><th></th></tr></thead>
+    <tbody id="bookingsBody"></tbody>
+  </table></div></div>
+
+  <div class="panel" id="p-leads"><div class="wrap"><table>
+    <thead><tr><th>Received</th><th>Name</th><th>Contact</th><th>Company</th><th>Message</th><th>Status</th><th></th></tr></thead>
+    <tbody id="leadsBody"></tbody>
+  </table></div></div>
+
+  <div class="panel" id="p-portfolio">
+    <div class="card">
+      <strong style="font-family:var(--mono);font-size:12px;letter-spacing:.1em">ADD PROJECT</strong>
+      <div class="grid2" style="margin-top:12px">
+        <label>Title (EN)<input id="np_title_en"></label>
+        <label>Titel (NL)<input id="np_title_nl"></label>
+        <label>Category<select id="np_category">
+          <option value="business">Business</option><option value="social">Social</option><option value="brand-film">Brand film</option><option value="real-estate">Real estate</option>
+        </select></label>
+        <label>Client<input id="np_client"></label>
+        <label>Video URL (YouTube/Vimeo)<input id="np_video"></label>
+        <label>Thumbnail URL<input id="np_thumb"></label>
+        <label>Description (EN)<textarea id="np_desc_en"></textarea></label>
+        <label>Beschrijving (NL)<textarea id="np_desc_nl"></textarea></label>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+        <button class="btn" id="addProject">Add project</button>
+        <span class="err" id="addErr"></span>
+      </div>
+    </div>
+    <div id="portfolioList"></div>
+  </div>
+</div>
+
+<script>
+let token = sessionStorage.getItem('bmm_token') || '';
+const $ = id => document.getElementById(id);
+const api = (url, opts={}) => fetch(url, {...opts, headers:{'Content-Type':'application/json','Authorization':'Bearer '+token, ...(opts.headers||{})}})
+  .then(r => { if(r.status===401){ logout(); throw new Error('auth'); } return r.json(); });
+const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function show(loggedIn){
+  $('loginView').style.display = loggedIn ? 'none' : 'grid';
+  $('appView').style.display = loggedIn ? 'block' : 'none';
+  if (loggedIn) loadAll();
+}
+function logout(){ token=''; sessionStorage.removeItem('bmm_token'); show(false); }
+
+$('loginBtn').onclick = async () => {
+  $('loginErr').textContent = '';
+  const r = await fetch('/api/admin/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password: $('pw').value})});
+  if (!r.ok) { $('loginErr').textContent = 'Wrong password.'; return; }
+  token = (await r.json()).token; sessionStorage.setItem('bmm_token', token);
+  $('pw').value = ''; show(true);
+};
+$('pw').addEventListener('keydown', e => e.key==='Enter' && $('loginBtn').click());
+$('logoutBtn').onclick = () => { api('/api/admin/logout',{method:'POST'}).catch(()=>{}); logout(); };
+
+document.querySelector('.tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x===b));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'p-'+b.dataset.t));
+});
+
+const B_STATUSES = ['pending','confirmed','declined','done'];
+const L_STATUSES = ['new','contacted','won','lost'];
+
+function statusSelect(cur, list, id, kind){
+  return `<select data-kind="${kind}" data-id="${id}">` +
+    list.map(s => `<option ${s===cur?'selected':''}>${s}</option>`).join('') + '</select>';
+}
+
+async function loadBookings(){
+  const rows = await api('/api/admin/bookings');
+  $('bookingsBody').innerHTML = rows.map(r => `<tr>
+    <td><strong>${esc(r.preferred_date)}</strong><div class="muted">in: ${esc(r.created_at)}</div></td>
+    <td>${esc(r.name)}</td>
+    <td>${esc(r.email)}<div class="muted">${esc(r.phone||'')}</div></td>
+    <td>${esc(r.service)}</td>
+    <td>${esc(r.location||'')}<div class="muted">${esc(r.details||'')}</div></td>
+    <td>${statusSelect(r.status, B_STATUSES, r.id, 'bookings')}</td>
+    <td><button class="btn ghost" data-del="bookings" data-id="${r.id}">✕</button></td>
+  </tr>`).join('') || '<tr><td colspan="7" class="muted">No bookings yet.</td></tr>';
+}
+async function loadLeads(){
+  const rows = await api('/api/admin/leads');
+  $('leadsBody').innerHTML = rows.map(r => `<tr>
+    <td>${esc(r.created_at)}</td>
+    <td>${esc(r.name)}</td>
+    <td>${esc(r.email)}<div class="muted">${esc(r.phone||'')}</div></td>
+    <td>${esc(r.company||'')}</td>
+    <td>${esc(r.message||'')}</td>
+    <td>${statusSelect(r.status, L_STATUSES, r.id, 'leads')}</td>
+    <td><button class="btn ghost" data-del="leads" data-id="${r.id}">✕</button></td>
+  </tr>`).join('') || '<tr><td colspan="7" class="muted">No leads yet.</td></tr>';
+}
+async function loadPortfolio(){
+  const rows = await api('/api/admin/portfolio');
+  $('portfolioList').innerHTML = rows.map(r => `<div class="card" data-pid="${r.id}">
+    <div class="grid2">
+      <label>Title (EN)<input data-f="title_en" value="${esc(r.title_en)}"></label>
+      <label>Titel (NL)<input data-f="title_nl" value="${esc(r.title_nl)}"></label>
+      <label>Category<select data-f="category">
+        ${['business','social','brand-film','real-estate'].map(c=>`<option ${c===r.category?'selected':''}>${c}</option>`).join('')}
+      </select></label>
+      <label>Client<input data-f="client" value="${esc(r.client||'')}"></label>
+      <label>Video URL<input data-f="video_url" value="${esc(r.video_url||'')}"></label>
+      <label>Thumbnail URL<input data-f="thumb_url" value="${esc(r.thumb_url||'')}"></label>
+      <label>Description (EN)<textarea data-f="description_en">${esc(r.description_en||'')}</textarea></label>
+      <label>Beschrijving (NL)<textarea data-f="description_nl">${esc(r.description_nl||'')}</textarea></label>
+      <label>Sort order<input data-f="sort_order" type="number" value="${r.sort_order}"></label>
+      <label>Published<select data-f="published"><option value="1" ${r.published?'selected':''}>Yes</option><option value="0" ${r.published?'':'selected'}>No</option></select></label>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:10px">
+      <button class="btn" data-save="${r.id}">Save</button>
+      <button class="btn ghost" data-del="portfolio" data-id="${r.id}">Delete</button>
+    </div>
+  </div>`).join('') || '<p class="muted">No projects yet.</p>';
+}
+function loadAll(){ loadBookings(); loadLeads(); loadPortfolio(); }
+
+document.body.addEventListener('change', async e => {
+  const s = e.target.closest('select[data-kind]'); if(!s) return;
+  await api(`/api/admin/${s.dataset.kind}/${s.dataset.id}`, {method:'PATCH', body:JSON.stringify({status: s.value})});
+});
+document.body.addEventListener('click', async e => {
+  const del = e.target.closest('[data-del]');
+  if (del && confirm('Delete this item?')) {
+    await api(`/api/admin/${del.dataset.del}/${del.dataset.id}`, {method:'DELETE'});
+    loadAll(); return;
+  }
+  const save = e.target.closest('[data-save]');
+  if (save) {
+    const card = save.closest('.card'); const body = {};
+    card.querySelectorAll('[data-f]').forEach(el => body[el.dataset.f] = el.dataset.f==='published' || el.dataset.f==='sort_order' ? Number(el.value) : el.value);
+    await api(`/api/admin/portfolio/${save.dataset.save}`, {method:'PATCH', body:JSON.stringify(body)});
+    save.textContent = 'Saved ✓'; setTimeout(()=> save.textContent='Save', 1200);
+  }
+});
+$('addProject').onclick = async () => {
+  $('addErr').textContent = '';
+  const body = {
+    title_en: $('np_title_en').value, title_nl: $('np_title_nl').value, category: $('np_category').value,
+    client: $('np_client').value, video_url: $('np_video').value, thumb_url: $('np_thumb').value,
+    description_en: $('np_desc_en').value, description_nl: $('np_desc_nl').value
+  };
+  const r = await fetch('/api/admin/portfolio', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify(body)});
+  if (!r.ok) { $('addErr').textContent = 'Title (EN + NL) and category are required.'; return; }
+  ['np_title_en','np_title_nl','np_client','np_video','np_thumb','np_desc_en','np_desc_nl'].forEach(id => $(id).value='');
+  loadPortfolio();
+};
+
+show(!!token);
+if (token) api('/api/admin/bookings').catch(()=>{}); // validates token
+</script>
+</body>
+</html>
