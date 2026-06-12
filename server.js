@@ -74,6 +74,7 @@ db.exec(`
     description_nl TEXT,
     sort_order INTEGER DEFAULT 0,
     published INTEGER DEFAULT 1,
+    format TEXT DEFAULT 'horizontal',
     created_at TEXT DEFAULT (datetime('now'))
   );
   CREATE TABLE IF NOT EXISTS sessions (
@@ -83,6 +84,9 @@ db.exec(`
 `);
 
 // Seed portfolio with placeholders on first run
+// migratie: format-kolom (horizontal | vertical) voor bestaande databases
+try { db.exec("ALTER TABLE portfolio ADD COLUMN format TEXT DEFAULT 'horizontal'"); } catch (e) { /* bestaat al */ }
+
 const count = db.prepare('SELECT COUNT(*) AS c FROM portfolio').get().c;
 if (count === 0) {
   const seed = db.prepare(`INSERT INTO portfolio
@@ -212,11 +216,12 @@ app.post('/api/admin/portfolio', requireAuth, (req, res) => {
   const b = req.body || {};
   const t_en = clean(b.title_en, 200), t_nl = clean(b.title_nl, 200), cat = clean(b.category, 40);
   if (!t_en || !t_nl || !cat) return res.status(400).json({ error: 'title_en, title_nl, category required' });
+  const fmt = b.format === 'vertical' ? 'vertical' : 'horizontal';
   const r = db.prepare(`INSERT INTO portfolio
-    (title_en,title_nl,category,client,video_url,thumb_url,description_en,description_nl,sort_order,published)
-    VALUES (?,?,?,?,?,?,?,?,?,?)`)
+    (title_en,title_nl,category,client,video_url,thumb_url,description_en,description_nl,sort_order,published,format)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
     .run(t_en, t_nl, cat, clean(b.client, 160), clean(b.video_url, 500), clean(b.thumb_url, 500),
-         clean(b.description_en), clean(b.description_nl), Number(b.sort_order) || 0, b.published === 0 ? 0 : 1);
+         clean(b.description_en), clean(b.description_nl), Number(b.sort_order) || 0, b.published === 0 ? 0 : 1, fmt);
   res.json({ ok: true, id: Number(r.lastInsertRowid) });
 });
 app.patch('/api/admin/portfolio/:id', requireAuth, (req, res) => {
@@ -226,7 +231,7 @@ app.patch('/api/admin/portfolio/:id', requireAuth, (req, res) => {
   const b = req.body || {};
   db.prepare(`UPDATE portfolio SET
     title_en=?, title_nl=?, category=?, client=?, video_url=?, thumb_url=?,
-    description_en=?, description_nl=?, sort_order=?, published=? WHERE id=?`)
+    description_en=?, description_nl=?, sort_order=?, published=?, format=? WHERE id=?`)
     .run(
       clean(b.title_en, 200) || cur.title_en,
       clean(b.title_nl, 200) || cur.title_nl,
@@ -238,6 +243,7 @@ app.patch('/api/admin/portfolio/:id', requireAuth, (req, res) => {
       b.description_nl !== undefined ? clean(b.description_nl) : cur.description_nl,
       b.sort_order !== undefined ? Number(b.sort_order) || 0 : cur.sort_order,
       b.published !== undefined ? (b.published ? 1 : 0) : cur.published,
+      b.format === 'vertical' || b.format === 'horizontal' ? b.format : (cur.format || 'horizontal'),
       id
     );
   res.json({ ok: true });
