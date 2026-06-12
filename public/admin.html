@@ -84,6 +84,9 @@ label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:
         <label>Category<select id="np_category">
           <option value="business">Business</option><option value="social">Social</option><option value="brand-film">Brand film</option><option value="real-estate">Real estate</option>
         </select></label>
+        <label>Formaat<select id="np_format">
+          <option value="horizontal">Horizontaal (16:9)</option><option value="vertical">Verticaal (9:16 / reel)</option>
+        </select></label>
         <label>Client<input id="np_client"></label>
         <label>Video URL (YouTube/Vimeo)<input id="np_video"></label>
         <label>Thumbnail URL<input id="np_thumb"></label>
@@ -170,6 +173,10 @@ async function loadPortfolio(){
       <label>Category<select data-f="category">
         ${['business','social','brand-film','real-estate'].map(c=>`<option ${c===r.category?'selected':''}>${c}</option>`).join('')}
       </select></label>
+      <label>Formaat<select data-f="format">
+        <option value="horizontal" ${(r.format||'horizontal')==='horizontal'?'selected':''}>Horizontaal (16:9)</option>
+        <option value="vertical" ${r.format==='vertical'?'selected':''}>Verticaal (9:16 / reel)</option>
+      </select></label>
       <label>Client<input data-f="client" value="${esc(r.client||'')}"></label>
       <label>Video URL<input data-f="video_url" value="${esc(r.video_url||'')}"></label>
       <label>Thumbnail URL<input data-f="thumb_url" value="${esc(r.thumb_url||'')}"></label>
@@ -207,7 +214,7 @@ document.body.addEventListener('click', async e => {
 $('addProject').onclick = async () => {
   $('addErr').textContent = '';
   const body = {
-    title_en: $('np_title_en').value, title_nl: $('np_title_nl').value, category: $('np_category').value,
+    title_en: $('np_title_en').value, title_nl: $('np_title_nl').value, category: $('np_category').value, format: $('np_format').value,
     client: $('np_client').value, video_url: $('np_video').value, thumb_url: $('np_thumb').value,
     description_en: $('np_desc_en').value, description_nl: $('np_desc_nl').value
   };
