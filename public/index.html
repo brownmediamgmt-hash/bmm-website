@@ -118,6 +118,21 @@ h2{font-family:var(--display);font-variation-settings:'wdth' 115;font-weight:800
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow:hidden;transition:border-color .25s,transform .25s;position:relative;box-shadow:0 1px 2px rgba(26,23,18,.04)}
 .card:hover{border-color:var(--amber-dim);transform:translateY(-3px)}
+.frame.v{aspect-ratio:9/16;max-height:480px;margin:0 auto;width:auto}
+.card.v .frame{background:#000}
+.playbtn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;background:linear-gradient(transparent 55%,rgba(0,0,0,.45));transition:background .25s}
+.playbtn:hover{background:linear-gradient(transparent 40%,rgba(0,0,0,.55))}
+.playbtn .pb{width:54px;height:54px;border-radius:50%;background:rgba(244,239,229,.92);display:flex;align-items:center;justify-content:center;transition:transform .2s;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.playbtn:hover .pb{transform:scale(1.08)}
+.playbtn .pb::after{content:"";display:block;width:0;height:0;border-left:16px solid var(--amber);border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:4px}
+#lightbox{position:fixed;inset:0;z-index:200;background:rgba(10,9,7,.96);display:none;align-items:center;justify-content:center}
+#lightbox.open{display:flex}
+#lightbox .lb-frame{position:relative;background:#000}
+#lightbox .lb-frame.h{width:min(92vw,calc(92vh*1.7778));aspect-ratio:16/9}
+#lightbox .lb-frame.v{height:92vh;aspect-ratio:9/16;max-width:92vw}
+#lightbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#lbClose{position:absolute;top:18px;right:22px;z-index:210;background:none;border:1px solid rgba(244,239,229,.35);color:#F4EFE5;width:42px;height:42px;border-radius:50%;font-size:18px;cursor:pointer;font-family:var(--mono);transition:border-color .2s,transform .2s}
+#lbClose:hover{border-color:var(--amber);transform:rotate(90deg)}
 .frame.tall{aspect-ratio:4/5;background:#FBF8F1}
 .frame.tall::before,.frame.tall::after{display:none}
 .frame{aspect-ratio:2.39/1;background:#000;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -428,6 +443,11 @@ footer a:hover{color:var(--amber)}
   <p class="lede" style="margin-bottom:0" data-i18n="regio_p2">Werkgebied: stad Groningen (reiskosten gratis), provincie Groningen, Drenthe en Friesland. Producties in de rest van Nederland en Engelstalige producties voor internationale klanten op aanvraag.</p>
 </section>
 
+<div id="lightbox" role="dialog" aria-modal="true">
+  <button id="lbClose" aria-label="Sluiten">&#10005;</button>
+  <div class="lb-frame h" id="lbFrame"></div>
+</div>
+
 <footer>
   <span>© 2026 BROWN MEDIA MANAGEMENT</span>
   <a href="https://instagram.com/brownmediamgmt" target="_blank" rel="noopener">@BROWNMEDIAMGMT</a>
@@ -549,26 +569,46 @@ toggle.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.
 let PORTFOLIO = [], filter = 'all';
 const catKey = {'business':'f_biz','real-estate':'f_re','social':'f_social','brand-film':'f_brand'};
 
-function embedUrl(u){
+function videoInfo(u){
   if(!u) return null;
   try{
     const url = new URL(u);
-    if (url.hostname.includes('youtu.be')) return { src: 'https://www.youtube.com/embed/' + url.pathname.slice(1) };
-    if (url.hostname.includes('youtube.com')) {
-      const id = url.searchParams.get('v'); if (id) return { src: 'https://www.youtube.com/embed/' + id };
-      if (url.pathname.startsWith('/embed/')) return { src: u };
+    let id;
+    if (url.hostname.includes('youtu.be')) id = url.pathname.slice(1).split('/')[0];
+    else if (url.hostname.includes('youtube.com')) {
+      id = url.searchParams.get('v');
+      if (!id && url.pathname.startsWith('/embed/')) id = url.pathname.split('/')[2];
+      if (!id && url.pathname.startsWith('/shorts/')) id = url.pathname.split('/')[2];
     }
+    if (id) return {
+      type: 'youtube',
+      play: `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`,
+      thumb: `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
+      thumbFallback: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
+    };
     if (url.hostname.includes('vimeo.com')) {
-      const id = url.pathname.split('/').filter(Boolean)[0];
-      if (/^\d+$/.test(id)) return { src: 'https://player.vimeo.com/video/' + id };
+      const vid = url.pathname.split('/').filter(Boolean)[0];
+      if (/^\d+$/.test(vid)) return {
+        type: 'vimeo', vid,
+        play: `https://player.vimeo.com/video/${vid}?autoplay=1&title=0&byline=0&portrait=0&dnt=1&quality=1080p`
+      };
     }
     if (url.hostname.includes('instagram.com')) {
-      // instagram.com/reel/CODE/ or /p/CODE/ or /tv/CODE/ → embed endpoint, vertical frame
       const m = url.pathname.match(/^\/(reel|p|tv)\/([A-Za-z0-9_-]+)/);
-      if (m) return { src: 'https://www.instagram.com/' + m[1] + '/' + m[2] + '/embed/', tall: true };
+      if (m) return { type: 'instagram', src: `https://www.instagram.com/${m[1]}/${m[2]}/embed/`, tall: true };
     }
   }catch(e){}
   return null;
+}
+
+// Vimeo thumbnails via oEmbed (geen API key nodig); cache per video-id
+const vimeoThumbs = {};
+function loadVimeoThumb(vid, imgEl){
+  if (vimeoThumbs[vid]) { imgEl.src = vimeoThumbs[vid]; return; }
+  fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${vid}&width=960`)
+    .then(r => r.json())
+    .then(d => { if (d.thumbnail_url) { vimeoThumbs[vid] = d.thumbnail_url; imgEl.style.visibility = ''; imgEl.src = d.thumbnail_url; } })
+    .catch(()=>{});
 }
 
 function renderWork(){
@@ -577,13 +617,27 @@ function renderWork(){
   grid.innerHTML = items.map(p => {
     const title = lang==='nl' ? p.title_nl : p.title_en;
     const desc = lang==='nl' ? (p.description_nl||'') : (p.description_en||'');
-    const emb = embedUrl(p.video_url);
-    const media = emb
-      ? `<iframe src="${emb.src}" loading="lazy" allowfullscreen scrolling="no" title="${title}"></iframe>`
-      : p.thumb_url ? `<img src="${p.thumb_url}" alt="${title}" loading="lazy">`
-      : `<span class="empty">${I18N[lang].no_video}</span>`;
-    return `<article class="card reveal in">
-      <div class="frame${emb && emb.tall ? ' tall' : ''}">${media}</div>
+    const v = videoInfo(p.video_url);
+    const isVert = p.format === 'vertical' || (v && v.tall);
+    let media;
+    if (v && v.type === 'instagram') {
+      media = `<iframe src="${v.src}" loading="lazy" allowfullscreen scrolling="no" title="${title}"></iframe>`;
+    } else if (v) {
+      const BLANK = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E';
+      const thumb = p.thumb_url || v.thumb || '';
+      const dataVimeo = v.type === 'vimeo' && !p.thumb_url ? ` data-vimeo="${v.vid}"` : '';
+      const fb = v.thumbFallback
+        ? ` onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='${v.thumbFallback}'}else{this.style.visibility='hidden'}"`
+        : ` onerror="this.style.visibility='hidden'"`;
+      media = `<img src="${thumb || BLANK}" alt="${title}" loading="lazy"${dataVimeo}${fb}>
+        <div class="playbtn" data-play="${encodeURIComponent(v.play)}" data-orient="${isVert ? 'v' : 'h'}" role="button" aria-label="Speel ${title}" tabindex="0"><span class="pb"></span></div>`;
+    } else if (p.thumb_url) {
+      media = `<img src="${p.thumb_url}" alt="${title}" loading="lazy">`;
+    } else {
+      media = `<span class="empty">${I18N[lang].no_video}</span>`;
+    }
+    return `<article class="card reveal in${isVert ? ' v' : ''}">
+      <div class="frame${v && v.type === 'instagram' ? ' tall' : ''}${isVert && !(v && v.type === 'instagram') ? ' v' : ''}">${media}</div>
       <div class="meta">
         <span class="cat">${I18N[lang][catKey[p.category]] || p.category}</span>
         <h3>${title}</h3>
@@ -591,6 +645,7 @@ function renderWork(){
         ${p.client ? `<div class="client">CLIENT — ${p.client.toUpperCase()}</div>` : ''}
       </div></article>`;
   }).join('') || `<p style="color:var(--muted);font-family:var(--mono);font-size:13px">—</p>`;
+  grid.querySelectorAll('img[data-vimeo]').forEach(img => loadVimeoThumb(img.dataset.vimeo, img));
 }
 
 document.getElementById('filters').addEventListener('click', e => {
@@ -627,6 +682,37 @@ if (dateInput) dateInput.min = new Date().toISOString().slice(0,10);
 const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), {threshold:.15});
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
+
+
+/* ---------- fullscreen lightbox ---------- */
+const lb = document.getElementById('lightbox');
+const lbFrame = document.getElementById('lbFrame');
+function openLightbox(src, orient){
+  lbFrame.className = 'lb-frame ' + (orient === 'v' ? 'v' : 'h');
+  lbFrame.innerHTML = `<iframe src="${src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (lb.requestFullscreen) lb.requestFullscreen().catch(()=>{});
+}
+function closeLightbox(){
+  lb.classList.remove('open');
+  lbFrame.innerHTML = '';
+  document.body.style.overflow = '';
+  if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+}
+document.getElementById('workGrid').addEventListener('click', e => {
+  const btn = e.target.closest('[data-play]');
+  if (!btn) return;
+  openLightbox(decodeURIComponent(btn.dataset.play), btn.dataset.orient);
+});
+document.getElementById('workGrid').addEventListener('keydown', e => {
+  const btn = e.target.closest('[data-play]');
+  if (btn && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openLightbox(decodeURIComponent(btn.dataset.play), btn.dataset.orient); }
+});
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+lb.addEventListener('click', e => { if (e.target === lb) closeLightbox(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && lb.classList.contains('open')) closeLightbox(); });
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && lb.classList.contains('open')) {} });
 
 /* ---------- pricing configurator ---------- */
 const PRICING = {
