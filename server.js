@@ -10,33 +10,35 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const USE_PG = !!process.env.DATABASE_URL;
 
 // --- Email notifications (optional) ---
-let mailer = null;
-if (process.env.SMTP_HOST && process.env.NOTIFY_EMAIL) {
-  // Render's network can't route IPv6. Force Node to prefer IPv4 for all DNS
-  // lookups so the SMTP connection resolves to TransIP's IPv4 address.
-  try { require('dns').setDefaultResultOrder('ipv4first'); } catch (e) {}
-  const nodemailer = require('nodemailer');
-  const dns = require('dns').promises;
-  mailer = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: Number(process.env.SMTP_PORT) === 465,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    family: 4,
-    // explicitly resolve to IPv4 before connecting, bypassing IPv6 entirely
-    dnsTimeout: 10000,
-  });
-}
+// Email notifications via Resend HTTP API (works on Render where SMTP is blocked).
+// Set RESEND_API_KEY and NOTIFY_EMAIL env vars to enable.
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL;
+// Sender must be on a Resend-verified domain. brown-media.nl is verified.
+const NOTIFY_FROM = process.env.NOTIFY_FROM || 'Brown Media Management <info@brown-media.nl>';
+
 async function notify(subject, lines) {
-  if (!mailer) return;
+  if (!RESEND_API_KEY || !NOTIFY_EMAIL) return;
   try {
-    await mailer.sendMail({
-      from: `"BMM Website" <${process.env.SMTP_USER}>`,
-      to: process.env.NOTIFY_EMAIL,
-      subject,
-      text: lines.filter(Boolean).join('\n'),
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: NOTIFY_FROM,
+        to: [NOTIFY_EMAIL],
+        subject,
+        text: lines.filter(Boolean).join('\n'),
+      }),
     });
-    console.log('Email notify sent:', subject);
+    if (res.ok) {
+      console.log('Email notify sent:', subject);
+    } else {
+      const body = await res.text();
+      console.error('Email notify failed:', res.status, body.slice(0, 300));
+    }
   } catch (err) {
     console.error('Email notify failed:', err.message);
   }
