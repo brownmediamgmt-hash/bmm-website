@@ -12,23 +12,34 @@ const USE_PG = !!process.env.DATABASE_URL;
 // --- Email notifications (optional) ---
 let mailer = null;
 if (process.env.SMTP_HOST && process.env.NOTIFY_EMAIL) {
+  // Render's network can't route IPv6. Force Node to prefer IPv4 for all DNS
+  // lookups so the SMTP connection resolves to TransIP's IPv4 address.
+  try { require('dns').setDefaultResultOrder('ipv4first'); } catch (e) {}
   const nodemailer = require('nodemailer');
+  const dns = require('dns').promises;
   mailer = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT) || 587,
     secure: Number(process.env.SMTP_PORT) === 465,
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    family: 4, // force IPv4 — Render can't route IPv6 to TransIP's mail server
+    family: 4,
+    // explicitly resolve to IPv4 before connecting, bypassing IPv6 entirely
+    dnsTimeout: 10000,
   });
 }
-function notify(subject, lines) {
+async function notify(subject, lines) {
   if (!mailer) return;
-  mailer.sendMail({
-    from: `"BMM Website" <${process.env.SMTP_USER}>`,
-    to: process.env.NOTIFY_EMAIL,
-    subject,
-    text: lines.filter(Boolean).join('\n'),
-  }).catch(err => console.error('Email notify failed:', err.message));
+  try {
+    await mailer.sendMail({
+      from: `"BMM Website" <${process.env.SMTP_USER}>`,
+      to: process.env.NOTIFY_EMAIL,
+      subject,
+      text: lines.filter(Boolean).join('\n'),
+    });
+    console.log('Email notify sent:', subject);
+  } catch (err) {
+    console.error('Email notify failed:', err.message);
+  }
 }
 
 // ============================================================
