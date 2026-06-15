@@ -217,6 +217,22 @@ h2{font-family:var(--display);font-variation-settings:'wdth' 115;font-weight:800
 .cfg-perreel{font-family:var(--mono);font-size:12px;color:var(--amber);border:1px solid var(--amber-dim);border-radius:20px;padding:5px 14px}
 .cfg-note{font-family:var(--mono);font-size:11px;color:var(--muted);font-style:italic}
 .cfg-cta{width:100%;justify-content:center}
+/* losse short-form — compact, visually lighter than the monthly package */
+.sf-sep{border:none;border-top:1px solid var(--line);margin:54px 0 0}
+.sf-head{margin-top:40px;margin-bottom:6px;font-family:var(--display);font-variation-settings:'wdth' 112;font-weight:700;font-size:22px;text-transform:uppercase;letter-spacing:.01em;color:var(--paper)}
+.sf-sub{font-family:var(--body);font-size:14px;color:var(--muted);margin-bottom:26px}
+.sf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:760px){.sf-grid{grid-template-columns:1fr}}
+.sf-card{border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:22px 22px 24px;display:flex;flex-direction:column;transition:border-color .25s}
+.sf-card:hover{border-color:var(--amber-dim)}
+.sf-name{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
+.sf-len{font-family:var(--body);font-size:14px;color:var(--muted);margin-bottom:16px}
+.sf-price{font-family:var(--display);font-variation-settings:'wdth' 110;font-weight:850;font-size:34px;letter-spacing:-.02em;line-height:1;color:var(--paper);margin-bottom:4px}
+.sf-price .c{font-family:var(--mono);font-size:13px;color:var(--muted);vertical-align:super;font-weight:400}
+.sf-unit{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:20px}
+.sf-cta{margin-top:auto;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);border:1px solid var(--line);border-radius:3px;padding:11px 0;text-align:center;text-decoration:none;cursor:pointer;transition:border-color .2s,color .2s}
+.sf-cta:hover{border-color:var(--amber);color:var(--amber)}
+.sf-foot{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:18px;letter-spacing:.04em}
 .form-wrap{display:grid;grid-template-columns:1fr 1fr;gap:64px}
 @media(max-width:900px){.form-wrap{grid-template-columns:1fr}}
 form{display:grid;gap:14px}
@@ -340,12 +356,12 @@ footer a:hover{color:var(--amber)}
 <section id="pricing">
   <div class="tc" data-i18n="tc_pr">SCENE 04 — PRIJZEN</div>
   <h2 data-i18n="pr_h2">Stel je pakket samen</h2>
-  <p class="lede" data-i18n="pr_lede">Short form content voor Instagram & TikTok — filmen, editen en leveren. Schuif, kies, klaar.</p>
+  <p class="lede" data-i18n="pr_lede">Short-form video voor social media — filmen, editen en leveren. Schuif, kies, klaar.</p>
   <div class="config">
     <div class="cfg-controls">
-      <span class="cfg-q" data-i18n="pr_q">Hoeveel reels per maand?</span>
+      <span class="cfg-q" data-i18n="pr_q">Hoeveel video's per maand?</span>
       <div class="cfg-slider">
-        <input type="range" id="reelRange" min="0" max="2" step="1" value="1" aria-label="Aantal reels per maand">
+        <input type="range" id="reelRange" min="0" max="2" step="1" value="1" aria-label="Aantal video's per maand">
         <div class="cfg-ticks" id="cfgTicks"><span>8</span><span class="on">12</span><span>16</span></div>
       </div>
       <label class="cfg-toggle">
@@ -372,6 +388,41 @@ footer a:hover{color:var(--amber)}
       </div>
       <a class="btn solid cfg-cta" href="#booking" id="pkgCta" data-i18n="pr_cta">Plan dit pakket</a>
     </div>
+  </div>
+
+  <hr class="sf-sep">
+  <h3 class="sf-head" data-i18n="sf_head">Short-form video — losse projecten</h3>
+  <p class="sf-sub" data-i18n="sf_sub">Liever geen abonnement? Bestel losse short-form video's voor social media en web.</p>
+  <div class="sf-grid">
+    <div class="sf-card">
+      <div class="sf-name" data-i18n="sf_n1">Compact</div>
+      <div class="sf-len" data-i18n="sf_l1">tot 30 seconden</div>
+      <div class="sf-price"><span class="c">€</span>200</div>
+      <div class="sf-unit" data-i18n="sf_unit">eenmalig · ex BTW</div>
+      <a class="sf-cta" href="#booking" data-sf="Compact" data-len="tot 30 sec" data-price="200" data-i18n="sf_cta">Plan dit</a>
+    </div>
+    <div class="sf-card">
+      <div class="sf-name" data-i18n="sf_n2">Standaard</div>
+      <div class="sf-len" data-i18n="sf_l2">30–60 seconden</div>
+      <div class="sf-price"><span class="c">€</span>325</div>
+      <div class="sf-unit" data-i18n="sf_unit">eenmalig · ex BTW</div>
+      <a class="sf-cta" href="#booking" data-sf="Standaard" data-len="30–60 sec" data-price="325" data-i18n="sf_cta">Plan dit</a>
+    </div>
+    <div class="sf-card">
+      <div class="sf-name" data-i18n="sf_n3">Premium</div>
+      <div class="sf-len" data-i18n="sf_l3">60–90 seconden</div>
+      <div class="sf-price"><span class="c">€</span>475</div>
+      <div class="sf-unit" data-i18n="sf_unit">eenmalig · ex BTW</div>
+      <a class="sf-cta" href="#booking" data-sf="Premium" data-len="60–90 sec" data-price="475" data-i18n="sf_cta">Plan dit</a>
+    </div>
+  </div>
+  <p class="sf-foot" data-i18n="sf_foot">Langer dan 90 sec of meerdere draaidagen → op aanvraag · 1 revisieronde inbegrepen · extra revisie +€95 · drone +€250</p>
+
+  <div class="faq" style="margin-top:40px">
+    <details><summary data-i18n="sfq1">Wat valt er onder short-form video?</summary><p data-i18n="sfa1">Korte, verticale video's tot 90 seconden, gemaakt voor social media en web — denk aan Instagram, TikTok, LinkedIn en YouTube Shorts. Alles tot 30 seconden valt onder Compact; daarboven Standaard en Premium.</p></details>
+    <details><summary data-i18n="sfq2">Wat zit er bij de prijs inbegrepen?</summary><p data-i18n="sfa2">Filmen op één locatie, montage, ondertiteling, muziek en één revisieronde — geleverd in verticaal formaat (9:16), klaar om te plaatsen. Premium bevat daarnaast meer scènes, motion graphics en kleurgrading.</p></details>
+    <details><summary data-i18n="sfq3">Hoe snel heb ik mijn video?</summary><p data-i18n="sfa3">Losse short-form video's lever ik doorgaans binnen 7 tot 10 werkdagen na de draaidag. Spoedlevering is in overleg mogelijk.</p></details>
+    <details><summary data-i18n="sfq4">Wat als ik er meerdere per maand nodig heb?</summary><p data-i18n="sfa4">Dan ben je vaak goedkoper uit met een maandpakket hierboven — daar betaal je per video aanzienlijk minder. Losse projecten zijn ideaal voor een eenmalige of incidentele video.</p></details>
   </div>
 </section>
 
@@ -481,8 +532,8 @@ const I18N = {
     p4_h:"Resultaat", p4_p:"Video's gemaakt om te converteren: meer aanvragen, meer zichtbaarheid, meer klanten.",
     nav_pricing:"Prijzen",
     tc_pr:"SCENE 04 — PRIJZEN", pr_h2:"Stel je pakket samen",
-    pr_lede:"Short form content voor Instagram & TikTok — filmen, editen en leveren. Schuif, kies, klaar.",
-    pr_q:"Hoeveel reels per maand?", pr_own:"Ik lever eigen beelden aan — alleen editing",
+    pr_lede:"Short-form video voor social media — filmen, editen en leveren. Schuif, kies, klaar.",
+    pr_q:"Hoeveel video's per maand?", pr_own:"Ik lever eigen beelden aan — alleen editing",
     pr_addons:"Add-ons", pr_unit:"ex BTW / maand", pr_badge:"★ Meest gekozen", pr_cta:"Plan dit pakket",
     pr_foot:"Alle prijzen ex 21% BTW · Maandelijks opzegbaar na 2 maanden · Reiskosten binnen Groningen gratis, daarbuiten €0,35/km · Maatwerk altijd bespreekbaar",
     book_h2:"Plan een gesprek", book_lede:"Kies een dienst en voorkeursdatum — ik reageer binnen 24 uur.",
@@ -495,6 +546,14 @@ const I18N = {
     q2:"Werken jullie alleen in Groningen?", a2:"Brown Media Management is gevestigd in Groningen en werkt door heel Nederland. Engelstalige producties voor internationale klanten zijn ook mogelijk.",
     q3:"Hoe snel wordt mijn video opgeleverd?", a3:"Social media content lever ik doorgaans binnen één tot twee weken na de draaidag. Grotere producties zoals bedrijfsvideo's en brand films binnen twee tot drie weken.",
     q4:"Wat maakt een video die converteert?", a4:"Een sterke hook in de eerste seconden, een verhaal dat vertrouwen opbouwt, een duidelijke call-to-action en optimalisatie per platform. Elke productie wordt met dat doel gemaakt.",
+    sf_head:"Short-form video — losse projecten", sf_sub:"Liever geen abonnement? Bestel losse short-form video's voor social media en web.",
+    sf_n1:"Compact", sf_l1:"tot 30 seconden", sf_n2:"Standaard", sf_l2:"30–60 seconden", sf_n3:"Premium", sf_l3:"60–90 seconden",
+    sf_unit:"eenmalig · ex BTW", sf_cta:"Plan dit",
+    sf_foot:"Langer dan 90 sec of meerdere draaidagen → op aanvraag · 1 revisieronde inbegrepen · extra revisie +€95 · drone +€250",
+    sfq1:"Wat valt er onder short-form video?", sfa1:"Korte, verticale video's tot 90 seconden, gemaakt voor social media en web — denk aan Instagram, TikTok, LinkedIn en YouTube Shorts. Alles tot 30 seconden valt onder Compact; daarboven Standaard en Premium.",
+    sfq2:"Wat zit er bij de prijs inbegrepen?", sfa2:"Filmen op één locatie, montage, ondertiteling, muziek en één revisieronde — geleverd in verticaal formaat (9:16), klaar om te plaatsen. Premium bevat daarnaast meer scènes, motion graphics en kleurgrading.",
+    sfq3:"Hoe snel heb ik mijn video?", sfa3:"Losse short-form video's lever ik doorgaans binnen 7 tot 10 werkdagen na de draaidag. Spoedlevering is in overleg mogelijk.",
+    sfq4:"Wat als ik er meerdere per maand nodig heb?", sfa4:"Dan ben je vaak goedkoper uit met een maandpakket hierboven — daar betaal je per video aanzienlijk minder. Losse projecten zijn ideaal voor een eenmalige of incidentele video.",
     tc_regio:"SCENE 07 — REGIO", regio_h2:"Videograaf in Groningen",
     regio_p1:"Brown Media Management is een videoproductiebedrijf gevestigd in Groningen. Ik film bedrijfsvideo's, social media content en brand films voor ondernemers in de stad en de hele provincie — van Haren tot Winschoten en van Assen tot Leeuwarden. Door lokaal te werken zijn de lijnen kort: vandaag contact, deze week op locatie.",
     regio_p2:"Werkgebied: stad Groningen (reiskosten gratis), provincie Groningen, Drenthe en Friesland. Producties in de rest van Nederland en Engelstalige producties voor internationale klanten op aanvraag.",
@@ -525,8 +584,8 @@ const I18N = {
     p4_h:"Results", p4_p:"Videos built to convert: more enquiries, more visibility, more customers.",
     nav_pricing:"Pricing",
     tc_pr:"SCENE 04 — PRICING", pr_h2:"Build your package",
-    pr_lede:"Short form content for Instagram & TikTok — filmed, edited and delivered. Slide, pick, done.",
-    pr_q:"How many reels per month?", pr_own:"I supply my own footage — editing only",
+    pr_lede:"Short-form video for social media — filmed, edited and delivered. Slide, pick, done.",
+    pr_q:"How many videos per month?", pr_own:"I supply my own footage — editing only",
     pr_addons:"Add-ons", pr_unit:"ex VAT / month", pr_badge:"★ Most chosen", pr_cta:"Book this package",
     pr_foot:"All prices ex 21% VAT · Cancel monthly after 2 months · Travel free within Groningen, beyond €0.35/km · Custom plans always possible",
     book_h2:"Book a call", book_lede:"Pick a service and preferred date — I respond within 24 hours.",
@@ -539,6 +598,14 @@ const I18N = {
     q2:"Do you only work in Groningen?", a2:"Brown Media Management is based in Groningen and works across the Netherlands. English-language productions for international clients are available too.",
     q3:"How fast is my video delivered?", a3:"Social media content is typically delivered within one to two weeks after the shoot. Larger productions like corporate videos and brand films within two to three weeks.",
     q4:"What makes a video convert?", a4:"A strong hook in the first seconds, a story that builds trust, a clear call-to-action and platform-specific optimisation. Every production is made with that goal.",
+    sf_head:"Short-form video — one-off projects", sf_sub:"Prefer no subscription? Order individual short-form videos for social media and web.",
+    sf_n1:"Compact", sf_l1:"up to 30 seconds", sf_n2:"Standard", sf_l2:"30–60 seconds", sf_n3:"Premium", sf_l3:"60–90 seconds",
+    sf_unit:"one-off · ex VAT", sf_cta:"Book this",
+    sf_foot:"Longer than 90 sec or multiple shoot days → on request · 1 revision round included · extra revision +€95 · drone +€250",
+    sfq1:"What counts as short-form video?", sfa1:"Short, vertical videos up to 90 seconds, made for social media and web — think Instagram, TikTok, LinkedIn and YouTube Shorts. Anything up to 30 seconds is Compact; above that, Standard and Premium.",
+    sfq2:"What's included in the price?", sfa2:"Filming at one location, editing, subtitles, music and one revision round — delivered in vertical format (9:16), ready to post. Premium also includes more scenes, motion graphics and colour grading.",
+    sfq3:"How fast will I get my video?", sfa3:"One-off short-form videos are usually delivered within 7 to 10 working days after the shoot. Rush delivery is possible on request.",
+    sfq4:"What if I need several per month?", sfa4:"Then a monthly package above is often cheaper — you pay considerably less per video. One-off projects are ideal for a single or occasional video.",
     tc_regio:"SCENE 07 — REGION", regio_h2:"Videographer in Groningen",
     regio_p1:"Brown Media Management is a video production company based in Groningen, the Netherlands. I film corporate videos, social media content and brand films for businesses across the city and province — from Haren to Winschoten and from Assen to Leeuwarden. Working locally keeps things fast: reach out today, on location this week.",
     regio_p2:"Service area: city of Groningen (no travel costs), province of Groningen, Drenthe and Friesland. Productions across the rest of the Netherlands and English-language productions for international clients on request.",
@@ -718,27 +785,27 @@ document.addEventListener('fullscreenchange', () => { if (!document.fullscreenEl
 const PRICING = {
   reels: [8, 12, 16],
   full: [
-    { price: 895,  nl:{name:"Starter", shoot:"1 draaidag · 4 uur on-location", items:["8 bewerkte reels (30–60 sec)","Vertical format 9:16","Kleurcorrectie + muziek","Levering binnen 7–10 werkdagen"]},
-                   en:{name:"Starter", shoot:"1 shoot day · 4 hrs on location", items:["8 edited reels (30–60 sec)","Vertical 9:16 format","Colour grade + music","Delivery within 7–10 working days"]} },
+    { price: 895,  nl:{name:"Starter", shoot:"1 draaidag · 4 uur on-location", items:["8 bewerkte video's (30–60 sec)","Vertical format 9:16","Kleurcorrectie + muziek","Levering binnen 7–10 werkdagen"]},
+                   en:{name:"Starter", shoot:"1 shoot day · 4 hrs on location", items:["8 edited videos (30–60 sec)","Vertical 9:16 format","Colour grade + music","Delivery within 7–10 working days"]} },
     { price: 1250, hl:true,
-                   nl:{name:"Groei", shoot:"1–2 draaidagen · 6–8 uur on-location", items:["12 bewerkte reels (30–60 sec)","9:16 + 16:9 formaat","Kleurcorrectie + muziek + ondertiteling","Contentkalender op maat","Levering binnen 10–14 werkdagen"]},
-                   en:{name:"Growth", shoot:"1–2 shoot days · 6–8 hrs on location", items:["12 edited reels (30–60 sec)","9:16 + 16:9 formats","Colour grade + music + subtitles","Custom content calendar","Delivery within 10–14 working days"]} },
-    { price: 1650, nl:{name:"Pro", shoot:"2 draaidagen · 8–10 uur on-location", items:["16 bewerkte reels (30–60 sec)","Alle formats: 9:16 + 16:9","Kleurcorrectie + muziek + ondertiteling","Contentkalender + strategie advies","Levering binnen 10–14 werkdagen (prioriteit)"]},
-                   en:{name:"Pro", shoot:"2 shoot days · 8–10 hrs on location", items:["16 edited reels (30–60 sec)","All formats: 9:16 + 16:9","Colour grade + music + subtitles","Content calendar + strategy advice","Delivery within 10–14 working days (priority)"]} }
+                   nl:{name:"Groei", shoot:"1–2 draaidagen · 6–8 uur on-location", items:["12 bewerkte video's (30–60 sec)","9:16 + 16:9 formaat","Kleurcorrectie + muziek + ondertiteling","Contentkalender op maat","Levering binnen 10–14 werkdagen"]},
+                   en:{name:"Growth", shoot:"1–2 shoot days · 6–8 hrs on location", items:["12 edited videos (30–60 sec)","9:16 + 16:9 formats","Colour grade + music + subtitles","Custom content calendar","Delivery within 10–14 working days"]} },
+    { price: 1650, nl:{name:"Pro", shoot:"2 draaidagen · 8–10 uur on-location", items:["16 bewerkte video's (30–60 sec)","Alle formats: 9:16 + 16:9","Kleurcorrectie + muziek + ondertiteling","Contentkalender + strategie advies","Levering binnen 10–14 werkdagen (prioriteit)"]},
+                   en:{name:"Pro", shoot:"2 shoot days · 8–10 hrs on location", items:["16 edited videos (30–60 sec)","All formats: 9:16 + 16:9","Colour grade + music + subtitles","Content calendar + strategy advice","Delivery within 10–14 working days (priority)"]} }
   ],
   editing: [
-    { price: 595,  nl:{name:"Editing 8",  items:["8 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 7–10 werkdagen"]},
-                   en:{name:"Editing 8",  items:["8 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 7–10 working days"]} },
-    { price: 850,  nl:{name:"Editing 12", items:["12 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 10–14 werkdagen"]},
-                   en:{name:"Editing 12", items:["12 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 10–14 working days"]} },
-    { price: 1100, nl:{name:"Editing 16", items:["16 bewerkte reels per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 10–14 werkdagen"]},
-                   en:{name:"Editing 16", items:["16 edited reels per month","You supply the footage","Colour grade + music + subtitles","Delivery within 10–14 working days"]} }
+    { price: 595,  nl:{name:"Editing 8",  items:["8 bewerkte video's per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 7–10 werkdagen"]},
+                   en:{name:"Editing 8",  items:["8 edited videos per month","You supply the footage","Colour grade + music + subtitles","Delivery within 7–10 working days"]} },
+    { price: 850,  nl:{name:"Editing 12", items:["12 bewerkte video's per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 10–14 werkdagen"]},
+                   en:{name:"Editing 12", items:["12 edited videos per month","You supply the footage","Colour grade + music + subtitles","Delivery within 10–14 working days"]} },
+    { price: 1100, nl:{name:"Editing 16", items:["16 bewerkte video's per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 10–14 werkdagen"]},
+                   en:{name:"Editing 16", items:["16 edited videos per month","You supply the footage","Colour grade + music + subtitles","Delivery within 10–14 working days"]} }
   ],
   note: { nl:"Maandelijks opzegbaar na 2 maanden", en:"Cancel monthly after 2 months" },
   perReel: { nl:"per reel", en:"per reel" },
   addons: {
-    nl: [["Extra reel (losse toevoeging)","€125"],["Extra draaidag","€350"],["Ondertiteling (indien niet inbegrepen)","€15/reel"],["Opstartkosten (eenmalig)","€150"],["Reiskosten buiten Groningen","€0,35/km"]],
-    en: [["Extra reel (one-off)","€125"],["Extra shoot day","€350"],["Subtitles (if not included)","€15/reel"],["One-time onboarding","€150"],["Travel outside Groningen","€0.35/km"]]
+    nl: [["Extra video (losse toevoeging)","€125"],["Extra draaidag","€350"],["Ondertiteling (indien niet inbegrepen)","€15/video"],["Opstartkosten (eenmalig)","€150"],["Reiskosten buiten Groningen","€0,35/km"]],
+    en: [["Extra video (one-off)","€125"],["Extra shoot day","€350"],["Subtitles (if not included)","€15/video"],["One-time onboarding","€150"],["Travel outside Groningen","€0.35/km"]]
   }
 };
 const fmtEUR = n => n.toLocaleString('nl-NL');
@@ -787,10 +854,23 @@ document.getElementById('pkgCta').addEventListener('click', () => {
   const form = document.getElementById('bookingForm');
   form.service.value = 'social';
   form.details.value = (lang==='nl'
-    ? `Pakket: ${pkg[lang].name} — ${PRICING.reels[idx]} reels/maand (€${fmtEUR(pkg.price)} ex BTW${own ? ', editing only' : ''})`
-    : `Package: ${pkg[lang].name} — ${PRICING.reels[idx]} reels/month (€${fmtEUR(pkg.price)} ex VAT${own ? ', editing only' : ''})`);
+    ? `Pakket: ${pkg[lang].name} — ${PRICING.reels[idx]} video's/maand (€${fmtEUR(pkg.price)} ex BTW${own ? ', editing only' : ''})`
+    : `Package: ${pkg[lang].name} — ${PRICING.reels[idx]} videos/month (€${fmtEUR(pkg.price)} ex VAT${own ? ', editing only' : ''})`);
 });
 renderPricing();
+
+// Losse short-form CTAs: prefill booking form with the chosen tier
+document.querySelectorAll('.sf-cta').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const form = document.getElementById('bookingForm');
+    if (!form) return;
+    form.service.value = 'social';
+    const name = btn.dataset.sf, len = btn.dataset.len, price = btn.dataset.price;
+    form.details.value = (lang==='nl'
+      ? `Short-form video — ${name} (${len}) — €${price} ex BTW`
+      : `Short-form video — ${name} (${len}) — €${price} ex VAT`);
+  });
+});
 
 applyLang();
 </script>
