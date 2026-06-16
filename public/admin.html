@@ -28,6 +28,23 @@ select:focus,input:focus,textarea:focus{outline:none;border-color:var(--amber)}
 .btn{background:var(--amber);color:var(--ink);border:0;border-radius:3px;padding:10px 18px;font-weight:600;cursor:pointer;
   font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+/* dashboard */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:780px){.dash-grid{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:16px 16px 18px}
+.stat .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat .val{font-family:var(--mono);font-size:30px;font-weight:500;color:var(--paper);line-height:1}
+.stat .sub{font-family:var(--mono);font-size:11px;color:var(--amber);margin-top:8px}
+.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:780px){.dash-row{grid-template-columns:1fr}}
+.dash-box{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:16px 18px 18px}
+.dash-box h3{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;font-weight:500}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
+.bar-row .nm{flex:0 0 130px;color:var(--paper);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:18px;background:var(--ink);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;background:var(--amber);border-radius:3px;min-width:2px;transition:width .4s}
+.bar-row .ct{flex:0 0 36px;text-align:right;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.dash-empty{color:var(--muted);font-size:13px;font-style:italic}
 .btn.ghost:hover{border-color:#c4554d;color:#e0837c}
 .login{max-width:360px;margin:18vh auto;display:grid;gap:12px}
 .badge{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:3px;border:1px solid var(--line)}
@@ -60,12 +77,21 @@ label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:
     <button class="btn ghost" id="logoutBtn">Log out</button>
   </div>
   <div class="tabs">
-    <button data-t="bookings" class="on">Bookings</button>
+    <button data-t="dashboard" class="on">Dashboard</button>
+    <button data-t="bookings">Bookings</button>
     <button data-t="leads">Leads</button>
     <button data-t="portfolio">Portfolio</button>
   </div>
 
-  <div class="panel on" id="p-bookings"><div class="wrap"><table>
+  <div class="panel on" id="p-dashboard">
+    <div class="dash-grid" id="statCards"></div>
+    <div class="dash-row">
+      <div class="dash-box"><h3>Populairste pakketten & tiers</h3><div id="tierChart"></div></div>
+      <div class="dash-box"><h3>Boekingen per maand</h3><div id="monthChart"></div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-bookings"><div class="wrap"><table>
     <thead><tr><th>Date</th><th>Name</th><th>Contact</th><th>Service</th><th>Location / details</th><th>Status</th><th></th></tr></thead>
     <tbody id="bookingsBody"></tbody>
   </table></div></div>
@@ -140,8 +166,10 @@ function statusSelect(cur, list, id, kind){
     list.map(s => `<option ${s===cur?'selected':''}>${s}</option>`).join('') + '</select>';
 }
 
+let _bookings = [], _leads = [];
 async function loadBookings(){
   const rows = await api('/api/admin/bookings');
+  _bookings = rows;
   $('bookingsBody').innerHTML = rows.map(r => `<tr>
     <td><strong>${esc(r.preferred_date)}</strong><div class="muted">in: ${esc(r.created_at)}</div></td>
     <td>${esc(r.name)}</td>
@@ -151,9 +179,11 @@ async function loadBookings(){
     <td>${statusSelect(r.status, B_STATUSES, r.id, 'bookings')}</td>
     <td><button class="btn ghost" data-del="bookings" data-id="${r.id}">✕</button></td>
   </tr>`).join('') || '<tr><td colspan="7" class="muted">No bookings yet.</td></tr>';
+  renderDashboard();
 }
 async function loadLeads(){
   const rows = await api('/api/admin/leads');
+  _leads = rows;
   $('leadsBody').innerHTML = rows.map(r => `<tr>
     <td>${esc(r.created_at)}</td>
     <td>${esc(r.name)}</td>
@@ -163,6 +193,7 @@ async function loadLeads(){
     <td>${statusSelect(r.status, L_STATUSES, r.id, 'leads')}</td>
     <td><button class="btn ghost" data-del="leads" data-id="${r.id}">✕</button></td>
   </tr>`).join('') || '<tr><td colspan="7" class="muted">No leads yet.</td></tr>';
+  renderDashboard();
 }
 async function loadPortfolio(){
   const rows = await api('/api/admin/portfolio');
@@ -192,6 +223,65 @@ async function loadPortfolio(){
   </div>`).join('') || '<p class="muted">No projects yet.</p>';
 }
 function loadAll(){ loadBookings(); loadLeads(); loadPortfolio(); }
+
+// ---------- business dashboard ----------
+function parsePrice(details){
+  if(!details) return 0;
+  // matches "€1.250", "€325", "€1250" — Dutch thousands dot
+  const m = details.match(/€\s?([\d.]+)/);
+  if(!m) return 0;
+  return parseInt(m[1].replace(/\./g,''), 10) || 0;
+}
+function parseTier(details, service){
+  if(!details) return service ? `(${service}, geen pakket)` : 'Onbekend';
+  let m = details.match(/Pakket:\s*([A-Za-zÀ-ÿ]+)/i);       // monthly package
+  if(m) return 'Pakket: ' + m[1];
+  m = details.match(/Short-form video — ([A-Za-zÀ-ÿ]+)/i);   // short-form tier
+  if(m) return 'Short-form: ' + m[1];
+  return service ? `(${service}, los)` : 'Overig';
+}
+function monthKey(ts){
+  const d = new Date(ts);
+  if(isNaN(d)) return null;
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+function thisMonthKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function fmtEUR(n){ return n.toLocaleString('nl-NL'); }
+
+function renderDashboard(){
+  const tm = thisMonthKey();
+  const bookingsThisMonth = _bookings.filter(b => monthKey(b.created_at)===tm).length;
+  const leadsThisMonth = _leads.filter(l => monthKey(l.created_at)===tm).length;
+  // pipeline = sum of prices of bookings not cancelled/declined
+  const openBookings = _bookings.filter(b => !['cancelled','declined','done'].includes((b.status||'').toLowerCase()));
+  const pipeline = openBookings.reduce((s,b)=> s + parsePrice(b.details), 0);
+  const wonValue = _bookings.filter(b => (b.status||'').toLowerCase()==='done').reduce((s,b)=>s+parsePrice(b.details),0);
+
+  // stat cards
+  $('statCards').innerHTML = `
+    <div class="stat"><div class="lbl">Boekingen / maand</div><div class="val">${bookingsThisMonth}</div><div class="sub">totaal: ${_bookings.length}</div></div>
+    <div class="stat"><div class="lbl">Leads / maand</div><div class="val">${leadsThisMonth}</div><div class="sub">totaal: ${_leads.length}</div></div>
+    <div class="stat"><div class="lbl">Open pipeline</div><div class="val">€${fmtEUR(pipeline)}</div><div class="sub">${openBookings.length} open boeking(en)</div></div>
+    <div class="stat"><div class="lbl">Omzet (afgerond)</div><div class="val">€${fmtEUR(wonValue)}</div><div class="sub">status = done</div></div>`;
+
+  // popular tiers
+  const tierCounts = {};
+  _bookings.forEach(b => { const t=parseTier(b.details,b.service); tierCounts[t]=(tierCounts[t]||0)+1; });
+  const tiers = Object.entries(tierCounts).sort((a,b)=>b[1]-a[1]);
+  const maxT = Math.max(1, ...tiers.map(t=>t[1]));
+  $('tierChart').innerHTML = tiers.length
+    ? tiers.map(([n,c])=>`<div class="bar-row"><div class="nm" title="${esc(n)}">${esc(n)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxT*100)}%"></div></div><div class="ct">${c}</div></div>`).join('')
+    : '<div class="dash-empty">Nog geen boekingen om te tonen.</div>';
+
+  // bookings per month (last 6 months)
+  const months = [];
+  const now = new Date();
+  for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1); months.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')); }
+  const monthCounts = months.map(mk => _bookings.filter(b=>monthKey(b.created_at)===mk).length);
+  const maxM = Math.max(1, ...monthCounts);
+  const monthLbl = mk => { const [y,m]=mk.split('-'); return ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'][parseInt(m)-1]+" '"+y.slice(2); };
+  $('monthChart').innerHTML = months.map((mk,i)=>`<div class="bar-row"><div class="nm">${monthLbl(mk)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(monthCounts[i]/maxM*100)}%"></div></div><div class="ct">${monthCounts[i]}</div></div>`).join('');
+}
 
 document.body.addEventListener('change', async e => {
   const s = e.target.closest('select[data-kind]'); if(!s) return;
