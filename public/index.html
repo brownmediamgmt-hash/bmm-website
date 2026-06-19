@@ -92,20 +92,22 @@ section{padding:clamp(72px,10vw,140px) clamp(16px,6vw,72px);max-width:1280px;mar
 .hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:120px;position:relative}
 /* camera explode hero — normal scroll, camera comes apart as hero leaves view */
 .hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:120px;position:relative;overflow:hidden}
-.cam-layer{position:absolute;top:0;right:0;bottom:0;left:40%;z-index:0;pointer-events:none}
-.cam-layer canvas{position:absolute;top:50%;right:-3%;width:min(60vw,840px);height:auto;
-  transform:translateY(-50%)}
-/* scrim keeps the left text column readable over the camera */
+/* camera explode — fixed full-page background, explodes across whole-page scroll */
+.cam-bg{position:fixed;inset:0;z-index:0;pointer-events:none;display:flex;align-items:center;justify-content:center}
+.cam-bg canvas{position:absolute;top:50%;right:-2%;width:min(58vw,820px);height:auto;transform:translateY(-50%)}
+/* all page content sits above the camera bg */
+nav, main, section, footer{position:relative;z-index:2}
+nav{z-index:50}
+/* readability scrim over the camera, strongest behind hero text column */
 .hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(90deg, var(--ink) 0%, var(--ink) 28%, color-mix(in srgb,var(--ink) 55%,transparent) 47%, transparent 66%)}
+  background:linear-gradient(90deg, var(--ink) 0%, var(--ink) 26%, color-mix(in srgb,var(--ink) 50%,transparent) 46%, transparent 66%)}
 .hero > .hero-inner{position:relative;z-index:2;width:100%}
 .scroll-hint{position:absolute;bottom:24px;left:0;z-index:3;font-family:var(--mono);
   font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);opacity:.6;animation:hintpulse 2.4s ease-in-out infinite}
 @keyframes hintpulse{0%,100%{opacity:.25}50%{opacity:.7}}
 @media(max-width:760px){
-  .cam-layer{left:0}
-  .cam-layer canvas{width:135vw;right:-18%}
-  .hero::after{background:linear-gradient(180deg, var(--ink) 0%, color-mix(in srgb,var(--ink) 50%,transparent) 48%, color-mix(in srgb,var(--ink) 72%,transparent) 100%)}
+  .cam-bg canvas{width:140vw;right:-20%}
+  .hero::after{background:linear-gradient(180deg, var(--ink) 0%, color-mix(in srgb,var(--ink) 50%,transparent) 50%, color-mix(in srgb,var(--ink) 72%,transparent) 100%)}
 }
 .hero h1{font-family:var(--display);font-variation-settings:'wdth' 122;font-weight:850;text-transform:uppercase;
   font-size:clamp(40px,9.5vw,128px);line-height:.95;letter-spacing:-.01em}
@@ -279,6 +281,8 @@ footer a:hover{color:var(--amber)}
 </head>
 <body>
 
+<div class="cam-bg" id="camLayer" aria-hidden="true"></div>
+
 <nav>
   <a class="brand" href="#top"><span class="rec" aria-hidden="true"></span>BROWN&nbsp;MEDIA&nbsp;MGMT</a>
   <div class="nav-links">
@@ -294,7 +298,6 @@ footer a:hover{color:var(--amber)}
 </nav>
 
 <section class="hero" id="top">
-  <div class="cam-layer" id="camLayer" aria-hidden="true"></div>
   <div class="hero-inner">
     <div class="tc">REC ● 00:00:00:00 — GRONINGEN → NL</div>
     <h1 data-i18n-html="hero_h1">Video's die van kijkers<br><span class="amber">klanten maken.</span></h1>
@@ -893,9 +896,9 @@ document.querySelectorAll('.sf-cta').forEach(btn => {
   });
 });
 
-// ---------- hero camera explode on scroll (single canvas, no ghosting) ----------
+// ---------- camera explode — full-page background, single canvas ----------
 (function(){
-  const FRAMES = 16;
+  const FRAMES = 72;
   const layer = document.getElementById('camLayer');
   const hero = document.getElementById('top');
   if(!layer || !hero) return;
@@ -908,7 +911,7 @@ document.querySelectorAll('.sf-cta').forEach(btn => {
   let loadedCount = 0, allReady = false, lastDrawn = -1, w = 0, h = 0;
 
   function sizeCanvas(){
-    if(!frames[0]) return;
+    if(!frames[0] || !frames[0].naturalWidth) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     w = frames[0].naturalWidth; h = frames[0].naturalHeight;
     canvas.width = w * dpr; canvas.height = h * dpr;
@@ -916,34 +919,32 @@ document.querySelectorAll('.sf-cta').forEach(btn => {
     ctx.setTransform(dpr,0,0,dpr,0,0);
   }
   function draw(idx){
-    if(!allReady || idx===lastDrawn || !frames[idx]) return;
+    if(!allReady || !frames[idx] || !frames[idx].naturalWidth) return;
+    if(idx===lastDrawn) return;
     ctx.clearRect(0,0,w,h);
     ctx.drawImage(frames[idx], 0, 0, w, h);
     lastDrawn = idx;
   }
   function update(){
     if(!allReady) return;
-    const rect = hero.getBoundingClientRect();
-    const ph = rect.height || 1;
-    let p = (-rect.top) / ph;
-    p = Math.max(0, Math.min(1, p));
+    const doc = document.documentElement;
+    const maxScroll = (doc.scrollHeight - window.innerHeight) || 1;
+    const y = window.scrollY || window.pageYOffset || 0;
+    // explosion progress across the WHOLE page scroll
+    let p = Math.max(0, Math.min(1, y / maxScroll));
     draw(Math.min(FRAMES-1, Math.round(p*(FRAMES-1))));
+    // opacity: full strength through the hero, then ease down to a subtle background
+    const heroH = hero.offsetHeight || window.innerHeight;
+    let fade = 1 - (y - heroH*0.55) / (heroH*0.6);   // begins fading near end of hero
+    fade = Math.max(0.16, Math.min(1, fade));         // never fully disappears; floors at 0.16
+    layer.style.opacity = fade.toFixed(3);
   }
 
-  // preload ALL frames, only start drawing once every frame is decoded
   for(let i=1;i<=FRAMES;i++){
     const im = new Image();
     const n = String(i).padStart(2,'0');
-    im.onload = ()=>{
-      loadedCount++;
-      if(loadedCount===FRAMES){
-        allReady = true;
-        sizeCanvas();
-        draw(0);
-        update();
-      }
-    };
-    im.onerror = ()=>{ loadedCount++; if(loadedCount===FRAMES){allReady=true;sizeCanvas();draw(0);update();} };
+    im.onload = ()=>{ if(++loadedCount===FRAMES){ allReady=true; sizeCanvas(); lastDrawn=-1; update(); } };
+    im.onerror = ()=>{ if(++loadedCount===FRAMES){ allReady=true; sizeCanvas(); lastDrawn=-1; update(); } };
     im.src = `/cam/cam_${n}.webp`;
     frames.push(im);
   }
