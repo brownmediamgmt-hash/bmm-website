@@ -896,9 +896,9 @@ document.querySelectorAll('.sf-cta').forEach(btn => {
   });
 });
 
-// ---------- camera explode — full-page background, single canvas ----------
+// ---------- camera explode — full-page background, single canvas, interpolated ----------
 (function(){
-  const FRAMES = 72;
+  const FRAMES = 121;
   const layer = document.getElementById('camLayer');
   const hero = document.getElementById('top');
   if(!layer || !hero) return;
@@ -908,7 +908,8 @@ document.querySelectorAll('.sf-cta').forEach(btn => {
   const ctx = canvas.getContext('2d');
 
   const frames = [];
-  let loadedCount = 0, allReady = false, lastDrawn = -1, w = 0, h = 0;
+  let loadedCount = 0, allReady = false, w = 0, h = 0;
+  let curProgress = -1, rafPending = false;
 
   function sizeCanvas(){
     if(!frames[0] || !frames[0].naturalWidth) return;
@@ -918,41 +919,46 @@ document.querySelectorAll('.sf-cta').forEach(btn => {
     canvas.style.aspectRatio = w + ' / ' + h;
     ctx.setTransform(dpr,0,0,dpr,0,0);
   }
-  function draw(idx){
-    if(!allReady || !frames[idx] || !frames[idx].naturalWidth) return;
-    if(idx===lastDrawn) return;
+  function ok(i){ return frames[i] && frames[i].naturalWidth>0; }
+
+  // Draw with interpolation: base frame at full alpha, next frame blended on top
+  // by the fractional amount — one canvas, one composite => smooth, never ghosts.
+  function render(p){
+    if(!allReady) return;
+    const exact = p*(FRAMES-1);
+    let i = Math.floor(exact);
+    let frac = exact - i;
+    if(i>=FRAMES-1){ i=FRAMES-1; frac=0; }
     ctx.clearRect(0,0,w,h);
-    ctx.drawImage(frames[idx], 0, 0, w, h);
-    lastDrawn = idx;
+    if(ok(i)){ ctx.globalAlpha = 1; ctx.drawImage(frames[i],0,0,w,h); }
+    if(frac>0.001 && ok(i+1)){ ctx.globalAlpha = frac; ctx.drawImage(frames[i+1],0,0,w,h); }
+    ctx.globalAlpha = 1;
   }
   function update(){
     if(!allReady) return;
-    const doc = document.documentElement;
-    const maxScroll = (doc.scrollHeight - window.innerHeight) || 1;
+    const maxScroll = (document.documentElement.scrollHeight - window.innerHeight) || 1;
     const y = window.scrollY || window.pageYOffset || 0;
-    // explosion progress across the WHOLE page scroll
-    let p = Math.max(0, Math.min(1, y / maxScroll));
-    draw(Math.min(FRAMES-1, Math.round(p*(FRAMES-1))));
-    // opacity: full strength through the hero, then ease down to a subtle background
+    const p = Math.max(0, Math.min(1, y / maxScroll));
+    if(Math.abs(p-curProgress) > 0.0008){ render(p); curProgress = p; }
+    // opacity: full through hero, eases down to subtle background below
     const heroH = hero.offsetHeight || window.innerHeight;
-    let fade = 1 - (y - heroH*0.55) / (heroH*0.6);   // begins fading near end of hero
-    fade = Math.max(0.16, Math.min(1, fade));         // never fully disappears; floors at 0.16
+    let fade = 1 - (y - heroH*0.55) / (heroH*0.6);
+    fade = Math.max(0.16, Math.min(1, fade));
     layer.style.opacity = fade.toFixed(3);
   }
 
   for(let i=1;i<=FRAMES;i++){
     const im = new Image();
-    const n = String(i).padStart(2,'0');
-    im.onload = ()=>{ if(++loadedCount===FRAMES){ allReady=true; sizeCanvas(); lastDrawn=-1; update(); } };
-    im.onerror = ()=>{ if(++loadedCount===FRAMES){ allReady=true; sizeCanvas(); lastDrawn=-1; update(); } };
+    const n = String(i).padStart(3,'0');
+    im.onload = ()=>{ if(++loadedCount===FRAMES){ allReady=true; sizeCanvas(); curProgress=-1; update(); } };
+    im.onerror = ()=>{ if(++loadedCount===FRAMES){ allReady=true; sizeCanvas(); curProgress=-1; update(); } };
     im.src = `/cam/cam_${n}.webp`;
     frames.push(im);
   }
 
-  let ticking=false;
-  function onScroll(){ if(!ticking){ requestAnimationFrame(()=>{update();ticking=false;}); ticking=true; } }
+  function onScroll(){ if(!rafPending){ requestAnimationFrame(()=>{update();rafPending=false;}); rafPending=true; } }
   window.addEventListener('scroll', onScroll, {passive:true});
-  window.addEventListener('resize', ()=>{ sizeCanvas(); lastDrawn=-1; update(); }, {passive:true});
+  window.addEventListener('resize', ()=>{ sizeCanvas(); curProgress=-1; update(); }, {passive:true});
 })();
 
 applyLang();
