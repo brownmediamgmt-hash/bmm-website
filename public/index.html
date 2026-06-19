@@ -90,9 +90,29 @@ nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:cent
 section{padding:clamp(72px,10vw,140px) clamp(16px,6vw,72px);max-width:1280px;margin:0 auto}
 
 .hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:120px;position:relative}
+/* camera explode hero scene */
+.hero-scene{position:relative;height:280vh;padding:0;max-width:none;margin:0}
+.hero-sticky{position:sticky;top:0;height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.cam-layer{position:absolute;top:0;right:0;bottom:0;left:42%;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}
+.cam-layer img{position:absolute;width:min(58vw,820px);height:auto;opacity:0;transition:opacity .12s;will-change:opacity;right:-4%}
+.cam-layer img.on{opacity:1}
+.hero-scene .hero-inner{position:relative;z-index:2;width:100%;max-width:1280px;margin:0 auto;padding:0 clamp(16px,6vw,72px)}
+/* scrim only behind the text column (left), keeps camera crisp on the right */
+.hero-scene .hero-sticky::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(90deg, var(--ink) 0%, var(--ink) 30%, color-mix(in srgb,var(--ink) 60%,transparent) 48%, transparent 64%)}
+.scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:3;font-family:var(--mono);
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);opacity:.7;animation:hintpulse 2.4s ease-in-out infinite}
+@keyframes hintpulse{0%,100%{opacity:.3}50%{opacity:.8}}
+@media(max-width:760px){
+  .hero-scene{height:200vh}
+  .cam-layer{left:0}
+  .cam-layer img{width:130vw;right:-15%}
+  .hero-scene .hero-sticky::after{background:linear-gradient(180deg, var(--ink) 0%, color-mix(in srgb,var(--ink) 55%,transparent) 45%, color-mix(in srgb,var(--ink) 75%,transparent) 100%)}
+}
 .hero h1{font-family:var(--display);font-variation-settings:'wdth' 122;font-weight:850;text-transform:uppercase;
   font-size:clamp(40px,9.5vw,128px);line-height:.95;letter-spacing:-.01em}
 .hero h1 .amber{color:var(--amber)}
+.hero-scene .hero{min-height:0;padding-top:0}
 .hero .sub{margin-top:28px;max-width:600px;color:var(--muted);font-size:clamp(15px,1.6vw,18px)}
 .hero .cta-row{margin-top:40px;display:flex;gap:14px;flex-wrap:wrap}
 .letterbox{margin-top:64px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
@@ -276,16 +296,24 @@ footer a:hover{color:var(--amber)}
   </div>
 </nav>
 
-<section class="hero" id="top">
-  <div class="tc">REC ● 00:00:00:00 — GRONINGEN → NL</div>
-  <h1 data-i18n-html="hero_h1">Video's die van kijkers<br><span class="amber">klanten maken.</span></h1>
-  <p class="sub" data-i18n="hero_sub">Videoproductie voor bedrijven, personal brands en vastgoed. Bedrijfsvideo's, social media content en brand films — strategisch gemaakt om aandacht om te zetten in aanvragen.</p>
-  <div class="cta-row">
-    <a class="btn solid" href="#booking" data-i18n="hero_cta1">Plan een gesprek</a>
-    <a class="btn ghost" href="#work" data-i18n="hero_cta2">Bekijk werk</a>
-  </div>
-  <div class="letterbox">
-    <span data-i18n="lb_1">Bedrijven · MKB</span><span data-i18n="lb_2">Personal brands</span><span data-i18n="lb_3">Vastgoed & interieur</span><span data-i18n="lb_4">NL / EN producties</span>
+<section class="hero-scene" id="top">
+  <div class="hero-sticky">
+    <div class="cam-layer" id="camLayer" aria-hidden="true"></div>
+    <div class="container hero-inner">
+      <div class="hero">
+      <div class="tc">REC ● 00:00:00:00 — GRONINGEN → NL</div>
+      <h1 data-i18n-html="hero_h1">Video's die van kijkers<br><span class="amber">klanten maken.</span></h1>
+      <p class="sub" data-i18n="hero_sub">Videoproductie voor bedrijven, personal brands en vastgoed. Bedrijfsvideo's, social media content en brand films — strategisch gemaakt om aandacht om te zetten in aanvragen.</p>
+      <div class="cta-row">
+        <a class="btn solid" href="#booking" data-i18n="hero_cta1">Plan een gesprek</a>
+        <a class="btn ghost" href="#work" data-i18n="hero_cta2">Bekijk werk</a>
+      </div>
+      <div class="letterbox">
+        <span data-i18n="lb_1">Bedrijven · MKB</span><span data-i18n="lb_2">Personal brands</span><span data-i18n="lb_3">Vastgoed & interieur</span><span data-i18n="lb_4">NL / EN producties</span>
+      </div>
+      </div>
+    </div>
+    <div class="scroll-hint" data-i18n="scrollhint">SCROLL ↓</div>
   </div>
 </section>
 
@@ -512,7 +540,7 @@ const I18N = {
     nav_work:"Werk", nav_services:"Diensten", nav_booking:"Boeken",
     hero_h1:'Video\'s die van kijkers<br><span class="amber">klanten maken.</span>',
     hero_sub:"Videoproductie voor bedrijven, personal brands en vastgoed. Bedrijfsvideo's, social media content en brand films — strategisch gemaakt om aandacht om te zetten in aanvragen.",
-    hero_cta1:"Plan een gesprek", hero_cta2:"Bekijk werk",
+    hero_cta1:"Plan een gesprek", hero_cta2:"Bekijk werk", scrollhint:"SCROLL ↓ — HAAL DE CAMERA UIT ELKAAR",
     lb_1:"Bedrijven · MKB", lb_2:"Personal brands", lb_3:"Vastgoed & interieur", lb_4:"NL / EN producties",
     work_h2:"Geselecteerd werk", work_lede:"Iedere productie in een 2.39:1 frame — gemaakt met één doel: resultaat.",
     f_all:"Alles", f_biz:"Bedrijfsvideo", f_social:"Social content", f_brand:"Brand films", f_re:"Vastgoed", f_other:"Anders",
@@ -564,7 +592,7 @@ const I18N = {
     nav_work:"Work", nav_services:"Services", nav_booking:"Booking",
     hero_h1:'Video that turns viewers<br><span class="amber">into customers.</span>',
     hero_sub:"Video production for businesses, personal brands and real estate. Corporate videos, social media content and brand films — strategically built to turn attention into enquiries.",
-    hero_cta1:"Book a call", hero_cta2:"View work",
+    hero_cta1:"Book a call", hero_cta2:"View work", scrollhint:"SCROLL ↓ — TAKE THE CAMERA APART",
     lb_1:"Businesses · SME", lb_2:"Personal brands", lb_3:"Real estate & interiors", lb_4:"NL / EN productions",
     work_h2:"Selected work", work_lede:"Every production in a 2.39:1 frame — made with one goal: results.",
     f_all:"All", f_biz:"Corporate video", f_social:"Social content", f_brand:"Brand films", f_re:"Real estate", f_other:"Other",
@@ -871,6 +899,42 @@ document.querySelectorAll('.sf-cta').forEach(btn => {
       : `Short-form video — ${name} (${len}) — €${price} ex VAT`);
   });
 });
+
+// ---------- hero camera explode on scroll ----------
+(function(){
+  const FRAMES = 41;
+  const layer = document.getElementById('camLayer');
+  const scene = document.getElementById('top');
+  if(!layer || !scene) return;
+  const imgs = [];
+  for(let i=1;i<=FRAMES;i++){
+    const im = new Image();
+    const n = String(i).padStart(2,'0');
+    im.src = `/cam/cam_${n}.webp`;
+    im.alt=''; im.decoding='async';
+    if(i===1) im.classList.add('on');
+    layer.appendChild(im);
+    imgs.push(im);
+  }
+  let current = 0;
+  function update(){
+    const rect = scene.getBoundingClientRect();
+    const total = scene.offsetHeight - window.innerHeight;
+    let p = total>0 ? (-rect.top)/total : 0;
+    p = Math.max(0, Math.min(1, p));
+    const idx = Math.min(FRAMES-1, Math.round(p*(FRAMES-1)));
+    if(idx!==current){
+      imgs[current].classList.remove('on');
+      imgs[idx].classList.add('on');
+      current = idx;
+    }
+  }
+  let ticking=false;
+  function onScroll(){ if(!ticking){ requestAnimationFrame(()=>{update();ticking=false;}); ticking=true; } }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll, {passive:true});
+  update();
+})();
 
 applyLang();
 </script>
