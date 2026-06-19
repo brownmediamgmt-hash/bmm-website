@@ -93,9 +93,8 @@ section{padding:clamp(72px,10vw,140px) clamp(16px,6vw,72px);max-width:1280px;mar
 /* camera explode hero — normal scroll, camera comes apart as hero leaves view */
 .hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:120px;position:relative;overflow:hidden}
 .cam-layer{position:absolute;top:0;right:0;bottom:0;left:40%;z-index:0;pointer-events:none}
-.cam-layer img{position:absolute;top:50%;right:-3%;width:min(60vw,840px);height:auto;
-  transform:translateY(-50%);opacity:0;will-change:opacity;transition:opacity .18s linear}
-.cam-layer img.on{opacity:1}
+.cam-layer canvas{position:absolute;top:50%;right:-3%;width:min(60vw,840px);height:auto;
+  transform:translateY(-50%)}
 /* scrim keeps the left text column readable over the camera */
 .hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
   background:linear-gradient(90deg, var(--ink) 0%, var(--ink) 28%, color-mix(in srgb,var(--ink) 55%,transparent) 47%, transparent 66%)}
@@ -105,7 +104,7 @@ section{padding:clamp(72px,10vw,140px) clamp(16px,6vw,72px);max-width:1280px;mar
 @keyframes hintpulse{0%,100%{opacity:.25}50%{opacity:.7}}
 @media(max-width:760px){
   .cam-layer{left:0}
-  .cam-layer img{width:135vw;right:-18%}
+  .cam-layer canvas{width:135vw;right:-18%}
   .hero::after{background:linear-gradient(180deg, var(--ink) 0%, color-mix(in srgb,var(--ink) 50%,transparent) 48%, color-mix(in srgb,var(--ink) 72%,transparent) 100%)}
 }
 .hero h1{font-family:var(--display);font-variation-settings:'wdth' 122;font-weight:850;text-transform:uppercase;
@@ -894,56 +893,65 @@ document.querySelectorAll('.sf-cta').forEach(btn => {
   });
 });
 
-// ---------- hero camera explode on scroll ----------
+// ---------- hero camera explode on scroll (single canvas, no ghosting) ----------
 (function(){
   const FRAMES = 16;
   const layer = document.getElementById('camLayer');
   const hero = document.getElementById('top');
   if(!layer || !hero) return;
 
-  // Build all frame <img>s once, stacked. Track which have decoded.
-  const imgs = [];
-  const ready = new Array(FRAMES).fill(false);
+  const canvas = document.createElement('canvas');
+  layer.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+
+  const frames = [];
+  let loadedCount = 0, allReady = false, lastDrawn = -1, w = 0, h = 0;
+
+  function sizeCanvas(){
+    if(!frames[0]) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = frames[0].naturalWidth; h = frames[0].naturalHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.aspectRatio = w + ' / ' + h;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function draw(idx){
+    if(!allReady || idx===lastDrawn || !frames[idx]) return;
+    ctx.clearRect(0,0,w,h);
+    ctx.drawImage(frames[idx], 0, 0, w, h);
+    lastDrawn = idx;
+  }
+  function update(){
+    if(!allReady) return;
+    const rect = hero.getBoundingClientRect();
+    const ph = rect.height || 1;
+    let p = (-rect.top) / ph;
+    p = Math.max(0, Math.min(1, p));
+    draw(Math.min(FRAMES-1, Math.round(p*(FRAMES-1))));
+  }
+
+  // preload ALL frames, only start drawing once every frame is decoded
   for(let i=1;i<=FRAMES;i++){
     const im = new Image();
     const n = String(i).padStart(2,'0');
-    im.alt=''; im.decoding='async';
-    im.dataset.i = i-1;
-    im.onload = ()=>{ ready[i-1]=true; };
+    im.onload = ()=>{
+      loadedCount++;
+      if(loadedCount===FRAMES){
+        allReady = true;
+        sizeCanvas();
+        draw(0);
+        update();
+      }
+    };
+    im.onerror = ()=>{ loadedCount++; if(loadedCount===FRAMES){allReady=true;sizeCanvas();draw(0);update();} };
     im.src = `/cam/cam_${n}.webp`;
-    if(i===1) im.classList.add('on');
-    layer.appendChild(im);
-    imgs.push(im);
+    frames.push(im);
   }
-  let current = 0;
-  function show(idx){
-    // never blank out: if target frame hasn't decoded yet, keep showing the current one
-    if(idx===current) return;
-    if(!ready[idx]) return;
-    imgs[current].classList.remove('on');
-    imgs[idx].classList.add('on');
-    current = idx;
-  }
-  function update(){
-    const rect = hero.getBoundingClientRect();
-    const h = rect.height || 1;
-    // progress 0 at hero fully in view (top), 1 when hero has scrolled fully up out of view
-    let p = (-rect.top) / h;
-    p = Math.max(0, Math.min(1, p));
-    // ease so most of the explode happens through the visible scroll, finishing as it leaves
-    const idx = Math.min(FRAMES-1, Math.round(p * (FRAMES-1)));
-    show(idx);
-  }
+
   let ticking=false;
   function onScroll(){ if(!ticking){ requestAnimationFrame(()=>{update();ticking=false;}); ticking=true; } }
   window.addEventListener('scroll', onScroll, {passive:true});
-  window.addEventListener('resize', onScroll, {passive:true});
-  // respect reduced-motion: just show assembled
-  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    /* leave on frame 1 */
-  } else {
-    update();
-  }
+  window.addEventListener('resize', ()=>{ sizeCanvas(); lastDrawn=-1; update(); }, {passive:true});
 })();
 
 applyLang();
