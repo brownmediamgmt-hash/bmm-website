@@ -127,7 +127,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const clean = (v, max = 2000) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-const h = fn => (req, res) => fn(req, res).catch(err => { console.error(err); res.status(500).json({ error: 'server error' }); });
+const h = fn => (req, res) => {
+  if (!dbReady) return res.status(503).json({ error: 'De database is tijdelijk niet beschikbaar. Probeer het later opnieuw of mail info@brown-media.nl.' });
+  return fn(req, res).catch(err => { console.error(err); res.status(500).json({ error: 'server error' }); });
+};
 
 async function requireAuth(req, res, next) {
   try {
@@ -283,13 +286,31 @@ app.delete('/api/admin/portfolio/:id', requireAuth, h(async (req, res) => {
   res.json({ ok: true });
 }));
 
-initDB().then(() => {
+// Start the web server FIRST so the site is always up, even if the DB is down.
+// DB init runs alongside; if it fails we retry in the background and API routes
+// return a clear error instead of the whole site being offline.
+let dbReady = false;
+
+function startServer() {
   app.listen(PORT, () => {
     console.log(`Brown Media Management site → http://localhost:${PORT}`);
     console.log(`Admin panel → http://localhost:${PORT}/admin.html`);
     if (ADMIN_PASSWORD === 'changeme') console.log('⚠ Set ADMIN_PASSWORD env var before going live.');
   });
-}).catch(err => {
-  console.error('Failed to start — database init error:', err);
-  process.exit(1);
-});
+}
+
+async function tryInitDB(attempt = 1) {
+  try {
+    await initDB();
+    dbReady = true;
+    console.log('Database ready.');
+  } catch (err) {
+    console.error(`Database init failed (attempt ${attempt}):`, err.message || err);
+    // retry with backoff, capped at 5 minutes — site stays up meanwhile
+    const delay = Math.min(attempt * 30000, 300000);
+    setTimeout(() => tryInitDB(attempt + 1), delay);
+  }
+}
+
+startServer();
+tryInitDB();
