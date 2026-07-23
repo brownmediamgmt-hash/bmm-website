@@ -89,6 +89,19 @@ label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:
       <div class="dash-box"><h3>Populairste pakketten & tiers</h3><div id="tierChart"></div></div>
       <div class="dash-box"><h3>Boekingen per maand</h3><div id="monthChart"></div></div>
     </div>
+    <div class="dash-box" style="margin-top:12px">
+      <h3>Back-up</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">
+        Download een kopie van je portfolio, boekingen en leads. Bewaar dit bestand ergens veilig —
+        hiermee zet je alles terug als de database ooit uitvalt.
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn" id="backupBtn">Back-up downloaden</button>
+        <button class="btn ghost" id="restoreBtn">Portfolio terugzetten</button>
+        <input type="file" id="restoreFile" accept="application/json,.json" style="display:none">
+        <span id="backupMsg" style="font-family:var(--mono);font-size:11px;color:var(--muted)"></span>
+      </div>
+    </div>
   </div>
 
   <div class="panel" id="p-bookings"><div class="wrap"><table>
@@ -157,6 +170,44 @@ document.querySelector('.tabs').addEventListener('click', e => {
   document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x===b));
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'p-'+b.dataset.t));
 });
+
+// ---------- backup / restore ----------
+function backupMsg(text, isErr){
+  const el = $('backupMsg');
+  el.textContent = text;
+  el.style.color = isErr ? '#d9704a' : 'var(--amber)';
+}
+$('backupBtn').onclick = async () => {
+  backupMsg('Bezig...');
+  try {
+    const data = await api('/api/admin/export');
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const d = new Date().toISOString().slice(0,10);
+    a.href = url; a.download = `bmm-backup-${d}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    const n = (data.portfolio||[]).length, bk = (data.bookings||[]).length, ld = (data.leads||[]).length;
+    backupMsg(`Gedownload — ${n} portfolio, ${bk} boekingen, ${ld} leads`);
+  } catch(e) { backupMsg('Back-up mislukt', true); }
+};
+$('restoreBtn').onclick = () => $('restoreFile').click();
+$('restoreFile').onchange = async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  backupMsg('Bezig met terugzetten...');
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(!Array.isArray(data.portfolio)) { backupMsg('Geen portfolio in dit bestand', true); return; }
+    const res = await api('/api/admin/restore', {method:'POST', body: JSON.stringify({portfolio: data.portfolio})});
+    if(res.error){ backupMsg(res.error, true); return; }
+    backupMsg(`Teruggezet — ${res.added} toegevoegd, ${res.skipped} overgeslagen`);
+    loadPortfolio();
+  } catch(err) { backupMsg('Terugzetten mislukt — geldig back-upbestand?', true); }
+  finally { e.target.value = ''; }
+};
 
 const B_STATUSES = ['pending','confirmed','declined','done'];
 const L_STATUSES = ['new','contacted','won','lost'];
