@@ -122,6 +122,8 @@ async function initDB() {
 }
 
 const app = express();
+// backup files can be large — allow more only on the restore endpoint
+app.use('/api/admin/restore', express.json({ limit: '8mb' }));
 app.use(express.json({ limit: '200kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -237,6 +239,45 @@ app.patch('/api/admin/bookings/:id', requireAuth, h(async (req, res) => {
 app.delete('/api/admin/bookings/:id', requireAuth, h(async (req, res) => {
   await db.query('DELETE FROM bookings WHERE id = $1', [Number(req.params.id)]);
   res.json({ ok: true });
+}));
+
+// ---------- admin: backup export / restore ----------
+app.get('/api/admin/export', requireAuth, h(async (req, res) => {
+  const [portfolio, bookings, leads] = await Promise.all([
+    db.query('SELECT * FROM portfolio ORDER BY sort_order, id'),
+    db.query('SELECT * FROM bookings ORDER BY id'),
+    db.query('SELECT * FROM leads ORDER BY id')
+  ]);
+  res.json({
+    exported_at: new Date().toISOString(),
+    version: 1,
+    portfolio: portfolio.rows,
+    bookings: bookings.rows,
+    leads: leads.rows
+  });
+}));
+
+// Restore portfolio items from a backup file. Adds items; does not delete existing ones.
+app.post('/api/admin/restore', requireAuth, h(async (req, res) => {
+  const items = (req.body && Array.isArray(req.body.portfolio)) ? req.body.portfolio : null;
+  if (!items) return res.status(400).json({ error: 'backup file must contain a "portfolio" array' });
+  let added = 0, skipped = 0;
+  for (const it of items) {
+    const t_en = clean(it.title_en, 200), t_nl = clean(it.title_nl, 200), cat = clean(it.category, 40);
+    if (!t_en || !t_nl || !cat) { skipped++; continue; }
+    const { rows: dup } = await db.query('SELECT id FROM portfolio WHERE title_nl = $1 AND category = $2', [t_nl, cat]);
+    if (dup.length) { skipped++; continue; }
+    await db.query(
+      `INSERT INTO portfolio (title_en,title_nl,category,client,video_url,thumb_url,description_en,description_nl,sort_order,published,format)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+      [t_en, t_nl, cat, clean(it.client, 120), clean(it.video_url, 500), clean(it.thumb_url, 500),
+       clean(it.description_en, 1000), clean(it.description_nl, 1000),
+       Number(it.sort_order) || 0, it.published === 0 ? 0 : 1,
+       it.format === 'vertical' ? 'vertical' : 'horizontal']
+    );
+    added++;
+  }
+  res.json({ ok: true, added, skipped });
 }));
 
 // ---------- admin: portfolio CRUD ----------
