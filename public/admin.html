@@ -116,6 +116,35 @@ label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:
 
   <div class="panel" id="p-portfolio">
     <div class="card">
+      <strong style="font-family:var(--mono);font-size:12px;letter-spacing:.1em">UPLOAD REELS</strong>
+      <p class="muted" style="margin:8px 0 14px">
+        Sleep verticale exports hierheen. Titel, thumbnail en formaat worden automatisch ingevuld.
+        Daarna kun je ze hieronder bijwerken zoals elk ander project.
+      </p>
+
+      <label id="upDrop" for="upInput" tabindex="0"
+        style="border:1px dashed var(--line);border-radius:4px;padding:28px 16px;text-align:center;
+               cursor:pointer;display:block;letter-spacing:normal;text-transform:none;font-family:var(--body);
+               font-size:14px;color:var(--paper);transition:border-color .15s,background .15s">
+        Sleep video's hierheen of klik om te kiezen
+        <span class="muted" style="display:block;margin-top:6px">MP4 of MOV, meerdere tegelijk</span>
+        <input type="file" id="upInput" accept="video/*" multiple style="display:none">
+      </label>
+
+      <div class="grid2" style="margin-top:12px">
+        <label>Category<select id="upCategory">
+          <option value="social">Social</option>
+          <option value="business">Business</option>
+          <option value="brand-film">Brand film</option>
+          <option value="real-estate">Real estate</option>
+        </select></label>
+        <label>Client (optioneel)<input id="upClient" placeholder="Bijv. LUXV Design Studio"></label>
+      </div>
+
+      <div id="upQueue" style="margin-top:12px;display:grid;gap:8px"></div>
+    </div>
+
+    <div class="card">
       <strong style="font-family:var(--mono);font-size:12px;letter-spacing:.1em">ADD PROJECT</strong>
       <div class="grid2" style="margin-top:12px">
         <label>Title (EN)<input id="np_title_en"></label>
@@ -367,6 +396,146 @@ $('addProject').onclick = async () => {
 
 show(!!token);
 if (token) api('/api/admin/bookings').catch(()=>{}); // validates token
+</script>
+
+<!-- ---------- reel uploads to R2 ---------- -->
+<script>
+(function () {
+  const drop   = document.getElementById('upDrop');
+  const input  = document.getElementById('upInput');
+  const queue  = document.getElementById('upQueue');
+  const catEl  = document.getElementById('upCategory');
+  const cliEl  = document.getElementById('upClient');
+
+  async function sign(kind, contentType) {
+    const res = await fetch('/api/admin/uploads/sign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ kind, contentType }),
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Serverfout ' + res.status);
+    return res.json();
+  }
+
+  function grabThumb(file) {
+    return new Promise((resolve, reject) => {
+      const v = document.createElement('video');
+      const url = URL.createObjectURL(file);
+      let settled = false;
+      const fail = m => { if (!settled) { settled = true; URL.revokeObjectURL(url); reject(new Error(m)); } };
+
+      v.preload = 'metadata'; v.muted = true; v.playsInline = true; v.src = url;
+      v.addEventListener('loadeddata', () => { v.currentTime = Math.min(1.2, (v.duration || 2) * 0.12); });
+      v.addEventListener('seeked', () => {
+        if (settled) return;
+        try {
+          const c = document.createElement('canvas');
+          c.width = v.videoWidth; c.height = v.videoHeight;
+          c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+          const vertical = v.videoHeight >= v.videoWidth;
+          c.toBlob(blob => {
+            settled = true; URL.revokeObjectURL(url);
+            blob ? resolve({ blob, vertical }) : reject(new Error('Kon geen still maken'));
+          }, 'image/jpeg', 0.82);
+        } catch (e) { fail('Kon geen still maken'); }
+      });
+      v.addEventListener('error', () => fail('Kan deze video niet lezen'));
+      setTimeout(() => fail('Duurde te lang'), 30000);
+    });
+  }
+
+  function put(url, blob, type, onProgress) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', url, true);
+      xhr.setRequestHeader('Content-Type', type);
+      xhr.upload.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total); };
+      xhr.onload = () => (xhr.status >= 200 && xhr.status < 300)
+        ? resolve() : reject(new Error('Upload geweigerd (' + xhr.status + ')'));
+      xhr.onerror = () => reject(new Error('Upload onderbroken'));
+      xhr.send(blob);
+    });
+  }
+
+  function addRow(name) {
+    const el = document.createElement('div');
+    el.style.cssText = 'border:1px solid var(--line);border-radius:4px;padding:10px 12px;font-size:13px';
+    el.innerHTML =
+      '<div style="display:flex;justify-content:space-between;gap:12px">' +
+        '<span class="nm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>' +
+        '<span class="st" style="font-family:var(--mono);font-size:11px;color:var(--muted)">wachten</span>' +
+      '</div>' +
+      '<div style="height:3px;background:var(--ink);border-radius:2px;margin-top:8px;overflow:hidden">' +
+        '<i style="display:block;height:100%;width:0;background:var(--amber);transition:width .2s"></i>' +
+      '</div>';
+    el.querySelector('.nm').textContent = name;
+    queue.appendChild(el);
+    return {
+      state: t => { el.querySelector('.st').textContent = t; },
+      progress: f => { el.querySelector('i').style.width = Math.round(f * 100) + '%'; },
+      error: m => { el.style.borderColor = '#c4554d';
+                    const s = el.querySelector('.st'); s.textContent = m; s.style.color = '#e0837c'; },
+      done: () => setTimeout(() => el.remove(), 1500),
+    };
+  }
+
+  async function uploadOne(file) {
+    const row = addRow(file.name);
+    try {
+      row.state('still maken');
+      const thumb = await grabThumb(file);
+
+      row.state('uploaden');
+      const vSlot = await sign('video', file.type || 'video/mp4');
+      await put(vSlot.uploadUrl, file, vSlot.contentType, row.progress);
+
+      row.state('still uploaden');
+      const tSlot = await sign('thumb', 'image/jpeg');
+      await put(tSlot.uploadUrl, thumb.blob, tSlot.contentType);
+
+      row.state('opslaan');
+      const title = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim() || 'Untitled';
+      const res = await fetch('/api/admin/portfolio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({
+          title_en: title,
+          title_nl: title,
+          category: catEl.value,
+          client: cliEl.value.trim(),
+          video_url: vSlot.publicUrl,
+          thumb_url: tSlot.publicUrl,
+          format: thumb.vertical ? 'vertical' : 'horizontal',
+        }),
+      });
+      if (!res.ok) throw new Error('Opslaan mislukt');
+
+      row.state('klaar');
+      row.done();
+      loadPortfolio();
+    } catch (err) {
+      row.error(err.message);
+    }
+  }
+
+  async function handleFiles(list) {
+    const files = Array.from(list).filter(f => f.type.startsWith('video/'));
+    if (!files.length) return;
+    for (const f of files) await uploadOne(f);
+  }
+
+  input.addEventListener('change', e => { handleFiles(e.target.files); input.value = ''; });
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.style.borderColor = 'var(--amber)'; drop.style.background = 'rgba(224,163,92,.06)';
+  }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.style.borderColor = 'var(--line)'; drop.style.background = 'transparent';
+  }));
+  drop.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+  drop.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+  });
+})();
 </script>
 </body>
 </html>
