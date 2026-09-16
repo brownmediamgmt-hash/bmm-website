@@ -125,6 +125,8 @@ const app = express();
 // backup files can be large — allow more only on the restore endpoint
 app.use('/api/admin/restore', express.json({ limit: '8mb' }));
 app.use(express.json({ limit: '200kb' }));
+const createUploadsRouter = require('./r2-uploads-router');
+app.use(createUploadsRouter({ requireAuth }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const clean = (v, max = 2000) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
