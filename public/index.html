@@ -662,6 +662,7 @@ const catKey = {'business':'f_biz','real-estate':'f_re','social':'f_social','bra
 
 function videoInfo(u){
   if(!u) return null;
+  if(/\.(mp4|webm|mov)(\?|$)/i.test(u)) return { type:'file', play:u };
   try{
     const url = new URL(u);
     let id;
@@ -780,7 +781,9 @@ const lb = document.getElementById('lightbox');
 const lbFrame = document.getElementById('lbFrame');
 function openLightbox(src, orient){
   lbFrame.className = 'lb-frame ' + (orient === 'v' ? 'v' : 'h');
-  lbFrame.innerHTML = `<iframe src="${src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+  lbFrame.innerHTML = /\.(mp4|webm|mov)(\?|$)/i.test(src)
+    ? `<video src="${src}" controls autoplay playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000"></video>`
+    : `<iframe src="${src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
   if (lb.requestFullscreen) lb.requestFullscreen().catch(()=>{});
