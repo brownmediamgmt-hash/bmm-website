@@ -1,11 +1,5 @@
 // r2-uploads-router.js
 // Hands the browser short-lived permission to upload a file straight to R2.
-// That is all it does. Saving portfolio items still goes through the
-// existing /api/admin/portfolio routes and the existing portfolio table.
-//
-// Mount in server.js, after express.json():
-//   const createUploadsRouter = require('./r2-uploads-router');
-//   app.use(createUploadsRouter({ requireAuth }));
 
 const express = require('express');
 const crypto = require('crypto');
@@ -31,10 +25,11 @@ module.exports = function createUploadsRouter({ requireAuth }) {
       accessKeyId: process.env.R2_ACCESS_KEY_ID,
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
     },
+    // R2 rejects the checksum headers newer AWS SDKs add by default.
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
   }) : null;
 
-  // Returns { uploadUrl, publicUrl, contentType }.
-  // uploadUrl is valid for 15 minutes and only for this exact file.
   router.post('/api/admin/uploads/sign', requireAuth, async (req, res) => {
     if (!configured) {
       return res.status(503).json({ error: 'Opslag is nog niet geconfigureerd.' });
