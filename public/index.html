@@ -385,8 +385,8 @@ footer a:hover{color:var(--amber)}
     <div class="cfg-controls">
       <span class="cfg-q" data-i18n="pr_q">Hoeveel video's per maand?</span>
       <div class="cfg-slider">
-        <input type="range" id="reelRange" min="0" max="2" step="1" value="1" aria-label="Aantal video's per maand">
-        <div class="cfg-ticks" id="cfgTicks"><span>8</span><span class="on">12</span><span>16</span></div>
+        <input type="range" id="reelRange" min="0" max="3" step="1" value="2" aria-label="Aantal video's per maand">
+        <div class="cfg-ticks" id="cfgTicks"><span>4</span><span>8</span><span class="on">12</span><span>16</span></div>
       </div>
       <label class="cfg-toggle">
         <input type="checkbox" id="ownFootage">
@@ -810,8 +810,10 @@ document.addEventListener('fullscreenchange', () => { if (!document.fullscreenEl
 
 /* ---------- pricing configurator ---------- */
 const PRICING = {
-  reels: [8, 12, 16],
+  reels: [4, 8, 12, 16],
   full: [
+    { price: 475,  nl:{name:"Instap", shoot:"1 draaidag · 2 uur on-location", items:["4 bewerkte video's (30–60 sec)","Vertical format 9:16","Kleurcorrectie + muziek","Levering binnen 7–10 werkdagen"]},
+                   en:{name:"Essentials", shoot:"1 shoot day · 2 hrs on location", items:["4 edited videos (30–60 sec)","Vertical 9:16 format","Colour grade + music","Delivery within 7–10 working days"]} },
     { price: 895,  nl:{name:"Starter", shoot:"1 draaidag · 4 uur on-location", items:["8 bewerkte video's (30–60 sec)","Vertical format 9:16","Kleurcorrectie + muziek","Levering binnen 7–10 werkdagen"]},
                    en:{name:"Starter", shoot:"1 shoot day · 4 hrs on location", items:["8 edited videos (30–60 sec)","Vertical 9:16 format","Colour grade + music","Delivery within 7–10 working days"]} },
     { price: 1250, hl:true,
@@ -821,6 +823,8 @@ const PRICING = {
                    en:{name:"Pro", shoot:"2 shoot days · 8–10 hrs on location", items:["16 edited videos (30–60 sec)","All formats: 9:16 + 16:9","Colour grade + music + subtitles","Content calendar + strategy advice","Delivery within 10–14 working days (priority)"]} }
   ],
   editing: [
+    { price: 325,  nl:{name:"Editing 4",  items:["4 bewerkte video's per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 7–10 werkdagen"]},
+                   en:{name:"Editing 4",  items:["4 edited videos per month","You supply the footage","Colour grade + music + subtitles","Delivery within 7–10 working days"]} },
     { price: 595,  nl:{name:"Editing 8",  items:["8 bewerkte video's per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 7–10 werkdagen"]},
                    en:{name:"Editing 8",  items:["8 edited videos per month","You supply the footage","Colour grade + music + subtitles","Delivery within 7–10 working days"]} },
     { price: 850,  nl:{name:"Editing 12", items:["12 bewerkte video's per maand","Jij levert de beelden aan","Kleurcorrectie + muziek + ondertiteling","Levering binnen 10–14 werkdagen"]},
