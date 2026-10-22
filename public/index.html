@@ -1006,9 +1006,17 @@ toggle.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.
 let PORTFOLIO = [], filter = 'all';
 const catKey = {'business':'f_biz','real-estate':'f_re','social':'f_social','brand-film':'f_brand'};
 
+// Web versions (1080p, H.264, ~8 Mbit/s) of uploads that were too heavy for phones
+// (4K / 35–127 Mbit/s originals stall or show a broken play icon on mobile).
+// Once the portfolio item's video_url points at a light file, its entry here can go.
+const WEB_RENDITIONS = {
+  'https://pub-9ceb9d10a06d47868aa4fcfbd53ccc4e.r2.dev/videos/38d0df9a-c22e-4869-89f3-22cfa9b9136d.mp4': '/media/xquisite-campagne.mp4',
+  'https://pub-9ceb9d10a06d47868aa4fcfbd53ccc4e.r2.dev/videos/f0e8a2ef-0e24-4926-82d6-3a8ec967b37d.mp4': '/media/xquisite-promo.mp4'
+};
+
 function videoInfo(u){
   if(!u) return null;
-  if(/\.(mp4|webm|mov)(\?|$)/i.test(u)) return { type:'file', play:u };
+  if(/\.(mp4|webm|mov)(\?|$)/i.test(u)) return { type:'file', play: WEB_RENDITIONS[u] || u };
   try{
     const url = new URL(u);
     let id;
@@ -1280,8 +1288,13 @@ function openLightbox(src, orient, idx){
   lbFrame.className = 'lb-frame ' + (orient === 'v' ? 'v' : 'h');
   lbFrame.style.display = src ? '' : 'none';
   lbFrame.innerHTML = !src ? '' : /\.(mp4|webm|mov)(\?|$)/i.test(src)
-    ? `<video src="${src}" controls autoplay playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000"></video>`
+    ? `<video src="${src}" controls autoplay playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000"></video>`
     : `<iframe src="${src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+  // if a file can't be played, say so instead of leaving the browser's broken-video icon
+  const lbVid = lbFrame.querySelector('video');
+  if (lbVid) lbVid.addEventListener('error', () => {
+    lbFrame.insertAdjacentHTML('beforeend', `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:#F4EFE5;font-family:var(--mono);font-size:13px;letter-spacing:.08em;background:#000">${lang === 'nl' ? 'Deze video kan nu niet laden. Probeer het later opnieuw.' : 'This video can’t load right now. Please try again later.'}</div>`);
+  }, { once: true });
   // project info next to the video: title, full description, client, CTA
   const p = shownItems[idx];
   const info = document.getElementById('lbInfo');

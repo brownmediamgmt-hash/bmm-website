@@ -435,7 +435,7 @@ if (token) api('/api/admin/bookings').catch(()=>{}); // validates token
           const vertical = v.videoHeight >= v.videoWidth;
           c.toBlob(blob => {
             settled = true; URL.revokeObjectURL(url);
-            blob ? resolve({ blob, vertical }) : reject(new Error('Kon geen still maken'));
+            blob ? resolve({ blob, vertical, width: v.videoWidth, height: v.videoHeight, duration: v.duration }) : reject(new Error('Kon geen still maken'));
           }, 'image/jpeg', 0.82);
         } catch (e) { fail('Kon geen still maken'); }
       });
@@ -484,6 +484,19 @@ if (token) api('/api/admin/bookings').catch(()=>{}); // validates token
     try {
       row.state('still maken');
       const thumb = await grabThumb(file);
+
+      // phones choke on 4K or very high bitrates (they stall or show a broken play icon)
+      const mbps = thumb.duration ? (file.size * 8 / thumb.duration / 1e6) : 0;
+      const longSide = Math.max(thumb.width || 0, thumb.height || 0);
+      if (longSide > 1920 || mbps > 16) {
+        const ok = confirm(
+          file.name + ' is te zwaar voor telefoons:\n' +
+          '• ' + thumb.width + '×' + thumb.height + ', ' + Math.round(mbps) + ' Mbit/s, ' + Math.round(file.size / 1e6) + ' MB\n\n' +
+          'Op mobiel laadt hij dan heel lang of speelt hij niet af.\n' +
+          'Exporteer liever een webversie: 1080×1920 (of 1920×1080), H.264, 8–10 Mbit/s.\n\n' +
+          'Toch deze versie uploaden?');
+        if (!ok) throw new Error('Gestopt — upload een webversie (1080p, H.264, ±8 Mbit/s)');
+      }
 
       row.state('uploaden');
       const vSlot = await sign('video', file.type || 'video/mp4');
