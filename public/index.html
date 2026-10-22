@@ -96,13 +96,13 @@ section{padding:clamp(72px,10vw,140px) clamp(16px,6vw,72px);max-width:1280px;mar
 .cam-bg{position:fixed;inset:0;z-index:0;pointer-events:none;display:flex;align-items:center;justify-content:center}
 .cam-bg canvas{position:absolute;top:50%;right:-2%;width:min(58vw,820px);height:auto;transform:translateY(-50%)}
 /* all page content sits above the camera bg */
-nav, main, section, footer{position:relative;z-index:2}
-nav{z-index:50}
+main, section, footer{position:relative;z-index:2}
+nav{z-index:50} /* nav stays position:fixed — it used to be overridden to relative and scrolled away */
 /* readability scrim over the camera, strongest behind hero text column */
 .hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
   background:linear-gradient(90deg, var(--ink) 0%, var(--ink) 26%, color-mix(in srgb,var(--ink) 50%,transparent) 46%, transparent 66%)}
 .hero > .hero-inner{position:relative;z-index:2;width:100%}
-.scroll-hint{position:absolute;bottom:24px;left:0;z-index:3;font-family:var(--mono);
+.scroll-hint{position:absolute;bottom:24px;left:clamp(16px,6vw,72px);z-index:3;font-family:var(--mono);
   font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);opacity:.6;animation:hintpulse 2.4s ease-in-out infinite}
 @keyframes hintpulse{0%,100%{opacity:.25}50%{opacity:.7}}
 @media(max-width:760px){
@@ -277,10 +277,218 @@ footer a:hover{color:var(--amber)}
   .rec{animation:none}
 }
 @media(max-width:720px){.nav-links a.hide-m{display:none}}
+
+/* ================= v5 — cinematic layer ================= */
+/* smooth scroll (Lenis) */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+
+/* nav: CTA pill + playhead progress line */
+.nav-links a.nav-cta{color:var(--amber);border:1px solid var(--amber);border-radius:3px;padding:7px 14px;transition:background .2s,color .2s}
+.nav-links a.nav-cta:hover{background:var(--amber);color:#FFF8EC}
+.playhead{position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:var(--amber);transform-origin:0 50%;transform:scaleX(0);will-change:transform}
+
+/* film grain — subtle texture over everything */
+html,body{overflow-x:clip}
+.grain{position:fixed;inset:0;z-index:90;pointer-events:none;opacity:.07;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 1s steps(6) infinite}
+@keyframes grain{0%{background-position:0 0}20%{background-position:-37px 21px}40%{background-position:53px -41px}60%{background-position:-71px -13px}80%{background-position:29px 67px}100%{background-position:0 0}}
+
+/* intro — film leader countdown, then letterbox bars open */
+#intro{position:fixed;inset:0;z-index:300;pointer-events:auto;cursor:pointer}
+#intro .bar{position:absolute;left:0;right:0;height:50.5%;background:var(--paper);transition:transform 1s cubic-bezier(.77,0,.18,1)}
+#intro .bar.t{top:0}#intro .bar.b{bottom:0}
+#intro .leader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity .35s}
+#intro .ring{position:relative;width:min(38vw,240px);aspect-ratio:1;border-radius:50%;border:1px solid rgba(244,239,229,.35);
+  display:flex;align-items:center;justify-content:center}
+#intro .ring::before,#intro .ring::after{content:"";position:absolute;background:rgba(244,239,229,.18)}
+#intro .ring::before{left:-40%;right:-40%;top:50%;height:1px}
+#intro .ring::after{top:-40%;bottom:-40%;left:50%;width:1px}
+#intro .sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(185,124,46,.55) var(--a,0deg),transparent 0)}
+#intro .num{position:relative;font-family:var(--display);font-variation-settings:'wdth' 110;font-weight:850;font-size:min(22vw,140px);color:#F4EFE5;line-height:1}
+#intro .cap{position:absolute;bottom:9%;left:0;right:0;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:rgba(244,239,229,.55);text-transform:uppercase}
+#intro.open .leader{opacity:0}
+#intro.open .bar.t{transform:translateY(-100%)}
+#intro.open .bar.b{transform:translateY(100%)}
+#intro.gone{display:none}
+
+/* custom cursor ring (fine pointers only) */
+.cursor{position:fixed;top:0;left:0;z-index:250;pointer-events:none;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;
+  border:1px solid var(--amber);display:flex;align-items:center;justify-content:center;opacity:0;
+  transition:width .3s cubic-bezier(.2,.8,.2,1),height .3s cubic-bezier(.2,.8,.2,1),margin .3s cubic-bezier(.2,.8,.2,1),background .3s,opacity .3s,border-color .3s}
+.cursor span{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:#FFF8EC;opacity:0;transition:opacity .2s}
+.cursor.on{opacity:1}
+.cursor.link{width:56px;height:56px;margin:-28px 0 0 -28px;background:color-mix(in srgb,var(--amber) 12%,transparent)}
+.cursor.play{width:92px;height:92px;margin:-46px 0 0 -46px;background:var(--amber);border-color:var(--amber)}
+.cursor.play span{opacity:1}
+@media (hover:none),(pointer:coarse){.cursor{display:none}}
+
+/* hero: live timecode + scroll parallax target */
+.hero .tc .live{font-variant-numeric:tabular-nums}
+.hero .hero-inner{will-change:transform,opacity}
+
+/* client marquee */
+.marquee{position:relative;z-index:2;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;
+  background:color-mix(in srgb,var(--surface) 80%,transparent);padding:18px 0;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.marquee-track{display:flex;width:max-content;animation:marq 38s linear infinite}
+.marquee:hover .marquee-track{animation-play-state:paused}
+.marquee-track span{font-family:var(--display);font-variation-settings:'wdth' 118;font-weight:800;font-size:clamp(18px,2.2vw,28px);
+  text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;padding:0 28px;color:var(--paper)}
+.marquee-track span.dot{color:var(--amber);padding:0}
+.marquee-track span.stat{color:var(--amber)}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+/* portfolio cards: staggered cinematic reveal + hover preview */
+.card.reveal{opacity:0;transform:translateY(48px);clip-path:inset(12% 0 0 0 round 4px);
+  transition:opacity .9s cubic-bezier(.2,.8,.2,1) var(--d,0s),transform .9s cubic-bezier(.2,.8,.2,1) var(--d,0s),clip-path 1.1s cubic-bezier(.2,.8,.2,1) var(--d,0s),border-color .25s}
+.card.reveal.in{opacity:1;transform:none;clip-path:inset(0 0 0 0 round 4px)}
+.card.reveal.in:hover{transform:translateY(-4px)}
+.card.reveal.in.done{transition:transform .5s cubic-bezier(.2,.8,.2,1),border-color .25s}
+.frame img{transition:transform 1.2s cubic-bezier(.2,.8,.2,1),filter .6s}
+.card:hover .frame img{transform:scale(1.05)}
+.frame video.preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0;transition:opacity .45s}
+.frame video.preview.on{opacity:1}
+.card .meta p{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.card.v .frame.v{max-height:none;height:auto;width:100%;aspect-ratio:4/5}
+.card.v .frame.v img{object-fit:cover}
+
+/* ===== film strip portfolio ===== */
+#work{padding-bottom:0}
+#work .lede{margin-bottom:32px}
+.reel{position:relative;width:100vw;margin-left:calc(50% - 50vw)}
+.reel-pin{position:sticky;top:64px;height:calc(100svh - 64px);min-height:520px;display:flex;flex-direction:column;justify-content:center;
+  background:var(--paper);overflow:hidden}
+.reel-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:0 clamp(16px,6vw,72px);margin-bottom:18px}
+.reel .filters{margin:0}
+.reel .filters button{border-color:rgba(244,239,229,.16);color:rgba(244,239,229,.62)}
+.reel .filters button.on,.reel .filters button:hover{border-color:var(--amber);color:var(--amber)}
+.reel-count{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--amber-dim);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sprockets{height:10px;margin:0 -20px;opacity:.9;
+  background:repeating-linear-gradient(90deg,transparent 0 10px,rgba(244,239,229,.13) 10px 24px,transparent 24px 34px)}
+.reel-track{--fh:min(50svh,500px);display:flex;align-items:flex-start;gap:26px;padding:20px clamp(16px,6vw,72px);will-change:transform}
+.reel .card{flex:0 0 auto;width:calc(var(--fh) * var(--r));background:transparent;border:0;box-shadow:none;border-radius:0;overflow:visible}
+.reel .card:hover,.reel .card.reveal.in:hover{transform:none}
+.reel .card .frame{height:var(--fh);width:100%;border-radius:3px;background:#0d0c0a}
+.reel .card .frame img{object-fit:cover}
+.reel .card .meta{padding:14px 2px 0}
+.reel .card .cat{color:var(--amber)}
+.reel .card h3{color:#F4EFE5;font-size:17px;margin:6px 0 4px}
+.reel .card .client{color:rgba(244,239,229,.45);margin-top:4px}
+.reel .card:hover .frame::before,.reel .card:hover .frame::after{opacity:1}
+.frame iframe.preview{z-index:1;opacity:0;pointer-events:none;transition:opacity .45s}
+.frame iframe.preview.on{opacity:1}
+.reel .card .desc{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:13.5px;line-height:1.55;color:rgba(244,239,229,.62);margin:2px 0 0}
+.reel .card .more{background:none;border:0;padding:6px 0 0;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);transition:color .2s}
+.reel .card .more:hover{color:#F4EFE5}
+#lightbox{overflow-y:auto}
+#lightbox .lb-wrap{display:flex;align-items:center;justify-content:center;gap:clamp(24px,4vw,64px);padding:24px;max-width:96vw;margin:auto}
+#lightbox .lb-wrap.h{flex-direction:column;align-items:flex-start}
+#lightbox .lb-wrap.v .lb-frame.v{height:88vh}
+#lightbox .lb-wrap.h .lb-frame.h{width:min(88vw,calc(66vh*1.7778))}
+.lb-info{flex:0 1 420px;min-width:260px;color:#F4EFE5}
+.lb-info .cat{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--amber);text-transform:uppercase}
+.lb-info h3{font-family:var(--display);font-variation-settings:'wdth' 112;font-weight:800;font-size:clamp(22px,2.4vw,32px);text-transform:uppercase;line-height:1.05;margin:10px 0 18px}
+.lb-info p{color:rgba(244,239,229,.75);font-size:15px;line-height:1.75;white-space:pre-line}
+.lb-info .client{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:rgba(244,239,229,.45);margin-top:18px}
+.lb-info .btn{margin-top:26px}
+@media(max-width:1000px){
+  #lightbox{align-items:flex-start}
+  #lightbox .lb-wrap{flex-direction:column;align-items:center;padding:72px 18px 40px}
+  #lightbox .lb-wrap.v .lb-frame.v{height:min(72vh,150vw)}
+  .lb-info{flex:none;width:min(100%,560px)}
+}
+.reel-progress{height:2px;background:rgba(244,239,229,.12);margin:16px clamp(16px,6vw,72px) 0}
+.reel-progress i{display:block;height:100%;background:var(--amber);transform-origin:0 50%;transform:scaleX(0)}
+@media(max-width:760px){
+  .reel-pin{position:relative;top:0;height:auto;min-height:0;padding:26px 0 24px}
+  .reel-head{flex-direction:column;align-items:flex-start}
+  .reel .filters{flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:none}
+  .reel .filters button{flex:0 0 auto}
+  .reel-track{--fh:52svh;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-top:16px;padding-bottom:4px}
+  .reel-track::-webkit-scrollbar,.reel .filters::-webkit-scrollbar{display:none}
+  .reel .card{width:min(calc(var(--fh) * var(--r)),84vw);scroll-snap-align:center}
+  .reel .card .frame{height:auto;aspect-ratio:var(--r);max-height:var(--fh)}
+}
+
+/* services: amber line draws in on hover */
+.svc::before{content:"";position:absolute;left:0;top:0;height:2px;width:100%;background:var(--amber);transform:scaleX(0);transform-origin:0 50%;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.svc:hover::before{transform:scaleX(1)}
+.reveal{transition:opacity .9s cubic-bezier(.2,.8,.2,1) var(--d,0s),transform .9s cubic-bezier(.2,.8,.2,1) var(--d,0s),border-color .25s;transform:translateY(32px)}
+
+/* ===== combined booking + question form ===== */
+.lead-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(32px,6vw,80px);align-items:start}
+@media(max-width:900px){.lead-wrap{grid-template-columns:1fr}}
+.lead-promise{list-style:none;margin-top:8px;border-top:1px solid var(--line)}
+.lead-promise li{padding:14px 0;border-bottom:1px solid var(--line);font-size:15px;display:flex;gap:14px;align-items:baseline}
+.lead-promise li b{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.16em;color:var(--amber);min-width:24px}
+.lead-ig{display:inline-block;margin-top:22px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:3px;transition:color .2s,border-color .2s}
+.lead-ig:hover{color:var(--amber);border-color:var(--amber)}
+.lead-card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:clamp(22px,3vw,36px);box-shadow:0 30px 60px -40px rgba(26,23,18,.35)}
+.intent{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:3px;padding:4px;position:relative;margin-bottom:6px;background:var(--ink)}
+.intent input{position:absolute;opacity:0;pointer-events:none}
+.intent label{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 8px;cursor:pointer;text-align:center;transition:color .3s;color:var(--muted)}
+.intent label b{font-family:var(--display);font-variation-settings:'wdth' 100;font-weight:750;font-size:clamp(12px,1.25vw,15px);letter-spacing:.02em;color:inherit;white-space:nowrap}
+.intent label small{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:inherit;opacity:.8}
+.intent .pill{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:var(--amber);border-radius:2px;transition:transform .45s cubic-bezier(.7,0,.2,1)}
+.intent[data-v="question"] .pill{transform:translateX(100%)}
+.intent input:checked+label{color:#FFF8EC}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips label{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:9px 14px;border:1px solid var(--line);border-radius:30px;cursor:pointer;color:var(--muted);transition:.2s;background:var(--ink)}
+.chips label:hover{border-color:var(--amber-dim);color:var(--paper)}
+.chips input:checked+label{border-color:var(--amber);color:var(--amber);background:color-mix(in srgb,var(--amber) 9%,var(--surface))}
+.chips input:focus-visible+label,.intent input:focus-visible+label{outline:2px solid var(--amber);outline-offset:2px}
+.field-title{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:-4px}
+.call-only{display:grid;grid-template-rows:1fr;transition:grid-template-rows .5s cubic-bezier(.7,0,.2,1),opacity .4s}
+.call-only>div{overflow:hidden;min-height:0}
+.call-only.hide{grid-template-rows:0fr;opacity:0}
+.lead-submit{width:100%;justify-content:center;padding:16px 26px;margin-top:4px}
+.lead-submit .arr{transition:transform .25s}
+.lead-submit:hover .arr{transform:translateX(4px)}
+.lead-fine{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;letter-spacing:.04em}
+.lead-done{display:none;text-align:center;padding:36px 8px}
+.lead-done .clap{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--amber);margin-bottom:12px}
+.lead-done h3{font-family:var(--display);font-variation-settings:'wdth' 115;font-weight:800;font-size:clamp(24px,3vw,32px);text-transform:uppercase;margin-bottom:10px}
+.lead-done p{color:var(--muted)}
+.lead-card.sent form{display:none}
+.lead-card.sent .lead-done{display:block;animation:pop .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes pop{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* mobile sticky CTA */
+@media(max-width:720px){.nav-links{gap:10px}.nav-links a.nav-cta{padding:6px 10px;font-size:12px}.brand{font-size:11px;letter-spacing:.1em}}
+.m-cta{position:fixed;left:12px;right:12px;bottom:12px;z-index:60;display:none;gap:8px;transform:translateY(140%);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.m-cta .btn{flex:1;justify-content:center;box-shadow:0 12px 30px -10px rgba(26,23,18,.45)}
+.m-cta .m-wa{flex:0 0 50px;display:flex;align-items:center;justify-content:center;border-radius:3px;background:var(--paper);box-shadow:0 12px 30px -10px rgba(26,23,18,.45)}
+.m-cta .m-wa svg{width:24px;height:24px;fill:#25D366}
+.m-cta.show{transform:none}
+@media(max-width:720px){.m-cta{display:flex}}
+
+/* WhatsApp: floating button (desktop) + link in contact column */
+.wa-float{position:fixed;right:22px;bottom:22px;z-index:150;display:flex;align-items:center;height:54px;padding:0 15px;border-radius:30px;
+  background:var(--paper);color:#F4EFE5;border:1px solid rgba(244,239,229,.14);box-shadow:0 14px 34px -12px rgba(26,23,18,.55);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.wa-float svg{width:24px;height:24px;fill:#25D366;flex-shrink:0}
+.wa-float span{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .4s cubic-bezier(.2,.8,.2,1),margin .4s}
+.wa-float:hover{transform:translateY(-3px)}
+.wa-float:hover span{max-width:120px;margin-left:10px}
+@media(max-width:720px){.wa-float{display:none}}
+.lead-wa{display:flex;align-items:center;gap:10px;margin-top:26px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--paper);transition:color .2s}
+.lead-wa svg{width:18px;height:18px;fill:#25D366}
+.lead-wa:hover{color:var(--amber)}
+.lead-wa+.lead-ig{margin-top:12px}
 </style>
 </head>
 <body>
 
+<div id="intro" aria-hidden="true">
+  <div class="bar t"></div><div class="bar b"></div>
+  <div class="leader"><div class="ring"><div class="sweep"></div><span class="num">3</span></div><div class="cap">Brown Media Mgmt — Take 01</div></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><span>PLAY</span></div>
 <div class="cam-bg" id="camLayer" aria-hidden="true"></div>
 
 <nav>
@@ -289,17 +497,18 @@ footer a:hover{color:var(--amber)}
     <a href="#work" data-i18n="nav_work" class="hide-m">Werk</a>
     <a href="#services" data-i18n="nav_services" class="hide-m">Diensten</a>
     <a href="#pricing" data-i18n="nav_pricing" class="hide-m">Prijzen</a>
-    <a href="#booking" data-i18n="nav_booking">Boeken</a>
     <a href="#faq" class="hide-m">FAQ</a>
+    <a href="#booking" class="nav-cta" data-i18n="nav_booking">Contact</a>
     <div class="lang-toggle" id="langToggle" role="button" tabindex="0" aria-label="Switch language">
       <span data-lang="nl">NL</span><span data-lang="en">EN</span>
     </div>
   </div>
+  <div class="playhead" id="playhead" aria-hidden="true"></div>
 </nav>
 
 <section class="hero" id="top">
   <div class="hero-inner">
-    <div class="tc">REC ● 00:00:00:00 — GRONINGEN → NL</div>
+    <div class="tc"><span>REC ● <span class="live" id="liveTc">00:00:00:00</span> — GRONINGEN → NL</span></div>
     <h1 data-i18n-html="hero_h1">Video's die van kijkers<br><span class="amber">klanten maken.</span></h1>
     <p class="sub" data-i18n="hero_sub">Videoproductie voor bedrijven, personal brands en vastgoed. Bedrijfsvideo's, social media content en brand films — strategisch gemaakt om aandacht om te zetten in aanvragen.</p>
     <div class="cta-row">
@@ -313,18 +522,35 @@ footer a:hover{color:var(--amber)}
   <div class="scroll-hint" data-i18n="scrollhint">SCROLL ↓</div>
 </section>
 
+<div class="marquee" aria-label="Klanten">
+  <div class="marquee-track" id="marqTrack">
+    <span>Xquisite Car Detailing</span><span class="dot">✦</span><span>Arc Design Studio</span><span class="dot">✦</span><span>DAJO Villa's</span><span class="dot">✦</span><span>Lovely Villa's Curaçao</span><span class="dot">✦</span><span>LuxV Design Studio</span><span class="dot">✦</span><span>Bandabou</span><span class="dot">✦</span><span class="stat">100K+ views</span><span class="dot">✦</span>
+  </div>
+</div>
+
 <section id="work">
   <div class="tc">SCENE 01 — PORTFOLIO</div>
   <h2 data-i18n="work_h2">Geselecteerd werk</h2>
-  <p class="lede" data-i18n="work_lede">Iedere productie in een 2.39:1 frame — gemaakt met één doel: resultaat.</p>
-  <div class="filters" id="filters">
-    <button data-f="all" class="on" data-i18n="f_all">Alles</button>
-    <button data-f="business" data-i18n="f_biz">Bedrijfsvideo</button>
-    <button data-f="social" data-i18n="f_social">Social content</button>
-    <button data-f="brand-film" data-i18n="f_brand">Brand films</button>
-    <button data-f="real-estate" data-i18n="f_re">Vastgoed</button>
+  <p class="lede" data-i18n="work_lede">Scroll door de rol — hover om mee te kijken, klik voor fullscreen.</p>
+  <!-- film strip: section pins while scrolling moves the reel sideways -->
+  <div class="reel" id="reel">
+    <div class="reel-pin">
+      <div class="reel-head">
+        <div class="filters" id="filters">
+          <button data-f="all" class="on" data-i18n="f_all">Alles</button>
+          <button data-f="business" data-i18n="f_biz">Bedrijfsvideo</button>
+          <button data-f="social" data-i18n="f_social">Social content</button>
+          <button data-f="brand-film" data-i18n="f_brand">Brand films</button>
+          <button data-f="real-estate" data-i18n="f_re">Vastgoed</button>
+        </div>
+        <div class="reel-count" id="reelCount">01 / 01</div>
+      </div>
+      <div class="sprockets" aria-hidden="true"></div>
+      <div class="reel-track" id="workGrid"></div>
+      <div class="sprockets" aria-hidden="true"></div>
+      <div class="reel-progress" aria-hidden="true"><i id="reelBar"></i></div>
+    </div>
   </div>
-  <div class="grid" id="workGrid"></div>
 </section>
 
 <section id="services">
@@ -451,50 +677,64 @@ footer a:hover{color:var(--amber)}
 </section>
 
 <section id="booking">
-  <div class="tc" data-i18n="tc4">SCENE 05 — BOEKEN & CONTACT</div>
-  <div class="form-wrap">
+  <div class="tc" data-i18n="tc4">SCENE 05 — CONTACT</div>
+  <div class="lead-wrap">
     <div>
-      <h2 data-i18n="book_h2">Plan een gesprek</h2>
-      <p class="lede" data-i18n="book_lede">Kies een dienst en voorkeursdatum — ik reageer binnen 24 uur.</p>
-      <form id="bookingForm">
-        <div class="row2">
-          <label><span data-i18n="f_name">Naam</span><input name="name" required maxlength="120" autocomplete="name"></label>
-          <label>E-mail<input name="email" type="email" required maxlength="200" autocomplete="email"></label>
-        </div>
-        <div class="row2">
-          <label><span data-i18n="f_phone">Telefoon</span><input name="phone" maxlength="40" autocomplete="tel"></label>
-          <label><span data-i18n="f_service">Dienst</span>
-            <select name="service" required>
-              <option value="business" data-i18n="f_biz">Bedrijfsvideo</option>
-              <option value="social" data-i18n="f_social">Social content</option>
-              <option value="brand-film" data-i18n="f_brand">Brand films</option>
-              <option value="real-estate" data-i18n="f_re">Vastgoed</option>
-              <option value="other" data-i18n="f_other">Anders</option>
-            </select>
-          </label>
-        </div>
-        <div class="row2">
-          <label><span data-i18n="f_date">Voorkeursdatum</span><input name="preferred_date" type="date" required></label>
-          <label><span data-i18n="f_loc">Locatie</span><input name="location" maxlength="200" placeholder="Groningen…"></label>
-        </div>
-        <label><span data-i18n="f_details">Details</span><textarea name="details" maxlength="2000"></textarea></label>
-        <div class="notice" id="bookingNotice"></div>
-        <button class="btn solid" type="submit" data-i18n="book_btn">Verstuur aanvraag</button>
-      </form>
+      <h2 data-i18n="lead_h2">Laten we iets moois maken</h2>
+      <p class="lede" data-i18n="lead_lede">Plan direct een gesprek of stel eerst je vraag — één formulier, ik reageer binnen 24 uur.</p>
+      <ul class="lead-promise">
+        <li><b>01</b><span data-i18n="lead_p1">Reactie binnen 24 uur — persoonlijk, geen standaardmail</span></li>
+        <li><b>02</b><span data-i18n="lead_p2">Vrijblijvend kennismakingsgesprek — geen verplichtingen</span></li>
+        <li><b>03</b><span data-i18n="lead_p3">Binnen 24 uur na het gesprek een voorstel op maat</span></li>
+      </ul>
+      <a class="lead-wa wa-link" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span data-i18n="lead_wa">Liever direct? Stuur een WhatsApp ↗</span></a>
+      <a class="lead-ig" href="https://instagram.com/brownmediamgmt" target="_blank" rel="noopener" data-i18n="lead_ig">Liever via Instagram? @brownmediamgmt ↗</a>
     </div>
-    <div id="contact">
-      <h2 data-i18n="contact_h2">Of stel een vraag</h2>
-      <p class="lede" data-i18n="contact_lede">Nog niet klaar om te plannen? Stuur een bericht.</p>
-      <form id="contactForm">
+
+    <div class="lead-card" id="leadCard">
+      <form id="leadForm" novalidate>
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+        <div class="intent" id="intentSw" data-v="call" role="radiogroup">
+          <span class="pill" aria-hidden="true"></span>
+          <input type="radio" name="intent" id="int-call" value="call" checked>
+          <label for="int-call"><b data-i18n="int_call">Gesprek plannen</b><small data-i18n="int_call_s">Ik wil aan de slag</small></label>
+          <input type="radio" name="intent" id="int-q" value="question">
+          <label for="int-q"><b data-i18n="int_q">Vraag stellen</b><small data-i18n="int_q_s">Ik oriënteer me nog</small></label>
+        </div>
+
+        <div class="field-title" data-i18n="f_about">Waar gaat het over?</div>
+        <div class="chips">
+          <input type="radio" name="service" id="s-biz" value="business"><label for="s-biz" data-i18n="f_biz">Bedrijfsvideo</label>
+          <input type="radio" name="service" id="s-soc" value="social" checked><label for="s-soc" data-i18n="f_social">Social content</label>
+          <input type="radio" name="service" id="s-brand" value="brand-film"><label for="s-brand" data-i18n="f_brand">Brand films</label>
+          <input type="radio" name="service" id="s-re" value="real-estate"><label for="s-re" data-i18n="f_re">Vastgoed</label>
+          <input type="radio" name="service" id="s-other" value="other"><label for="s-other" data-i18n="f_other">Anders</label>
+        </div>
+
         <div class="row2">
           <label><span data-i18n="f_name">Naam</span><input name="name" required maxlength="120" autocomplete="name"></label>
           <label>E-mail<input name="email" type="email" required maxlength="200" autocomplete="email"></label>
         </div>
-        <label><span data-i18n="f_company">Bedrijf</span><input name="company" maxlength="160" autocomplete="organization"></label>
-        <label><span data-i18n="f_msg">Bericht</span><textarea name="message" required maxlength="2000"></textarea></label>
-        <div class="notice" id="contactNotice"></div>
-        <button class="btn ghost" type="submit" data-i18n="contact_btn">Verstuur bericht</button>
+        <div class="row2">
+          <label><span data-i18n="f_phone">Telefoon</span><input name="phone" type="tel" maxlength="40" autocomplete="tel"></label>
+          <label><span data-i18n="f_company">Bedrijf</span><input name="company" maxlength="160" autocomplete="organization"></label>
+        </div>
+        <div class="call-only" id="callOnly"><div>
+          <div class="row2">
+            <label><span data-i18n="f_date">Voorkeursdatum</span><input name="preferred_date" type="date"></label>
+            <label><span data-i18n="f_loc">Locatie</span><input name="location" maxlength="200" placeholder="Groningen…"></label>
+          </div>
+        </div></div>
+        <label><span id="msgLabel" data-i18n="f_msg_call">Vertel kort over je project</span><textarea name="message" maxlength="2000" data-lenis-prevent></textarea></label>
+        <div class="notice" id="leadNotice"></div>
+        <button class="btn solid lead-submit" type="submit"><span id="submitLabel" data-i18n="btn_call">Plan mijn gesprek</span><span class="arr" aria-hidden="true">→</span></button>
+        <p class="lead-fine" data-i18n="lead_fine">Vrijblijvend · ik reageer binnen 24 uur</p>
       </form>
+      <div class="lead-done" role="status">
+        <div class="clap">● CUT — THAT'S A TAKE</div>
+        <h3 data-i18n="done_h">Verstuurd!</h3>
+        <p data-i18n="sent_ok">Verstuurd. Ik neem binnen 24 uur contact op.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -518,10 +758,16 @@ footer a:hover{color:var(--amber)}
   <p class="lede" style="margin-bottom:0" data-i18n="regio_p2">Werkgebied: stad Groningen (reiskosten gratis), provincie Groningen, Drenthe en Friesland. Producties in de rest van Nederland en Engelstalige producties voor internationale klanten op aanvraag.</p>
 </section>
 
-<div id="lightbox" role="dialog" aria-modal="true">
+<div id="lightbox" role="dialog" aria-modal="true" data-lenis-prevent>
   <button id="lbClose" aria-label="Sluiten">&#10005;</button>
-  <div class="lb-frame h" id="lbFrame"></div>
+  <div class="lb-wrap" id="lbWrap">
+    <div class="lb-frame h" id="lbFrame"></div>
+    <div class="lb-info" id="lbInfo"></div>
+  </div>
 </div>
+
+<a class="wa-float wa-link" href="#" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span data-i18n="wa_label">WhatsApp</span></a>
+<div class="m-cta" id="mCta"><a class="btn solid" href="#booking" data-i18n="hero_cta1">Plan een gesprek</a><a class="m-wa wa-link" href="#" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a></div>
 
 <footer>
   <span>© 2026 BROWN MEDIA MANAGEMENT</span>
@@ -530,15 +776,30 @@ footer a:hover{color:var(--amber)}
 </footer>
 
 <script>
+/* ---------- contact settings — edit here ---------- */
+const CONTACT = {
+  whatsapp: '31620890835'   // international format, no + or spaces
+};
+// lead emails are sent by the server (server.js → notify), not from the page
+
 /* ---------- i18n ---------- */
 const I18N = {
   nl: {
-    nav_work:"Werk", nav_services:"Diensten", nav_booking:"Boeken",
+    nav_work:"Werk", nav_services:"Diensten", nav_booking:"Contact",
+    lead_h2:"Laten we iets moois maken", lead_lede:"Plan direct een gesprek of stel eerst je vraag — één formulier, ik reageer binnen 24 uur.",
+    lead_p1:"Reactie binnen 24 uur — persoonlijk, geen standaardmail", lead_p2:"Vrijblijvend kennismakingsgesprek — geen verplichtingen", lead_p3:"Binnen 24 uur na het gesprek een voorstel op maat",
+    lead_ig:"Liever via Instagram? @brownmediamgmt ↗",
+    int_call:"Gesprek plannen", int_call_s:"Ik wil aan de slag", int_q:"Vraag stellen", int_q_s:"Ik oriënteer me nog",
+    f_about:"Waar gaat het over?", f_msg_call:"Vertel kort over je project", f_msg_q:"Je vraag",
+    btn_call:"Plan mijn gesprek", btn_q:"Verstuur mijn vraag", lead_fine:"Vrijblijvend · ik reageer binnen 24 uur",
+    done_h:"Verstuurd!", err_required:"Vul je naam en een geldig e-mailadres in.", err_date:"Kies een voorkeursdatum voor het gesprek.", err_msg:"Wat is je vraag? Typ hem hieronder.",
     hero_h1:'Video\'s die van kijkers<br><span class="amber">klanten maken.</span>',
     hero_sub:"Videoproductie voor bedrijven, personal brands en vastgoed. Bedrijfsvideo's, social media content en brand films — strategisch gemaakt om aandacht om te zetten in aanvragen.",
     hero_cta1:"Plan een gesprek", hero_cta2:"Bekijk werk", scrollhint:"SCROLL ↓ — HAAL DE CAMERA UIT ELKAAR",
     lb_1:"Bedrijven · MKB", lb_2:"Personal brands", lb_3:"Vastgoed & interieur", lb_4:"NL / EN producties",
-    work_h2:"Geselecteerd werk", work_lede:"Iedere productie in een 2.39:1 frame — gemaakt met één doel: resultaat.",
+    work_h2:"Geselecteerd werk", work_lede:"Scroll door de rol — hover om mee te kijken, klik voor fullscreen.",
+    read_more:"Lees meer", lb_cta:"Zoiets voor jou? Plan een gesprek",
+    wa_label:"WhatsApp", wa_msg:"Hoi Brown Media! Ik heb een vraag over een video.", lead_wa:"Liever direct? Stuur een WhatsApp ↗",
     f_all:"Alles", f_biz:"Bedrijfsvideo", f_social:"Social content", f_brand:"Brand films", f_re:"Vastgoed", f_other:"Anders",
     svc_h2:"Videoproductie met een doel", svc_lede:"Geen video om de video. Elke productie start met de vraag: wat moet de kijker hierna doen?",
     svc1_h:"Bedrijfsvideo & promotie", svc1_p:"Laat in één video zien wie je bent, wat je doet en waarom klanten voor jou kiezen. Voor je website, ads en sales.",
@@ -547,7 +808,7 @@ const I18N = {
     svc2_l1:"Maandpakketten (4–12 video's)", svc2_l2:"Hooks, captions & contentstrategie", svc2_l3:"Geoptimaliseerd per platform",
     svc3_h:"Brand films & personal brands", svc3_p:"Storytelling die vertrouwen opbouwt vóór het eerste gesprek. Voor ondernemers en merken die meer willen dan een advertentie.",
     svc3_l1:"Brand film & merkverhaal", svc3_l2:"Personal brand content", svc3_l3:"Cutdowns voor social & ads",
-    tc2:"SCENE 02 — DIENSTEN", tc3:"SCENE 03 — WERKWIJZE", tc4:"SCENE 05 — BOEKEN & CONTACT", tc5:"SCENE 06 — FAQ",
+    tc2:"SCENE 02 — DIENSTEN", tc3:"SCENE 03 — WERKWIJZE", tc4:"SCENE 05 — CONTACT", tc5:"SCENE 06 — FAQ",
     step1:"STAP 01", step2:"STAP 02", step3:"STAP 03", step4:"STAP 04",
     proc_h2:"Van idee naar resultaat", proc_lede:"Een vaste aanpak, zodat jij weet wat je krijgt — en wanneer.",
     p1_h:"Strategie", p1_p:"We bepalen het doel, de doelgroep en de boodschap. Daar wordt het concept op gebouwd.",
@@ -585,12 +846,21 @@ const I18N = {
     no_video:"PREVIEW VOLGT"
   },
   en: {
-    nav_work:"Work", nav_services:"Services", nav_booking:"Booking",
+    nav_work:"Work", nav_services:"Services", nav_booking:"Contact",
+    lead_h2:"Let's make something great", lead_lede:"Book a call right away or ask your question first — one form, I respond within 24 hours.",
+    lead_p1:"Reply within 24 hours — personal, never a template", lead_p2:"No-obligation intro call", lead_p3:"A tailored proposal within 24 hours after the call",
+    lead_ig:"Prefer Instagram? @brownmediamgmt ↗",
+    int_call:"Book a call", int_call_s:"I'm ready to start", int_q:"Ask a question", int_q_s:"Still exploring",
+    f_about:"What's it about?", f_msg_call:"Tell me briefly about your project", f_msg_q:"Your question",
+    btn_call:"Book my call", btn_q:"Send my question", lead_fine:"No obligation · reply within 24 hours",
+    done_h:"Sent!", err_required:"Please enter your name and a valid email address.", err_date:"Pick a preferred date for the call.", err_msg:"What's your question? Type it below.",
     hero_h1:'Video that turns viewers<br><span class="amber">into customers.</span>',
     hero_sub:"Video production for businesses, personal brands and real estate. Corporate videos, social media content and brand films — strategically built to turn attention into enquiries.",
     hero_cta1:"Book a call", hero_cta2:"View work", scrollhint:"SCROLL ↓ — TAKE THE CAMERA APART",
     lb_1:"Businesses · SME", lb_2:"Personal brands", lb_3:"Real estate & interiors", lb_4:"NL / EN productions",
-    work_h2:"Selected work", work_lede:"Every production in a 2.39:1 frame — made with one goal: results.",
+    work_h2:"Selected work", work_lede:"Scroll through the reel — hover to preview, click for fullscreen.",
+    read_more:"Read more", lb_cta:"Want this too? Book a call",
+    wa_label:"WhatsApp", wa_msg:"Hi Brown Media! I have a question about a video.", lead_wa:"Prefer to chat? Send a WhatsApp ↗",
     f_all:"All", f_biz:"Corporate video", f_social:"Social content", f_brand:"Brand films", f_re:"Real estate", f_other:"Other",
     svc_h2:"Video production with purpose", svc_lede:"No video for video's sake. Every production starts with one question: what should the viewer do next?",
     svc1_h:"Corporate & promo video", svc1_p:"Show in one video who you are, what you do and why customers choose you. For your website, ads and sales.",
@@ -599,7 +869,7 @@ const I18N = {
     svc2_l1:"Monthly packs (4–12 videos)", svc2_l2:"Hooks, captions & content strategy", svc2_l3:"Optimised per platform",
     svc3_h:"Brand films & personal brands", svc3_p:"Storytelling that builds trust before the first call. For founders and brands that want more than an ad.",
     svc3_l1:"Brand film & brand story", svc3_l2:"Personal brand content", svc3_l3:"Cutdowns for social & ads",
-    tc2:"SCENE 02 — SERVICES", tc3:"SCENE 03 — PROCESS", tc4:"SCENE 05 — BOOKING & CONTACT", tc5:"SCENE 06 — FAQ",
+    tc2:"SCENE 02 — SERVICES", tc3:"SCENE 03 — PROCESS", tc4:"SCENE 05 — CONTACT", tc5:"SCENE 06 — FAQ",
     step1:"STEP 01", step2:"STEP 02", step3:"STEP 03", step4:"STEP 04",
     proc_h2:"From idea to results", proc_lede:"A fixed process, so you know exactly what you get — and when.",
     p1_h:"Strategy", p1_p:"We define the goal, audience and message. The concept is built on that.",
@@ -648,8 +918,10 @@ function applyLang(){
     const k = el.dataset.i18nHtml; if (I18N[lang][k]) el.innerHTML = I18N[lang][k];
   });
   document.querySelectorAll('#langToggle span').forEach(s => s.classList.toggle('on', s.dataset.lang === lang));
+  document.querySelectorAll('.wa-link').forEach(a => { a.href = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(I18N[lang].wa_msg)}`; });
   renderWork();
   if (typeof renderPricing === 'function') renderPricing();
+  if (typeof syncIntent === 'function' && typeof leadForm !== 'undefined') { syncIntent(); renderMarquee(); }
 }
 const toggle = document.getElementById('langToggle');
 function flipLang(){ lang = lang === 'nl' ? 'en' : 'nl'; localStorage.setItem('bmm_lang', lang); applyLang(); }
@@ -679,10 +951,13 @@ function videoInfo(u){
       thumbFallback: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
     };
     if (url.hostname.includes('vimeo.com')) {
-      const vid = url.pathname.split('/').filter(Boolean)[0];
+      const [vid, hash] = url.pathname.split('/').filter(Boolean);
+      const h = url.searchParams.get('h') || (hash && /^[0-9a-f]+$/i.test(hash) ? hash : '');
+      const hq = h ? `h=${h}&` : '';
       if (/^\d+$/.test(vid)) return {
         type: 'vimeo', vid,
-        play: `https://player.vimeo.com/video/${vid}?autoplay=1&title=0&byline=0&portrait=0&dnt=1&quality=1080p`
+        play: `https://player.vimeo.com/video/${vid}?${hq}autoplay=1&title=0&byline=0&portrait=0&dnt=1&quality=1080p`,
+        preview: `https://player.vimeo.com/video/${vid}?${hq}background=1&autoplay=1&muted=1&loop=1&autopause=0&dnt=1&quality=540p`
       };
     }
     if (url.hostname.includes('instagram.com')) {
@@ -703,12 +978,14 @@ function loadVimeoThumb(vid, imgEl){
     .catch(()=>{});
 }
 
+let shownItems = [];
 function renderWork(){
   const grid = document.getElementById('workGrid');
   const items = PORTFOLIO.filter(p => filter==='all' || p.category===filter);
-  grid.innerHTML = items.map(p => {
+  shownItems = items;
+  grid.innerHTML = items.map((p, i) => {
     const title = lang==='nl' ? p.title_nl : p.title_en;
-    const desc = lang==='nl' ? (p.description_nl||'') : (p.description_en||'');
+    const desc = lang==='nl' ? (p.description_nl||'') : (p.description_en||p.description_nl||'');
     const v = videoInfo(p.video_url);
     const isVert = p.format === 'vertical' || (v && v.tall);
     let media;
@@ -728,16 +1005,125 @@ function renderWork(){
     } else {
       media = `<span class="empty">${I18N[lang].no_video}</span>`;
     }
-    return `<article class="card reveal in${isVert ? ' v' : ''}">
-      <div class="frame${v && v.type === 'instagram' ? ' tall' : ''}${isVert && !(v && v.type === 'instagram') ? ' v' : ''}">${media}</div>
+    const prev = v && v.type === 'file' ? ` data-mp4="${v.play}"` : v && v.type === 'vimeo' ? ` data-vprev="${v.preview}"` : '';
+    // every frame in the reel has the same height; its width follows the format
+    const ratio = v && v.type === 'instagram' ? 0.8 : isVert ? 0.5625 : 1.7778;
+    return `<article class="card reveal" style="--r:${ratio}" data-idx="${i}"${prev}>
+      <div class="frame">${media}</div>
       <div class="meta">
-        <span class="cat">${I18N[lang][catKey[p.category]] || p.category}</span>
+        <span class="cat">${String(i + 1).padStart(2, '0')} · ${I18N[lang][catKey[p.category]] || p.category}</span>
         <h3>${title}</h3>
-        <p>${desc}</p>
+        ${desc ? `<p class="desc">${desc}</p><button class="more" type="button" data-more="${i}">${I18N[lang].read_more} +</button>` : ''}
         ${p.client ? `<div class="client">CLIENT — ${p.client.toUpperCase()}</div>` : ''}
       </div></article>`;
-  }).join('') || `<p style="color:var(--muted);font-family:var(--mono);font-size:13px">—</p>`;
+  }).join('') || `<p style="color:var(--amber-dim);font-family:var(--mono);font-size:13px">—</p>`;
   grid.querySelectorAll('img[data-vimeo]').forEach(img => loadVimeoThumb(img.dataset.vimeo, img));
+  grid.querySelectorAll('.card.reveal').forEach(c => cardIO.observe(c));
+  if (typeof sizeReel === 'function') sizeReel();
+}
+const cardIO = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { const c = e.target; c.classList.add('in'); cardIO.unobserve(c); setTimeout(() => c.classList.add('done'), 1300); }
+}), {threshold:.12, rootMargin:'0px 0px -6% 0px'});
+
+/* ---------- film strip: vertical scroll drives the reel sideways (desktop), swipe on mobile ---------- */
+const reel = document.getElementById('reel');
+const reelPin = reel.querySelector('.reel-pin');
+const reelTrack = document.getElementById('workGrid');
+const reelBar = document.getElementById('reelBar'), reelCount = document.getElementById('reelCount');
+const reelMobile = matchMedia('(max-width:760px)');
+const REEL_SPEED = 0.7; // <1 = reel moves faster than the page scrolls, so the section stays short
+let reelDist = 0;
+function sizeReel(){
+  if (reelMobile.matches) { reel.style.height = ''; reelTrack.style.transform = ''; reelDist = 0; updateReel(); return; }
+  reelDist = Math.max(0, reelTrack.scrollWidth - reelPin.clientWidth);
+  reel.style.height = (reelPin.offsetHeight + reelDist * REEL_SPEED) + 'px';
+  updateReel();
+}
+function updateReel(){
+  let k;
+  if (reelMobile.matches) {
+    const max = reelTrack.scrollWidth - reelTrack.clientWidth;
+    k = max > 0 ? reelTrack.scrollLeft / max : 0;
+  } else {
+    const travel = reel.offsetHeight - reelPin.offsetHeight;
+    // 64 = nav height = where the pinned reel sticks
+    k = travel > 0 ? Math.min(1, Math.max(0, (64 - reel.getBoundingClientRect().top) / travel)) : 0;
+    reelTrack.style.transform = `translate3d(${(-k * reelDist).toFixed(1)}px,0,0)`;
+  }
+  const n = reelTrack.querySelectorAll('.card').length;
+  reelBar.style.transform = `scaleX(${k.toFixed(4)})`;
+  reelCount.textContent = `${String(n ? Math.round(k * (n - 1)) + 1 : 0).padStart(2,'0')} / ${String(n).padStart(2,'0')}`;
+}
+let reelRaf = false;
+window.addEventListener('scroll', () => { if (!reelRaf) { reelRaf = true; requestAnimationFrame(() => { reelRaf = false; updateReel(); }); } }, {passive:true});
+reelTrack.addEventListener('scroll', updateReel, {passive:true});
+window.addEventListener('resize', sizeReel, {passive:true});
+reelMobile.addEventListener('change', sizeReel);
+if (document.fonts) document.fonts.ready.then(sizeReel);
+
+// hover preview (desktop): uploaded files play in a <video>, Vimeo clips in a silent background player.
+// The thumbnail stays visible until the clip actually plays, so there's never a black flash.
+const VIMEO = 'https://player.vimeo.com';
+function vimeoCmd(ifr, method, value){
+  if (ifr.contentWindow) ifr.contentWindow.postMessage(JSON.stringify(value === undefined ? {method} : {method, value}), VIMEO);
+}
+const isHovered = el => el.closest('.card').matches(':hover');
+window.addEventListener('message', e => {
+  if (e.origin !== VIMEO) return;
+  let d = e.data;
+  try { if (typeof d === 'string') d = JSON.parse(d); } catch { return; }
+  const ifr = [...document.querySelectorAll('iframe.preview')].find(f => f.contentWindow === e.source);
+  if (!ifr || !d) return;
+  if (d.event === 'ready') { ifr.dataset.ready = '1'; vimeoCmd(ifr, 'addEventListener', 'playing'); if (!isHovered(ifr)) vimeoCmd(ifr, 'pause'); }
+  if (d.event === 'playing' && isHovered(ifr)) ifr.classList.add('on');
+});
+if (matchMedia('(hover:hover) and (pointer:fine)').matches) {
+  const grid = document.getElementById('workGrid');
+  grid.addEventListener('mouseover', e => {
+    const card = e.target.closest('.card[data-mp4], .card[data-vprev]');
+    if (!card || card.contains(e.relatedTarget)) return;
+    const frame = card.querySelector('.frame');
+    if (card.dataset.mp4) {
+      let vid = card.querySelector('video.preview');
+      if (!vid) {
+        vid = document.createElement('video');
+        vid.className = 'preview'; vid.muted = true; vid.loop = true; vid.playsInline = true; vid.preload = 'auto';
+        vid.src = card.dataset.mp4;
+        frame.prepend(vid);
+      }
+      vid.play().then(() => vid.classList.add('on')).catch(() => {});
+      return;
+    }
+    let ifr = card.querySelector('iframe.preview');
+    if (!ifr) {
+      ifr = document.createElement('iframe');
+      ifr.className = 'preview'; ifr.allow = 'autoplay'; ifr.tabIndex = -1; ifr.title = 'preview';
+      ifr.setAttribute('aria-hidden', 'true');
+      ifr.src = card.dataset.vprev;
+      frame.prepend(ifr);
+    } else if (ifr.dataset.ready) { vimeoCmd(ifr, 'play'); }
+  });
+  grid.addEventListener('mouseout', e => {
+    const card = e.target.closest('.card[data-mp4], .card[data-vprev]');
+    if (!card || card.contains(e.relatedTarget)) return;
+    const p = card.querySelector('video.preview, iframe.preview');
+    if (!p) return;
+    p.classList.remove('on');
+    setTimeout(() => { if (isHovered(p)) return; p.tagName === 'VIDEO' ? p.pause() : vimeoCmd(p, 'pause'); }, 450);
+  });
+}
+
+// client marquee — built from the portfolio clients, duplicated for a seamless loop
+function renderMarquee(){
+  const track = document.getElementById('marqTrack');
+  if (!track) return;
+  if (!track.dataset.base) track.dataset.base = track.innerHTML;
+  const clients = [...new Set(PORTFOLIO.map(p => (p.client || '').trim()).filter(Boolean))];
+  const once = clients.length >= 3
+    ? clients.map(c => `<span>${c}</span><span class="dot">✦</span>`).join('')
+      + `<span class="stat">100K+ ${lang==='nl' ? 'weergaven' : 'views'}</span><span class="dot">✦</span>`
+    : track.dataset.base;
+  track.innerHTML = once + once;
 }
 
 document.getElementById('filters').addEventListener('click', e => {
@@ -745,28 +1131,65 @@ document.getElementById('filters').addEventListener('click', e => {
   filter = b.dataset.f;
   document.querySelectorAll('#filters button').forEach(x => x.classList.toggle('on', x===b));
   renderWork();
+  // new selection starts at the first clip
+  reelTrack.scrollLeft = 0;
+  if (!reelMobile.matches && reel.getBoundingClientRect().top < 64) {
+    const y = reel.getBoundingClientRect().top + window.scrollY - 64;
+    window.bmmLenis ? window.bmmLenis.scrollTo(y, {duration: 0.9}) : window.scrollTo({top: y, behavior: 'smooth'});
+  }
 });
 
-fetch('/api/portfolio').then(r=>r.json()).then(d => { PORTFOLIO = d; renderWork(); }).catch(()=>{});
+fetch('/api/portfolio').then(r=>r.json()).then(d => { PORTFOLIO = d; renderWork(); renderMarquee(); }).catch(()=>{ renderMarquee(); });
 
-/* ---------- forms ---------- */
-function wireForm(formId, noticeId, endpoint){
-  const form = document.getElementById(formId), notice = document.getElementById(noticeId);
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    notice.className = 'notice';
-    const data = Object.fromEntries(new FormData(form)); data.lang = lang;
-    try{
-      const r = await fetch(endpoint, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
-      if(!r.ok) throw new Error();
-      notice.textContent = I18N[lang].sent_ok; notice.className = 'notice ok'; form.reset();
-    }catch{
-      notice.textContent = I18N[lang].sent_err; notice.className = 'notice err';
-    }
-  });
+/* ---------- combined lead form: book a call OR ask a question ----------
+   "call"     → POST /api/bookings  (same fields as the old booking form)
+   "question" → POST /api/contact   (same fields as the old contact form)
+   so the backend needs no changes. */
+const leadForm = document.getElementById('leadForm');
+const leadNotice = document.getElementById('leadNotice');
+function leadIntent(){ return leadForm.intent.value; }
+function syncIntent(){
+  const q = leadIntent() === 'question';
+  document.getElementById('intentSw').dataset.v = q ? 'question' : 'call';
+  document.getElementById('callOnly').classList.toggle('hide', q);
+  const msgLabel = document.getElementById('msgLabel'), submitLabel = document.getElementById('submitLabel');
+  msgLabel.dataset.i18n = q ? 'f_msg_q' : 'f_msg_call';
+  submitLabel.dataset.i18n = q ? 'btn_q' : 'btn_call';
+  msgLabel.textContent = I18N[lang][msgLabel.dataset.i18n];
+  submitLabel.textContent = I18N[lang][submitLabel.dataset.i18n];
 }
-wireForm('bookingForm','bookingNotice','/api/bookings');
-wireForm('contactForm','contactNotice','/api/contact');
+leadForm.querySelectorAll('input[name=intent]').forEach(r => r.addEventListener('change', () => { leadNotice.className = 'notice'; syncIntent(); }));
+function setIntent(v){ leadForm.intent.value = v; syncIntent(); }
+
+leadForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  leadNotice.className = 'notice';
+  const f = Object.fromEntries(new FormData(leadForm));
+  const isCall = f.intent === 'call';
+  const fail = msg => { leadNotice.textContent = msg; leadNotice.className = 'notice err'; };
+  if (!f.name.trim() || !leadForm.email.checkValidity() || !f.email.trim()) return fail(I18N[lang].err_required);
+  if (isCall && !f.preferred_date) return fail(I18N[lang].err_date);
+  if (!isCall && !f.message.trim()) return fail(I18N[lang].err_msg);
+
+  const endpoint = isCall ? '/api/bookings' : '/api/contact';
+  const data = isCall
+    ? { name:f.name, email:f.email, phone:f.phone, service:f.service, preferred_date:f.preferred_date, location:f.location,
+        details: [f.message, f.company && `${I18N[lang].f_company}: ${f.company}`].filter(Boolean).join('\n'), lang }
+    : { name:f.name, email:f.email, phone:f.phone, company:f.company, service:f.service, message:f.message, lang };
+
+  const done = () => { document.getElementById('leadCard').classList.add('sent'); leadForm.reset(); syncIntent(); };
+  if (f._honey) return done(); // spam bot filled the hidden field — pretend it worked, send nothing
+
+  // the server stores the lead and emails it (Resend → NOTIFY_EMAIL + NOTIFY_EMAIL_EXTRA)
+  const btn = leadForm.querySelector('.lead-submit'); btn.disabled = true; btn.style.opacity = .6;
+  try{
+    const r = await fetch(endpoint, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+    if(!r.ok) throw new Error();
+    done();
+  }catch{
+    fail(I18N[lang].sent_err);
+  }finally{ btn.disabled = false; btn.style.opacity = ''; }
+});
 
 const dateInput = document.querySelector('input[name=preferred_date]');
 if (dateInput) dateInput.min = new Date().toISOString().slice(0,10);
@@ -779,30 +1202,53 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 /* ---------- fullscreen lightbox ---------- */
 const lb = document.getElementById('lightbox');
 const lbFrame = document.getElementById('lbFrame');
-function openLightbox(src, orient){
+function openLightbox(src, orient, idx){
   lbFrame.className = 'lb-frame ' + (orient === 'v' ? 'v' : 'h');
-  lbFrame.innerHTML = /\.(mp4|webm|mov)(\?|$)/i.test(src)
+  lbFrame.style.display = src ? '' : 'none';
+  lbFrame.innerHTML = !src ? '' : /\.(mp4|webm|mov)(\?|$)/i.test(src)
     ? `<video src="${src}" controls autoplay playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000"></video>`
     : `<iframe src="${src}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+  // project info next to the video: title, full description, client, CTA
+  const p = shownItems[idx];
+  const info = document.getElementById('lbInfo');
+  document.getElementById('lbWrap').className = 'lb-wrap ' + (orient === 'v' ? 'v' : 'h');
+  if (p) {
+    const title = lang==='nl' ? p.title_nl : p.title_en;
+    const desc = lang==='nl' ? (p.description_nl||'') : (p.description_en||p.description_nl||'');
+    info.innerHTML = `<span class="cat">${I18N[lang][catKey[p.category]] || p.category}</span>
+      <h3>${title}</h3>${desc ? `<p>${desc}</p>` : ''}
+      ${p.client ? `<div class="client">CLIENT — ${p.client.toUpperCase()}</div>` : ''}
+      <a class="btn solid" href="#booking" data-lb-cta>${I18N[lang].lb_cta} →</a>`;
+    info.style.display = '';
+  } else { info.innerHTML = ''; info.style.display = 'none'; }
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
+  if (window.bmmLenis) window.bmmLenis.stop();
   if (lb.requestFullscreen) lb.requestFullscreen().catch(()=>{});
 }
 function closeLightbox(){
   lb.classList.remove('open');
   lbFrame.innerHTML = '';
   document.body.style.overflow = '';
+  if (window.bmmLenis) window.bmmLenis.start();
   if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
 }
+// play button or "Lees meer" → lightbox with the video and the full description
+function openFromCard(el){
+  const card = el.closest('.card');
+  const btn = card.querySelector('[data-play]');
+  openLightbox(btn ? decodeURIComponent(btn.dataset.play) : null, btn ? btn.dataset.orient : 'v', Number(card.dataset.idx));
+}
 document.getElementById('workGrid').addEventListener('click', e => {
-  const btn = e.target.closest('[data-play]');
-  if (!btn) return;
-  openLightbox(decodeURIComponent(btn.dataset.play), btn.dataset.orient);
+  const el = e.target.closest('[data-play], [data-more]');
+  if (el) openFromCard(el);
 });
 document.getElementById('workGrid').addEventListener('keydown', e => {
   const btn = e.target.closest('[data-play]');
-  if (btn && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openLightbox(decodeURIComponent(btn.dataset.play), btn.dataset.orient); }
+  if (btn && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openFromCard(btn); }
 });
+// "Plan een gesprek" inside the lightbox: close it first, then the anchor glide takes over
+document.getElementById('lbInfo').addEventListener('click', e => { if (e.target.closest('[data-lb-cta]')) closeLightbox(); });
 document.getElementById('lbClose').addEventListener('click', closeLightbox);
 lb.addEventListener('click', e => { if (e.target === lb) closeLightbox(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && lb.classList.contains('open')) closeLightbox(); });
@@ -882,9 +1328,10 @@ document.getElementById('pkgCta').addEventListener('click', () => {
   const idx = Number(document.getElementById('reelRange').value);
   const own = document.getElementById('ownFootage').checked;
   const pkg = (own ? PRICING.editing : PRICING.full)[idx];
-  const form = document.getElementById('bookingForm');
+  const form = leadForm;
+  setIntent('call');
   form.service.value = 'social';
-  form.details.value = (lang==='nl'
+  form.message.value = (lang==='nl'
     ? `Pakket: ${pkg[lang].name} — ${PRICING.reels[idx]} video's/maand (€${fmtEUR(pkg.price)} ex BTW${own ? ', editing only' : ''})`
     : `Package: ${pkg[lang].name} — ${PRICING.reels[idx]} videos/month (€${fmtEUR(pkg.price)} ex VAT${own ? ', editing only' : ''})`);
 });
@@ -893,11 +1340,11 @@ renderPricing();
 // Losse short-form CTAs: prefill booking form with the chosen tier
 document.querySelectorAll('.sf-cta').forEach(btn => {
   btn.addEventListener('click', () => {
-    const form = document.getElementById('bookingForm');
-    if (!form) return;
+    const form = leadForm;
+    setIntent('call');
     form.service.value = 'social';
     const name = btn.dataset.sf, len = btn.dataset.len, price = btn.dataset.price;
-    form.details.value = (lang==='nl'
+    form.message.value = (lang==='nl'
       ? `Short-form video — ${name} (${len}) — €${price} ex BTW`
       : `Short-form video — ${name} (${len}) — €${price} ex VAT`);
   });
@@ -950,7 +1397,7 @@ document.querySelectorAll('.sf-cta').forEach(btn => {
     // opacity: full through hero, eases down to subtle background below
     const heroH = hero.offsetHeight || window.innerHeight;
     let fade = 1 - (y - heroH*0.55) / (heroH*0.6);
-    fade = Math.max(0.16, Math.min(1, fade));
+    fade = Math.max(0.08, Math.min(1, fade)); // quieter behind content so cards & forms stay clean
     layer.style.opacity = fade.toFixed(3);
   }
 
@@ -970,6 +1417,7 @@ document.querySelectorAll('.sf-cta').forEach(btn => {
 
 applyLang();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
 <script src="/effects.js" defer></script>
 </body>
 </html>

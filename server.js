@@ -12,13 +12,18 @@ const USE_PG = !!process.env.DATABASE_URL;
 // --- Email notifications (optional) ---
 // Email notifications via Resend HTTP API (works on Render where SMTP is blocked).
 // Set RESEND_API_KEY and NOTIFY_EMAIL env vars to enable.
+// Every lead goes to NOTIFY_EMAIL plus NOTIFY_EMAIL_EXTRA (comma-separated; defaults to both inboxes).
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL;
+const NOTIFY_EMAIL_EXTRA = process.env.NOTIFY_EMAIL_EXTRA ?? 'brownmediamgmt@gmail.com,info@brown-media.nl';
+const NOTIFY_TO = [...new Set([NOTIFY_EMAIL, NOTIFY_EMAIL_EXTRA].filter(Boolean).join(',')
+  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean))];
 // Sender must be on a Resend-verified domain. brown-media.nl is verified.
 const NOTIFY_FROM = process.env.NOTIFY_FROM || 'Brown Media Management <info@brown-media.nl>';
 
-async function notify(subject, lines) {
-  if (!RESEND_API_KEY || !NOTIFY_EMAIL) return;
+// replyTo = the lead's address, so hitting "reply" in your mail app answers the lead directly
+async function notify(subject, lines, replyTo) {
+  if (!RESEND_API_KEY || !NOTIFY_TO.length) return;
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -28,9 +33,10 @@ async function notify(subject, lines) {
       },
       body: JSON.stringify({
         from: NOTIFY_FROM,
-        to: [NOTIFY_EMAIL],
+        to: NOTIFY_TO,
+        ...(replyTo ? { reply_to: replyTo } : {}),
         subject,
-        text: lines.filter(Boolean).join('\n'),
+        text: lines.filter(l => l !== null && l !== undefined && l !== false).join('\n'),
       }),
     });
     if (res.ok) {
@@ -43,6 +49,10 @@ async function notify(subject, lines) {
     console.error('Email notify failed:', err.message);
   }
 }
+const SERVICE_LABELS = { business: 'Bedrijfsvideo', social: 'Social content', 'brand-film': 'Brand films', 'real-estate': 'Vastgoed', other: 'Anders' };
+const serviceLabel = (s) => SERVICE_LABELS[s] || s;
+// Dutch mobile numbers (06…) → wa.me/316…
+const waLink = (phone) => `https://wa.me/${String(phone).replace(/\D/g, '').replace(/^00/, '').replace(/^0(?=6)/, '31')}`;
 
 // ============================================================
 //  Database abstraction — same query(sql, params) interface
@@ -169,11 +179,13 @@ app.post('/api/contact', rateLimit, h(async (req, res) => {
   await db.query(`INSERT INTO leads (name,email,phone,company,service,message,lang)
     VALUES ($1,$2,$3,$4,$5,$6,$7)`,
     [n, e, clean(phone, 40), clean(company, 160), clean(service, 60), clean(message), clean(lang, 5)]);
-  notify(`📩 Nieuwe lead: ${n}`, [
-    `Naam: ${n}`, `E-mail: ${e}`, phone ? `Telefoon: ${clean(phone, 40)}` : '',
-    company ? `Bedrijf: ${clean(company, 160)}` : '', '', `Bericht:`, clean(message),
-    '', 'Beheer: open je admin panel → Leads',
-  ]);
+  notify(`💬 Nieuwe vraag via de website: ${n}`, [
+    `Naam: ${n}`, `E-mail: ${e}`, phone ? `Telefoon: ${clean(phone, 40)}` : null,
+    phone ? `WhatsApp: ${waLink(phone)}` : null,
+    company ? `Bedrijf: ${clean(company, 160)}` : null, service ? `Onderwerp: ${serviceLabel(service)}` : null,
+    '', `Vraag:`, clean(message),
+    '', 'Beantwoorden: klik op "Beantwoorden" in je mail, of open je admin panel → Leads',
+  ], e);
   res.json({ ok: true });
 }));
 
@@ -185,12 +197,13 @@ app.post('/api/bookings', rateLimit, h(async (req, res) => {
   await db.query(`INSERT INTO bookings (name,email,phone,service,preferred_date,location,details,lang)
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
     [n, e, clean(phone, 40), s, d, clean(location, 200), clean(details), clean(lang, 5)]);
-  notify(`🎬 Nieuwe boeking: ${n} — ${d}`, [
-    `Naam: ${n}`, `E-mail: ${e}`, phone ? `Telefoon: ${clean(phone, 40)}` : '',
-    `Dienst: ${s}`, `Voorkeursdatum: ${d}`, location ? `Locatie: ${clean(location, 200)}` : '',
+  notify(`🎬 Nieuwe gespreksaanvraag: ${n} — ${d}`, [
+    `Naam: ${n}`, `E-mail: ${e}`, phone ? `Telefoon: ${clean(phone, 40)}` : null,
+    phone ? `WhatsApp: ${waLink(phone)}` : null,
+    `Dienst: ${serviceLabel(s)}`, `Voorkeursdatum: ${d}`, location ? `Locatie: ${clean(location, 200)}` : null,
     '', `Details:`, clean(details),
     '', 'Bevestigen of afwijzen: open je admin panel → Bookings',
-  ]);
+  ], e);
   res.json({ ok: true });
 }));
 
