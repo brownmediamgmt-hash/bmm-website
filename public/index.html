@@ -479,6 +479,54 @@ html,body{overflow-x:clip}
 .lead-wa svg{width:18px;height:18px;fill:#25D366}
 .lead-wa:hover{color:var(--amber)}
 .lead-wa+.lead-ig{margin-top:12px}
+
+/* ===== video-check (keuzehulp) ===== */
+.hero-check{display:inline-flex;align-items:center;gap:10px;margin-top:22px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:4px;transition:color .2s,border-color .2s}
+.hero-check b{color:var(--amber);font-weight:500}
+.hero-check:hover{color:var(--amber);border-color:var(--amber)}
+#check .qc{position:relative;background:var(--paper);color:#F4EFE5;border-radius:6px;overflow:hidden;box-shadow:0 40px 80px -40px rgba(26,23,18,.55)}
+#check .qc::before,#check .qc::after{content:"";position:absolute;left:-20px;right:-20px;height:10px;background:repeating-linear-gradient(90deg,transparent 0 10px,rgba(244,239,229,.13) 10px 24px,transparent 24px 34px)}
+#check .qc::before{top:14px}#check .qc::after{bottom:14px}
+.qc-in{padding:clamp(48px,6vw,72px) clamp(22px,5vw,64px)}
+.qc-top{display:flex;align-items:center;gap:18px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber-dim)}
+.qc-bar{flex:1;height:2px;background:rgba(244,239,229,.14);position:relative;overflow:hidden}
+.qc-bar i{position:absolute;inset:0;background:var(--amber);transform-origin:0 50%;transform:scaleX(0);transition:transform .5s cubic-bezier(.7,0,.2,1)}
+.qc-back{background:none;border:0;color:rgba(244,239,229,.55);font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:0;visibility:hidden}
+.qc-back:hover{color:var(--amber)}
+.qc-stage{position:relative;margin-top:34px;min-height:360px}
+.qc-step{display:none}
+.qc-step.on{display:block;animation:qcIn .55s cubic-bezier(.2,.8,.2,1)}
+@keyframes qcIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+.qc-q{font-family:var(--display);font-variation-settings:'wdth' 115;font-weight:800;text-transform:uppercase;font-size:clamp(26px,3.6vw,44px);line-height:1.02;margin:0 0 28px}
+.qc-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.qc-opt{display:flex;align-items:center;gap:16px;text-align:left;background:rgba(244,239,229,.04);border:1px solid rgba(244,239,229,.14);color:#F4EFE5;border-radius:4px;padding:18px 20px;cursor:pointer;font-family:var(--body);font-size:16px;line-height:1.35;transition:border-color .2s,background .2s,transform .2s}
+.qc-opt:hover{border-color:var(--amber);background:rgba(185,124,46,.1);transform:translateY(-2px)}
+.qc-opt.sel{border-color:var(--amber);background:rgba(185,124,46,.18)}
+.qc-opt .k{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:1px solid var(--amber-dim);color:var(--amber-dim);font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:center}
+.qc-opt small{display:block;color:rgba(244,239,229,.5);font-size:13px;margin-top:2px}
+.qc-res{display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(24px,4vw,48px);align-items:start}
+@media(max-width:820px){.qc-res{grid-template-columns:1fr}}
+.qc-label{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber)}
+.qc-name{font-family:var(--display);font-variation-settings:'wdth' 115;font-weight:850;text-transform:uppercase;font-size:clamp(30px,4.4vw,54px);line-height:1;margin:12px 0 10px}
+.qc-price{font-family:var(--mono);font-size:14px;color:var(--amber-dim);margin-bottom:22px;letter-spacing:.06em}
+.qc-why{list-style:none;margin:0 0 26px;padding:0;border-top:1px solid rgba(244,239,229,.12)}
+.qc-why li{padding:11px 0;border-bottom:1px solid rgba(244,239,229,.12);font-size:15px;color:rgba(244,239,229,.85)}
+.qc-why li::before{content:"▸";color:var(--amber);margin-right:10px}
+.qc-ex{border-radius:4px;overflow:hidden;background:#0d0c0a;position:relative}
+.qc-ex img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover}
+.qc-ex span{position:absolute;left:12px;right:12px;bottom:12px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:rgba(26,23,18,.78);padding:8px 10px;border-radius:3px}
+.qc-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:6px}
+@media(max-width:820px){.qc-form{grid-template-columns:1fr}}
+.qc-form input{background:rgba(244,239,229,.06);border:1px solid rgba(244,239,229,.18);color:#F4EFE5;border-radius:3px;padding:13px 14px;font-family:var(--body);font-size:15px}
+.qc-form input::placeholder{color:rgba(244,239,229,.42)}
+.qc-form input:focus{outline:none;border-color:var(--amber)}
+.qc-actions{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px}
+.qc-alt{background:none;border:0;color:rgba(244,239,229,.7);font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-bottom:1px solid rgba(244,239,229,.25);padding:0 0 3px}
+.qc-alt:hover{color:var(--amber);border-color:var(--amber)}
+.qc-msg{font-family:var(--mono);font-size:13px;margin-top:12px;color:var(--amber-dim);min-height:18px}
+.qc-done{text-align:center;padding:30px 0}
+.qc-done h3{font-family:var(--display);font-variation-settings:'wdth' 115;font-weight:800;text-transform:uppercase;font-size:clamp(26px,3.4vw,40px);margin:12px 0 10px}
+.qc-done p{color:rgba(244,239,229,.7)}
 </style>
 </head>
 <body>
@@ -515,6 +563,7 @@ html,body{overflow-x:clip}
       <a class="btn solid" href="#booking" data-i18n="hero_cta1">Plan een gesprek</a>
       <a class="btn ghost" href="#work" data-i18n="hero_cta2">Bekijk werk</a>
     </div>
+    <a class="hero-check" href="#check"><span data-i18n="hero_check">Twijfel je wat je nodig hebt?</span> <b data-i18n="hero_check_b">Doe de 30-seconden check →</b></a>
     <div class="letterbox">
       <span data-i18n="lb_1">Bedrijven · MKB</span><span data-i18n="lb_2">Personal brands</span><span data-i18n="lb_3">Vastgoed & interieur</span><span data-i18n="lb_4">NL / EN producties</span>
     </div>
@@ -600,6 +649,18 @@ html,body{overflow-x:clip}
     <div class="step reveal"><div class="tcode" data-i18n="step2">STAP 02</div><h3 data-i18n="p2_h">Productie</h3><p data-i18n="p2_p">Eén of meerdere draaidagen, strak gepland. Jij blijft gewoon doen waar je goed in bent.</p></div>
     <div class="step reveal"><div class="tcode" data-i18n="step3">STAP 03</div><h3 data-i18n="p3_h">Edit & oplevering</h3><p data-i18n="p3_p">Cinematische edit, kleurbewerking en formats per platform. Klaar om te publiceren.</p></div>
     <div class="step reveal"><div class="tcode" data-i18n="step4">STAP 04</div><h3 data-i18n="p4_h">Resultaat</h3><p data-i18n="p4_p">Video's gemaakt om te converteren: meer aanvragen, meer zichtbaarheid, meer klanten.</p></div>
+  </div>
+</section>
+
+<section id="check">
+  <div class="tc">VIDEO-CHECK — 30 SECONDEN</div>
+  <h2 data-i18n="qc_h2">Welke video past bij jou?</h2>
+  <p class="lede" data-i18n="qc_lede">Vier korte vragen, direct een advies met prijsindicatie en een voorbeeld uit mijn werk.</p>
+  <div class="qc" id="qc">
+    <div class="qc-in">
+      <div class="qc-top"><button class="qc-back" id="qcBack" type="button">← <span data-i18n="qc_back">Terug</span></button><span id="qcCount">01 / 04</span><div class="qc-bar"><i id="qcBar"></i></div></div>
+      <div class="qc-stage" id="qcStage"></div>
+    </div>
   </div>
 </section>
 
@@ -786,6 +847,8 @@ const CONTACT = {
 const I18N = {
   nl: {
     nav_work:"Werk", nav_services:"Diensten", nav_booking:"Contact",
+    hero_check:"Twijfel je wat je nodig hebt?", hero_check_b:"Doe de 30-seconden check →",
+    qc_h2:"Welke video past bij jou?", qc_lede:"Vier korte vragen, direct een advies met prijsindicatie en een voorbeeld uit mijn werk.", qc_back:"Terug",
     lead_h2:"Laten we iets moois maken", lead_lede:"Plan direct een gesprek of stel eerst je vraag — één formulier, ik reageer binnen 24 uur.",
     lead_p1:"Reactie binnen 24 uur — persoonlijk, geen standaardmail", lead_p2:"Vrijblijvend kennismakingsgesprek — geen verplichtingen", lead_p3:"Binnen 24 uur na het gesprek een voorstel op maat",
     lead_ig:"Liever via Instagram? @brownmediamgmt ↗",
@@ -847,6 +910,8 @@ const I18N = {
   },
   en: {
     nav_work:"Work", nav_services:"Services", nav_booking:"Contact",
+    hero_check:"Not sure what you need?", hero_check_b:"Take the 30-second check →",
+    qc_h2:"Which video fits you?", qc_lede:"Four quick questions, instant advice with a price indication and an example from my work.", qc_back:"Back",
     lead_h2:"Let's make something great", lead_lede:"Book a call right away or ask your question first — one form, I respond within 24 hours.",
     lead_p1:"Reply within 24 hours — personal, never a template", lead_p2:"No-obligation intro call", lead_p3:"A tailored proposal within 24 hours after the call",
     lead_ig:"Prefer Instagram? @brownmediamgmt ↗",
@@ -922,6 +987,7 @@ function applyLang(){
   renderWork();
   if (typeof renderPricing === 'function') renderPricing();
   if (typeof syncIntent === 'function' && typeof leadForm !== 'undefined') { syncIntent(); renderMarquee(); }
+  if (typeof renderQuiz === 'function' && typeof QC !== 'undefined') renderQuiz();
 }
 const toggle = document.getElementById('langToggle');
 function flipLang(){ lang = lang === 'nl' ? 'en' : 'nl'; localStorage.setItem('bmm_lang', lang); applyLang(); }
@@ -1139,7 +1205,7 @@ document.getElementById('filters').addEventListener('click', e => {
   }
 });
 
-fetch('/api/portfolio').then(r=>r.json()).then(d => { PORTFOLIO = d; renderWork(); renderMarquee(); }).catch(()=>{ renderMarquee(); });
+fetch('/api/portfolio').then(r=>r.json()).then(d => { PORTFOLIO = d; renderWork(); renderMarquee(); if (typeof renderQuiz === 'function') renderQuiz(); }).catch(()=>{ renderMarquee(); });
 
 /* ---------- combined lead form: book a call OR ask a question ----------
    "call"     → POST /api/bookings  (same fields as the old booking form)
@@ -1414,6 +1480,176 @@ document.querySelectorAll('.sf-cta').forEach(btn => {
   window.addEventListener('scroll', onScroll, {passive:true});
   window.addEventListener('resize', ()=>{ sizeCanvas(); curProgress=-1; update(); }, {passive:true});
 })();
+
+/* ---------- video-check: 4 questions → advice + price + example → lead ---------- */
+const QC = {
+  nl: {
+    count: (i, n) => String(i).padStart(2,'0') + ' / ' + String(n).padStart(2,'0'),
+    qs: [
+      { id:'type', q:'Wat voor bedrijf heb je?', opts:[
+        ['mkb','Bedrijf of MKB','Dienstverlening, winkel, bouw, zorg…'], ['personal','Personal brand','Coach, expert, ondernemer met een gezicht'],
+        ['vastgoed','Vastgoed & interieur','Makelaar, villa, ontwerpstudio'], ['horeca','Horeca & food','Restaurant, catering, foodconcept'], ['anders','Iets anders','Vertel het me straks'] ] },
+      { id:'goal', q:'Wat wil je vooral bereiken?', opts:[
+        ['leads','Meer aanvragen en klanten',''], ['zicht','Zichtbaar zijn op social media',''], ['trust','Merk en vertrouwen opbouwen',''],
+        ['werving','Nieuw personeel vinden',''], ['verkoop','Een woning of ruimte verkopen / verhuren',''] ] },
+      { id:'freq', q:'Hoe vaak wil je nieuwe video’s?', opts:[
+        ['once','Eén keer','Eén sterke video voor site, ads of sales'], ['few','Een paar keer per jaar','Per campagne of moment'], ['monthly','Elke maand','Vaste content voor je socials'] ] },
+      { id:'when', q:'Wanneer wil je starten?', opts:[
+        ['asap','Zo snel mogelijk',''], ['soon','Binnen 1–3 maanden',''], ['orient','Ik oriënteer me nog',''] ] }
+    ],
+    resLabel:'Jouw advies', exLabel:'Voorbeeld uit mijn werk', perMonth:'ex BTW / maand', oneOff:'eenmalig · ex BTW', onRequest:'Prijs op aanvraag — offerte binnen 24 uur na één gesprek',
+    send:'Stuur mij dit advies', alt:'Liever direct een gesprek plannen →', name:'Naam', email:'E-mail', phone:'Telefoon',
+    errReq:'Vul je naam en een geldig e-mailadres in.', doneH:'Advies ontvangen!', doneP:'Ik kijk persoonlijk naar je antwoorden en neem binnen 24 uur contact op met een voorstel.',
+    restart:'Opnieuw doen', adviceTag:'ADVIES'
+  },
+  en: {
+    count: (i, n) => String(i).padStart(2,'0') + ' / ' + String(n).padStart(2,'0'),
+    qs: [
+      { id:'type', q:'What kind of business do you run?', opts:[
+        ['mkb','Business / SME','Services, retail, construction, care…'], ['personal','Personal brand','Coach, expert, founder with a face'],
+        ['vastgoed','Real estate & interiors','Agent, villa, design studio'], ['horeca','Hospitality & food','Restaurant, catering, food concept'], ['anders','Something else','Tell me in a moment'] ] },
+      { id:'goal', q:'What do you mainly want to achieve?', opts:[
+        ['leads','More enquiries and customers',''], ['zicht','Visibility on social media',''], ['trust','Build brand and trust',''],
+        ['werving','Hire new people',''], ['verkoop','Sell or rent a property',''] ] },
+      { id:'freq', q:'How often do you want new videos?', opts:[
+        ['once','Once','One strong video for site, ads or sales'], ['few','A few times a year','Per campaign or moment'], ['monthly','Every month','Steady content for your socials'] ] },
+      { id:'when', q:'When do you want to start?', opts:[
+        ['asap','As soon as possible',''], ['soon','Within 1–3 months',''], ['orient','Still exploring',''] ] }
+    ],
+    resLabel:'Your advice', exLabel:'Example from my work', perMonth:'ex VAT / month', oneOff:'one-off · ex VAT', onRequest:'Price on request — quote within 24 hours after one call',
+    send:'Send me this advice', alt:'Rather book a call right away →', name:'Name', email:'Email', phone:'Phone',
+    errReq:'Please enter your name and a valid email address.', doneH:'Advice received!', doneP:'I’ll personally look at your answers and get back to you within 24 hours with a proposal.',
+    restart:'Start over', adviceTag:'ADVICE'
+  }
+};
+let qcStep = 0, qcAns = {}, qcDone = false;
+
+// advice rules — built on the real packages and prices (PRICING + the short-form tiers on the site)
+function qcAdvice(a){
+  const nl = lang === 'nl', fmt = n => '€' + fmtEUR(n);
+  const why = [];
+  let name, price, cat, service;
+  if (a.freq === 'monthly') {
+    const idx = (a.type === 'personal' || a.type === 'horeca') ? 1 : 2;   // Starter (8) or Groei (12)
+    const pk = PRICING.full[idx];
+    name = (nl ? 'Maandpakket ' : 'Monthly package ') + pk[lang].name + ' — ' + PRICING.reels[idx] + (nl ? ' video’s' : ' videos');
+    price = fmt(pk.price) + ' ' + QC[lang].perMonth + ' · ' + fmt(Math.round(pk.price / PRICING.reels[idx])) + ' per video';
+    why.push(nl ? 'Elke maand nieuwe content, zodat je zichtbaar blijft zonder er zelf tijd in te steken' : 'Fresh content every month, so you stay visible without spending your own time');
+    why.push(pk[lang].shoot + (nl ? ' — alles in één keer opgenomen' : ' — all filmed in one go'));
+    why.push(nl ? 'Per video veel goedkoper dan losse opdrachten · maandelijks opzegbaar na 2 maanden' : 'Much cheaper per video than one-offs · cancel monthly after 2 months');
+    cat = a.type === 'vastgoed' ? 'real-estate' : a.type === 'horeca' ? 'business' : 'social'; service = 'social';
+  } else if (a.type === 'vastgoed' || a.goal === 'verkoop') {
+    name = nl ? 'Vastgoedvideo — Premium (60–90 sec)' : 'Property video — Premium (60–90 sec)';
+    price = fmt(475) + ' ' + QC[lang].oneOff + ' · drone +€250';
+    why.push(nl ? 'Laat sfeer, licht en indeling zien zoals foto’s dat niet kunnen' : 'Shows atmosphere, light and layout in a way photos can’t');
+    why.push(nl ? 'Met drone-shots van ligging en omgeving' : 'With drone shots of location and surroundings');
+    why.push(nl ? 'Verticaal én horizontaal geleverd: voor Funda, je site en socials' : 'Delivered vertical and horizontal: for listings, your site and socials');
+    cat = 'real-estate'; service = 'real-estate';
+  } else if (a.goal === 'werving') {
+    name = nl ? 'Wervingsvideo + social cutdowns' : 'Recruitment video + social cutdowns';
+    price = QC[lang].onRequest;
+    why.push(nl ? 'Laat zien hoe het écht is om bij jou te werken — collega’s aan het woord' : 'Shows what it’s really like to work with you — your team on camera');
+    why.push(nl ? 'Korte versies voor vacatureposts op LinkedIn en Instagram' : 'Short versions for job posts on LinkedIn and Instagram');
+    cat = 'business'; service = 'business';
+  } else if (a.goal === 'trust' || a.type === 'personal') {
+    name = 'Brand film / personal brand video';
+    price = QC[lang].onRequest;
+    why.push(nl ? 'Storytelling die vertrouwen opbouwt vóór het eerste gesprek' : 'Storytelling that builds trust before the first call');
+    why.push(nl ? 'Inclusief cutdowns voor social en ads' : 'Including cutdowns for social and ads');
+    cat = 'brand-film'; service = 'brand-film';
+  } else if (a.freq === 'few') {
+    name = nl ? 'Losse short-form video’s — Standaard (30–60 sec)' : 'One-off short-form videos — Standard (30–60 sec)';
+    price = fmt(325) + ' ' + QC[lang].oneOff + ' per video';
+    why.push(nl ? 'Flexibel: per campagne een video, geen abonnement' : 'Flexible: one video per campaign, no subscription');
+    why.push(nl ? 'Filmen, montage, ondertiteling en muziek inbegrepen' : 'Filming, editing, subtitles and music included');
+    cat = 'social'; service = 'social';
+  } else {
+    name = nl ? 'Bedrijfsvideo / promotievideo' : 'Corporate / promo video';
+    price = QC[lang].onRequest;
+    why.push(nl ? 'In één video laten zien wie je bent, wat je doet en waarom klanten voor jou kiezen' : 'One video that shows who you are, what you do and why customers choose you');
+    why.push(nl ? 'Voor je website, ads en sales — met cutdowns voor social' : 'For your website, ads and sales — with cutdowns for social');
+    cat = 'business'; service = 'business';
+  }
+  if (a.goal === 'leads') why.push(nl ? 'Opgebouwd met een sterke hook en duidelijke call-to-action, gericht op aanvragen' : 'Built with a strong hook and a clear call-to-action, aimed at enquiries');
+  const ex = PORTFOLIO.find(p => p.category === cat) || PORTFOLIO[0];
+  return { name, price, why: why.slice(0, 4), ex, service };
+}
+
+function renderQuiz(){
+  const T = QC[lang], stage = document.getElementById('qcStage');
+  if (!stage) return;
+  const n = T.qs.length;
+  document.getElementById('qcBack').style.visibility = (qcStep > 0 && !qcDone) ? 'visible' : 'hidden';
+  document.getElementById('qcCount').textContent = qcStep < n ? T.count(qcStep + 1, n) : T.adviceTag;
+  document.getElementById('qcBar').style.transform = 'scaleX(' + Math.min(1, qcStep / n) + ')';
+  if (qcDone) {
+    stage.innerHTML = '<div class="qc-step on qc-done"><div class="qc-label">● CUT — THAT’S A TAKE</div><h3>' + T.doneH + '</h3><p>' + T.doneP + '</p><p style="margin-top:22px"><button class="qc-alt" type="button" data-qc-restart>' + T.restart + '</button></p></div>';
+    return;
+  }
+  if (qcStep < n) {
+    const q = T.qs[qcStep];
+    stage.innerHTML = '<div class="qc-step on"><h3 class="qc-q">' + q.q + '</h3><div class="qc-opts">' +
+      q.opts.map((o, i) => '<button type="button" class="qc-opt' + (qcAns[q.id] === o[0] ? ' sel' : '') + '" data-qc="' + q.id + '" data-v="' + o[0] + '"><span class="k">' + 'ABCDE'[i] + '</span><span>' + o[1] + (o[2] ? '<small>' + o[2] + '</small>' : '') + '</span></button>').join('') +
+      '</div></div>';
+    return;
+  }
+  const r = qcAdvice(qcAns);
+  const exTitle = r.ex ? (lang === 'nl' ? r.ex.title_nl : r.ex.title_en) : '';
+  const vi = r.ex ? (videoInfo(r.ex.video_url) || {}) : {};
+  const exImg = r.ex ? (r.ex.thumb_url || vi.thumb || vimeoThumbs[vi.vid] || '') : '';
+  stage.innerHTML = '<div class="qc-step on"><div class="qc-res"><div>' +
+    '<div class="qc-label">' + T.resLabel + '</div><div class="qc-name">' + r.name + '</div><div class="qc-price">' + r.price + '</div>' +
+    '<ul class="qc-why">' + r.why.map(w => '<li>' + w + '</li>').join('') + '</ul>' +
+    '<form class="qc-form" id="qcForm" novalidate><input name="name" placeholder="' + T.name + '" autocomplete="name"><input name="email" type="email" placeholder="' + T.email + '" autocomplete="email"><input name="phone" type="tel" placeholder="' + T.phone + '" autocomplete="tel"></form>' +
+    '<div class="qc-actions"><button class="btn solid" type="button" id="qcSend">' + T.send + ' →</button><button class="qc-alt" type="button" id="qcAlt">' + T.alt + '</button></div><div class="qc-msg" id="qcMsg"></div>' +
+    '</div>' + (r.ex ? '<div><div class="qc-label" style="margin-bottom:12px">' + T.exLabel + '</div><div class="qc-ex">' + (exImg ? '<img src="' + exImg + '" alt="">' : '') + '<span>' + exTitle + '</span></div></div>' : '') +
+    '</div></div>';
+  // vimeo thumbnails load async: fetch it if we don't have it yet
+  if (r.ex && !exImg && vi.vid) {
+    fetch('https://vimeo.com/api/oembed.json?url=https://vimeo.com/' + vi.vid + '&width=960').then(x => x.json())
+      .then(d => { if (d.thumbnail_url) { vimeoThumbs[vi.vid] = d.thumbnail_url; renderQuiz(); } }).catch(() => {});
+  }
+}
+
+// answers in Dutch for the lead email, whatever language the visitor used
+function qcSummary(){
+  const T = QC.nl, r = qcAdvice(qcAns);
+  const lines = T.qs.map(q => { const o = q.opts.find(o => o[0] === qcAns[q.id]); return q.q + ' ' + (o ? o[1] : '—'); });
+  return { r, text: 'VIDEO-CHECK\n' + lines.join('\n') + '\n\nAdvies: ' + r.name + ' (' + r.price + ')' };
+}
+
+document.getElementById('qc').addEventListener('click', async e => {
+  const opt = e.target.closest('[data-qc]');
+  if (opt) {
+    qcAns[opt.dataset.qc] = opt.dataset.v;
+    opt.classList.add('sel');
+    setTimeout(() => { qcStep++; renderQuiz(); }, 220);
+    return;
+  }
+  if (e.target.closest('#qcBack')) { qcStep = Math.max(0, qcStep - 1); renderQuiz(); return; }
+  if (e.target.closest('[data-qc-restart]')) { qcStep = 0; qcAns = {}; qcDone = false; renderQuiz(); return; }
+  if (e.target.closest('#qcAlt')) {
+    // hand the answers to the main form and glide there
+    const { r, text } = qcSummary();
+    setIntent('call'); leadForm.service.value = r.service; leadForm.message.value = text;
+    const target = document.getElementById('booking');
+    if (window.bmmLenis) window.bmmLenis.scrollTo(target, { offset: -72, duration: 1.4 }); else target.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  if (e.target.closest('#qcSend')) {
+    const f = document.getElementById('qcForm'), msg = document.getElementById('qcMsg');
+    const name = f.name.value.trim(), email = f.email.value.trim(), phone = f.phone.value.trim();
+    if (!name || !f.email.checkValidity() || !email) { msg.textContent = QC[lang].errReq; return; }
+    const { r, text } = qcSummary();
+    const btn = document.getElementById('qcSend'); btn.disabled = true; btn.style.opacity = .6;
+    try {
+      const res = await fetch('/api/contact', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ name, email, phone, service: r.service, message: text, lang }) });
+      if (!res.ok) throw new Error();
+      qcDone = true; renderQuiz();
+    } catch { msg.textContent = I18N[lang].sent_err; btn.disabled = false; btn.style.opacity = ''; }
+  }
+});
 
 applyLang();
 </script>
