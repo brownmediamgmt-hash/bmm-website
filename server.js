@@ -4,6 +4,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const path = require('path');
+const { clientIp, locate, parseUA, countryName, NL_PROVINCES } = require('./lib/visitor');
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
@@ -66,7 +67,7 @@ async function initDB() {
     const { Pool } = require('pg');
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
+      ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false },
     });
     db = {
       async query(sql, params = []) {
@@ -80,7 +81,7 @@ async function initDB() {
     const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data', 'bmm.db');
     require('fs').mkdirSync(path.dirname(DB_PATH), { recursive: true });
     const sq = new DatabaseSync(DB_PATH);
-    const toQ = sql => sql.replace(/\$\d+/g, '?');
+    const toQ = sql => sql.replace(/\$(\d+)/g, '?$1');   // numbered, so one parameter can be used twice
     db = {
       async query(sql, params = []) {
         const isSelect = /^\s*select/i.test(sql) || /returning/i.test(sql);
@@ -114,6 +115,20 @@ async function initDB() {
 
   try { await db.query("ALTER TABLE portfolio ADD COLUMN format TEXT DEFAULT 'horizontal'"); } catch (e) { /* exists */ }
 
+  // visitor context on leads & bookings (which visit they came from, where from, which device) + your own notes
+  const addCol = async (table, col, type) => {
+    if (USE_PG) await db.query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${col} ${type}`);
+    else { try { await db.query(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`); } catch (e) { /* exists */ } }
+  };
+  for (const t of ['leads', 'bookings']) {
+    for (const c of ['sid', 'source', 'traffic', 'country', 'region', 'city', 'device', 'note']) await addCol(t, c, 'TEXT');
+  }
+  await db.query('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
+  // admin logins stay valid for 30 days
+  await db.query(USE_PG ? "DELETE FROM sessions WHERE created_at < NOW() - INTERVAL '30 days'" : "DELETE FROM sessions WHERE created_at < datetime('now','-30 days')");
+  await analytics.init(db);
+  await intake.init(db);
+
   const { rows } = await db.query('SELECT COUNT(*) AS c FROM portfolio');
   if (Number(rows[0].c) === 0) {
     const seed = [
@@ -133,7 +148,10 @@ async function initDB() {
 
 const app = express();
 // backup files can be large — allow more only on the restore endpoint
+app.set('trust proxy', true);
 app.use('/api/admin/restore', express.json({ limit: '8mb' }));
+// intake file uploads (base64) are bigger than the global 200kb JSON limit
+app.use(/^\/api\/intake\/[^/]+\/files$/, express.json({ limit: '15mb' }));
 app.use(express.json({ limit: '200kb' }));
 const createUploadsRouter = require('./r2-uploads-router');
 app.use(createUploadsRouter({ requireAuth }));
@@ -156,15 +174,52 @@ async function requireAuth(req, res, next) {
   } catch (err) { console.error(err); res.status(500).json({ error: 'server error' }); }
 }
 
+// Per visitor (real client IP behind Render/Cloudflare) and per kind of request.
+// Proxy headers can be forged by someone calling the server directly, so sensitive
+// buckets also get a cap for all visitors together (globalMax).
 const hits = new Map();
-function rateLimit(req, res, next) {
-  const ip = req.ip || 'x';
-  const now = Date.now();
-  const arr = (hits.get(ip) || []).filter(t => now - t < 60_000);
-  if (arr.length >= 10) return res.status(429).json({ error: 'too many requests' });
-  arr.push(now); hits.set(ip, arr);
-  next();
+function rateLimit(bucket, max, globalMax) {
+  return (req, res, next) => {
+    const now = Date.now();
+    const keys = [bucket + '|' + (clientIp(req) || 'x')];
+    if (globalMax) keys.push(bucket + '|*');
+    const lists = keys.map(k => (hits.get(k) || []).filter(t => now - t < 60_000));
+    if (lists[0].length >= max || (globalMax && lists[1].length >= globalMax)) return res.status(429).json({ error: 'too many requests' });
+    keys.forEach((k, i) => { lists[i].push(now); hits.set(k, lists[i]); });
+    next();
+  };
 }
+setInterval(() => { const now = Date.now(); for (const [k, arr] of hits) if (!arr.some(t => now - t < 60_000)) hits.delete(k); }, 300_000).unref();
+
+const getDb = () => db;
+const settingsCache = new Map();
+async function getSetting(key) {
+  if (settingsCache.has(key)) return settingsCache.get(key);
+  const { rows } = await db.query('SELECT value FROM settings WHERE key = $1', [key]);
+  let value = rows[0] && rows[0].value;
+  if (!value && key === 'analytics_secret') {
+    value = crypto.randomBytes(32).toString('hex');
+    await db.query('INSERT INTO settings (key, value) VALUES ($1, $2)', [key, value]);
+  }
+  settingsCache.set(key, value || '');
+  return value || '';
+}
+const analytics = require('./analytics')({ app, getDb, h, requireAuth, rateLimit, USE_PG, getSetting });
+const intake = require('./intake')({ app, getDb, h, requireAuth, rateLimit, USE_PG, notify });
+
+// who is this lead? (location, device, and — via the visit — source and what they looked at)
+async function visitorContext(req, sid) {
+  const geo = locate(req);
+  const ua = parseUA(req.headers['user-agent']);
+  const visit = await analytics.sessionSummary(sid).catch(() => null);
+  const place = geo.country === 'NL'
+    ? [geo.city, NL_PROVINCES[geo.region]].filter(Boolean).join(', ')
+    : [geo.city, countryName(geo.country)].filter(Boolean).join(', ');
+  const deviceNl = { mobile: 'telefoon', tablet: 'tablet', desktop: 'computer' }[ua.device] || ua.device;
+  const line = ['Bezoeker: ' + (place || 'locatie onbekend'), deviceNl, visit && visit.src ? 'via ' + visit.src : null].filter(Boolean).join(' · ');
+  return { geo, ua, visit, line };
+}
+const sidOf = v => (typeof v === 'string' && /^[a-z0-9]{8,32}$/i.test(v) ? v : '');
 
 // ---------- public API ----------
 app.get('/api/portfolio', h(async (req, res) => {
@@ -172,43 +227,52 @@ app.get('/api/portfolio', h(async (req, res) => {
   res.json(rows);
 }));
 
-app.post('/api/contact', rateLimit, h(async (req, res) => {
+app.post('/api/contact', rateLimit('form', 10, 120), h(async (req, res) => {
   const { name, email, phone, company, service, message, lang } = req.body || {};
   const n = clean(name, 120), e = clean(email, 200);
   if (!n || !validEmail(e)) return res.status(400).json({ error: 'name and valid email required' });
-  await db.query(`INSERT INTO leads (name,email,phone,company,service,message,lang)
-    VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-    [n, e, clean(phone, 40), clean(company, 160), clean(service, 60), clean(message), clean(lang, 5)]);
-  notify(`💬 Nieuwe vraag via de website: ${n}`, [
+  const sid = sidOf(req.body && req.body.sid);
+  const source = /^VIDEO-CHECK/.test(clean(message)) ? 'quiz' : (clean(req.body && req.body.source, 20) || 'form');
+  const ctx = await visitorContext(req, sid);
+  await db.query(`INSERT INTO leads (name,email,phone,company,service,message,lang,sid,source,traffic,country,region,city,device)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+    [n, e, clean(phone, 40), clean(company, 160), clean(service, 60), clean(message), clean(lang, 5),
+     sid, source, ctx.visit ? ctx.visit.src : '', ctx.geo.country, ctx.geo.region, ctx.geo.city, ctx.ua.device]);
+  notify(source === 'quiz' ? `🎯 Video-check advies aangevraagd: ${n}` : `💬 Nieuwe vraag via de website: ${n}`, [
     `Naam: ${n}`, `E-mail: ${e}`, phone ? `Telefoon: ${clean(phone, 40)}` : null,
     phone ? `WhatsApp: ${waLink(phone)}` : null,
     company ? `Bedrijf: ${clean(company, 160)}` : null, service ? `Onderwerp: ${serviceLabel(service)}` : null,
     '', `Vraag:`, clean(message),
-    '', 'Beantwoorden: klik op "Beantwoorden" in je mail, of open je admin panel → Leads',
+    '', ctx.line,
+    '', 'Beantwoorden: klik op "Beantwoorden" in je mail, of open je admin panel → Aanvragen',
   ], e);
   res.json({ ok: true });
 }));
 
-app.post('/api/bookings', rateLimit, h(async (req, res) => {
+app.post('/api/bookings', rateLimit('form', 10, 120), h(async (req, res) => {
   const { name, email, phone, service, preferred_date, location, details, lang } = req.body || {};
   const n = clean(name, 120), e = clean(email, 200), s = clean(service, 60), d = clean(preferred_date, 30);
   if (!n || !validEmail(e) || !s || !d) return res.status(400).json({ error: 'name, valid email, service and date required' });
   if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return res.status(400).json({ error: 'date must be YYYY-MM-DD' });
-  await db.query(`INSERT INTO bookings (name,email,phone,service,preferred_date,location,details,lang)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-    [n, e, clean(phone, 40), s, d, clean(location, 200), clean(details), clean(lang, 5)]);
+  const sid = sidOf(req.body && req.body.sid);
+  const ctx = await visitorContext(req, sid);
+  await db.query(`INSERT INTO bookings (name,email,phone,service,preferred_date,location,details,lang,sid,source,traffic,country,region,city,device)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+    [n, e, clean(phone, 40), s, d, clean(location, 200), clean(details), clean(lang, 5),
+     sid, 'form', ctx.visit ? ctx.visit.src : '', ctx.geo.country, ctx.geo.region, ctx.geo.city, ctx.ua.device]);
   notify(`🎬 Nieuwe gespreksaanvraag: ${n} — ${d}`, [
     `Naam: ${n}`, `E-mail: ${e}`, phone ? `Telefoon: ${clean(phone, 40)}` : null,
     phone ? `WhatsApp: ${waLink(phone)}` : null,
     `Dienst: ${serviceLabel(s)}`, `Voorkeursdatum: ${d}`, location ? `Locatie: ${clean(location, 200)}` : null,
     '', `Details:`, clean(details),
-    '', 'Bevestigen of afwijzen: open je admin panel → Bookings',
+    '', ctx.line,
+    '', 'Bevestigen of afwijzen: open je admin panel → Aanvragen',
   ], e);
   res.json({ ok: true });
 }));
 
 // ---------- admin auth ----------
-app.post('/api/admin/login', rateLimit, h(async (req, res) => {
+app.post('/api/admin/login', rateLimit('login', 8, 40), h(async (req, res) => {
   const { password } = req.body || {};
   const ok = typeof password === 'string' &&
     password.length === ADMIN_PASSWORD.length &&
@@ -231,9 +295,13 @@ app.get('/api/admin/leads', requireAuth, h(async (req, res) => {
   res.json(rows);
 }));
 app.patch('/api/admin/leads/:id', requireAuth, h(async (req, res) => {
-  const status = clean(req.body && req.body.status, 20);
-  if (!['new', 'contacted', 'won', 'lost'].includes(status)) return res.status(400).json({ error: 'bad status' });
-  await db.query('UPDATE leads SET status = $1 WHERE id = $2', [status, Number(req.params.id)]);
+  const b = req.body || {};
+  if (b.status !== undefined) {
+    const status = clean(b.status, 20);
+    if (!['new', 'contacted', 'won', 'lost'].includes(status)) return res.status(400).json({ error: 'bad status' });
+    await db.query('UPDATE leads SET status = $1 WHERE id = $2', [status, Number(req.params.id)]);
+  }
+  if (b.note !== undefined) await db.query('UPDATE leads SET note = $1 WHERE id = $2', [clean(b.note, 4000), Number(req.params.id)]);
   res.json({ ok: true });
 }));
 app.delete('/api/admin/leads/:id', requireAuth, h(async (req, res) => {
@@ -246,9 +314,13 @@ app.get('/api/admin/bookings', requireAuth, h(async (req, res) => {
   res.json(rows);
 }));
 app.patch('/api/admin/bookings/:id', requireAuth, h(async (req, res) => {
-  const status = clean(req.body && req.body.status, 20);
-  if (!['pending', 'confirmed', 'declined', 'done'].includes(status)) return res.status(400).json({ error: 'bad status' });
-  await db.query('UPDATE bookings SET status = $1 WHERE id = $2', [status, Number(req.params.id)]);
+  const b = req.body || {};
+  if (b.status !== undefined) {
+    const status = clean(b.status, 20);
+    if (!['pending', 'confirmed', 'declined', 'done'].includes(status)) return res.status(400).json({ error: 'bad status' });
+    await db.query('UPDATE bookings SET status = $1 WHERE id = $2', [status, Number(req.params.id)]);
+  }
+  if (b.note !== undefined) await db.query('UPDATE bookings SET note = $1 WHERE id = $2', [clean(b.note, 4000), Number(req.params.id)]);
   res.json({ ok: true });
 }));
 app.delete('/api/admin/bookings/:id', requireAuth, h(async (req, res) => {
@@ -258,17 +330,19 @@ app.delete('/api/admin/bookings/:id', requireAuth, h(async (req, res) => {
 
 // ---------- admin: backup export / restore ----------
 app.get('/api/admin/export', requireAuth, h(async (req, res) => {
-  const [portfolio, bookings, leads] = await Promise.all([
+  const [portfolio, bookings, leads, intakes] = await Promise.all([
     db.query('SELECT * FROM portfolio ORDER BY sort_order, id'),
     db.query('SELECT * FROM bookings ORDER BY id'),
-    db.query('SELECT * FROM leads ORDER BY id')
+    db.query('SELECT * FROM leads ORDER BY id'),
+    db.query('SELECT id,token,contact_name,company,email,note,origin,status,answers,progress,created_at,opened_at,updated_at,completed_at FROM intakes ORDER BY id')
   ]);
   res.json({
     exported_at: new Date().toISOString(),
-    version: 1,
+    version: 2,
     portfolio: portfolio.rows,
     bookings: bookings.rows,
-    leads: leads.rows
+    leads: leads.rows,
+    intakes: intakes.rows
   });
 }));
 
@@ -341,6 +415,14 @@ app.delete('/api/admin/portfolio/:id', requireAuth, h(async (req, res) => {
   await db.query('DELETE FROM portfolio WHERE id = $1', [Number(req.params.id)]);
   res.json({ ok: true });
 }));
+
+// malformed or oversized request bodies (bots, broken clients): a short answer instead of a stack trace in the logs
+app.use((err, req, res, next) => {
+  if (err && (err.type === 'entity.too.large' || err.type === 'entity.parse.failed')) {
+    return res.status(err.type === 'entity.too.large' ? 413 : 400).json({ error: err.type === 'entity.too.large' ? 'too large' : 'bad request' });
+  }
+  next(err);
+});
 
 // Start the web server FIRST so the site is always up, even if the DB is down.
 // DB init runs alongside; if it fails we retry in the background and API routes

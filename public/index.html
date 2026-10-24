@@ -550,12 +550,12 @@ html,body{overflow-x:clip}
 <nav>
   <a class="brand" href="#top"><span class="rec" aria-hidden="true"></span>BROWN&nbsp;MEDIA&nbsp;MGMT</a>
   <div class="nav-links">
-    <a href="#work" data-i18n="nav_work" class="hide-m">Werk</a>
-    <a href="#services" data-i18n="nav_services" class="hide-m">Diensten</a>
-    <a href="#pricing" data-i18n="nav_pricing" class="hide-m">Prijzen</a>
-    <a href="#faq" class="hide-m">FAQ</a>
-    <a href="#booking" class="nav-cta" data-i18n="nav_booking">Contact</a>
-    <div class="lang-toggle" id="langToggle" role="button" tabindex="0" aria-label="Switch language">
+    <a href="#work" data-i18n="nav_work" class="hide-m" data-track="Menu: Werk">Werk</a>
+    <a href="#services" data-i18n="nav_services" class="hide-m" data-track="Menu: Diensten">Diensten</a>
+    <a href="#pricing" data-i18n="nav_pricing" class="hide-m" data-track="Menu: Prijzen">Prijzen</a>
+    <a href="#faq" class="hide-m" data-track="Menu: FAQ">FAQ</a>
+    <a href="#booking" class="nav-cta" data-i18n="nav_booking" data-track="Menu: Contact">Contact</a>
+    <div class="lang-toggle" id="langToggle" role="button" tabindex="0" aria-label="Switch language" data-track="Taal wisselen">
       <span data-lang="nl">NL</span><span data-lang="en">EN</span>
     </div>
   </div>
@@ -568,10 +568,10 @@ html,body{overflow-x:clip}
     <h1 data-i18n-html="hero_h1">Video's die van kijkers<br><span class="amber">klanten maken.</span></h1>
     <p class="sub" data-i18n="hero_sub">Videoproductie voor bedrijven, personal brands en vastgoed. Bedrijfsvideo's, social media content en brand films — strategisch gemaakt om aandacht om te zetten in aanvragen.</p>
     <div class="cta-row">
-      <a class="btn solid" href="#booking" data-i18n="hero_cta1">Plan een gesprek</a>
-      <a class="btn ghost" href="#work" data-i18n="hero_cta2">Bekijk werk</a>
+      <a class="btn solid" href="#booking" data-i18n="hero_cta1" data-track="Plan een gesprek (hero)">Plan een gesprek</a>
+      <a class="btn ghost" href="#work" data-i18n="hero_cta2" data-track="Bekijk werk (hero)">Bekijk werk</a>
     </div>
-    <a class="hero-check" href="#check"><span data-i18n="hero_check">Twijfel je wat je nodig hebt?</span> <b data-i18n="hero_check_b">Doe de 30-seconden check →</b></a>
+    <a class="hero-check" href="#check" data-track="Video-check (link in hero)"><span data-i18n="hero_check">Twijfel je wat je nodig hebt?</span> <b data-i18n="hero_check_b">Doe de 30-seconden check →</b></a>
     <div class="letterbox">
       <span data-i18n="lb_1">Bedrijven · MKB</span><span data-i18n="lb_2">Personal brands</span><span data-i18n="lb_3">Vastgoed & interieur</span><span data-i18n="lb_4">NL / EN producties</span>
     </div>
@@ -594,11 +594,11 @@ html,body{overflow-x:clip}
     <div class="reel-pin">
       <div class="reel-head">
         <div class="filters" id="filters">
-          <button data-f="all" class="on" data-i18n="f_all">Alles</button>
-          <button data-f="business" data-i18n="f_biz">Bedrijfsvideo</button>
-          <button data-f="social" data-i18n="f_social">Social content</button>
-          <button data-f="brand-film" data-i18n="f_brand">Brand films</button>
-          <button data-f="real-estate" data-i18n="f_re">Vastgoed</button>
+          <button data-f="all" class="on" data-i18n="f_all" data-track="Filter: Alles">Alles</button>
+          <button data-f="business" data-i18n="f_biz" data-track="Filter: Bedrijfsvideo">Bedrijfsvideo</button>
+          <button data-f="social" data-i18n="f_social" data-track="Filter: Social content">Social content</button>
+          <button data-f="brand-film" data-i18n="f_brand" data-track="Filter: Brand films">Brand films</button>
+          <button data-f="real-estate" data-i18n="f_re" data-track="Filter: Vastgoed">Vastgoed</button>
         </div>
         <div class="reel-count" id="reelCount">01 / 01</div>
       </div>
@@ -705,7 +705,7 @@ html,body{overflow-x:clip}
         <span class="cfg-perreel" id="pkgPerReel"></span>
         <span class="cfg-note" id="pkgNote"></span>
       </div>
-      <a class="btn solid cfg-cta" href="#booking" id="pkgCta" data-i18n="pr_cta">Plan dit pakket</a>
+      <a class="btn solid cfg-cta" href="#booking" id="pkgCta" data-i18n="pr_cta" data-track="Plan dit pakket">Plan dit pakket</a>
     </div>
   </div>
 
@@ -718,21 +718,21 @@ html,body{overflow-x:clip}
       <div class="sf-len" data-i18n="sf_l1">tot 30 seconden</div>
       <div class="sf-price"><span class="c">€</span>200</div>
       <div class="sf-unit" data-i18n="sf_unit">eenmalig · ex BTW</div>
-      <a class="sf-cta" href="#booking" data-sf="Compact" data-len="tot 30 sec" data-price="200" data-i18n="sf_cta">Plan dit</a>
+      <a class="sf-cta" href="#booking" data-track="Plan dit: Compact" data-sf="Compact" data-len="tot 30 sec" data-price="200" data-i18n="sf_cta">Plan dit</a>
     </div>
     <div class="sf-card">
       <div class="sf-name" data-i18n="sf_n2">Standaard</div>
       <div class="sf-len" data-i18n="sf_l2">30–60 seconden</div>
       <div class="sf-price"><span class="c">€</span>325</div>
       <div class="sf-unit" data-i18n="sf_unit">eenmalig · ex BTW</div>
-      <a class="sf-cta" href="#booking" data-sf="Standaard" data-len="30–60 sec" data-price="325" data-i18n="sf_cta">Plan dit</a>
+      <a class="sf-cta" href="#booking" data-track="Plan dit: Standaard" data-sf="Standaard" data-len="30–60 sec" data-price="325" data-i18n="sf_cta">Plan dit</a>
     </div>
     <div class="sf-card">
       <div class="sf-name" data-i18n="sf_n3">Premium</div>
       <div class="sf-len" data-i18n="sf_l3">60–90 seconden</div>
       <div class="sf-price"><span class="c">€</span>475</div>
       <div class="sf-unit" data-i18n="sf_unit">eenmalig · ex BTW</div>
-      <a class="sf-cta" href="#booking" data-sf="Premium" data-len="60–90 sec" data-price="475" data-i18n="sf_cta">Plan dit</a>
+      <a class="sf-cta" href="#booking" data-track="Plan dit: Premium" data-sf="Premium" data-len="60–90 sec" data-price="475" data-i18n="sf_cta">Plan dit</a>
     </div>
   </div>
   <p class="sf-foot" data-i18n="sf_foot">Langer dan 90 sec of meerdere draaidagen → op aanvraag · 1 revisieronde inbegrepen · extra revisie +€95 · drone +€250</p>
@@ -756,8 +756,8 @@ html,body{overflow-x:clip}
         <li><b>02</b><span data-i18n="lead_p2">Vrijblijvend kennismakingsgesprek — geen verplichtingen</span></li>
         <li><b>03</b><span data-i18n="lead_p3">Binnen 24 uur na het gesprek een voorstel op maat</span></li>
       </ul>
-      <a class="lead-wa wa-link" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span data-i18n="lead_wa">Liever direct? Stuur een WhatsApp ↗</span></a>
-      <a class="lead-ig" href="https://instagram.com/brownmediamgmt" target="_blank" rel="noopener" data-i18n="lead_ig">Liever via Instagram? @brownmediamgmt ↗</a>
+      <a class="lead-wa wa-link" href="#" target="_blank" rel="noopener" data-track="WhatsApp (contact)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span data-i18n="lead_wa">Liever direct? Stuur een WhatsApp ↗</span></a>
+      <a class="lead-ig" href="https://instagram.com/brownmediamgmt" target="_blank" rel="noopener" data-i18n="lead_ig" data-track="Instagram (contact)">Liever via Instagram? @brownmediamgmt ↗</a>
     </div>
 
     <div class="lead-card" id="leadCard">
@@ -766,18 +766,18 @@ html,body{overflow-x:clip}
         <div class="intent" id="intentSw" data-v="call" role="radiogroup">
           <span class="pill" aria-hidden="true"></span>
           <input type="radio" name="intent" id="int-call" value="call" checked>
-          <label for="int-call"><b data-i18n="int_call">Gesprek plannen</b><small data-i18n="int_call_s">Ik wil aan de slag</small></label>
+          <label for="int-call" data-track="Formulier: gesprek plannen"><b data-i18n="int_call">Gesprek plannen</b><small data-i18n="int_call_s">Ik wil aan de slag</small></label>
           <input type="radio" name="intent" id="int-q" value="question">
-          <label for="int-q"><b data-i18n="int_q">Vraag stellen</b><small data-i18n="int_q_s">Ik oriënteer me nog</small></label>
+          <label for="int-q" data-track="Formulier: vraag stellen"><b data-i18n="int_q">Vraag stellen</b><small data-i18n="int_q_s">Ik oriënteer me nog</small></label>
         </div>
 
         <div class="field-title" data-i18n="f_about">Waar gaat het over?</div>
         <div class="chips">
-          <input type="radio" name="service" id="s-biz" value="business"><label for="s-biz" data-i18n="f_biz">Bedrijfsvideo</label>
-          <input type="radio" name="service" id="s-soc" value="social" checked><label for="s-soc" data-i18n="f_social">Social content</label>
-          <input type="radio" name="service" id="s-brand" value="brand-film"><label for="s-brand" data-i18n="f_brand">Brand films</label>
-          <input type="radio" name="service" id="s-re" value="real-estate"><label for="s-re" data-i18n="f_re">Vastgoed</label>
-          <input type="radio" name="service" id="s-other" value="other"><label for="s-other" data-i18n="f_other">Anders</label>
+          <input type="radio" name="service" id="s-biz" value="business"><label for="s-biz" data-i18n="f_biz" data-track="Onderwerp: Bedrijfsvideo">Bedrijfsvideo</label>
+          <input type="radio" name="service" id="s-soc" value="social" checked><label for="s-soc" data-i18n="f_social" data-track="Onderwerp: Social content">Social content</label>
+          <input type="radio" name="service" id="s-brand" value="brand-film"><label for="s-brand" data-i18n="f_brand" data-track="Onderwerp: Brand films">Brand films</label>
+          <input type="radio" name="service" id="s-re" value="real-estate"><label for="s-re" data-i18n="f_re" data-track="Onderwerp: Vastgoed">Vastgoed</label>
+          <input type="radio" name="service" id="s-other" value="other"><label for="s-other" data-i18n="f_other" data-track="Onderwerp: Anders">Anders</label>
         </div>
 
         <div class="row2">
@@ -796,7 +796,7 @@ html,body{overflow-x:clip}
         </div></div>
         <label><span id="msgLabel" data-i18n="f_msg_call">Vertel kort over je project</span><textarea name="message" maxlength="2000" data-lenis-prevent></textarea></label>
         <div class="notice" id="leadNotice"></div>
-        <button class="btn solid lead-submit" type="submit"><span id="submitLabel" data-i18n="btn_call">Plan mijn gesprek</span><span class="arr" aria-hidden="true">→</span></button>
+        <button class="btn solid lead-submit" type="submit" data-track="Formulier versturen"><span id="submitLabel" data-i18n="btn_call">Plan mijn gesprek</span><span class="arr" aria-hidden="true">→</span></button>
         <p class="lead-fine" data-i18n="lead_fine">Vrijblijvend · ik reageer binnen 24 uur</p>
       </form>
       <div class="lead-done" role="status">
@@ -828,23 +828,25 @@ html,body{overflow-x:clip}
 </section>
 
 <div id="lightbox" role="dialog" aria-modal="true" data-lenis-prevent>
-  <button id="lbClose" aria-label="Sluiten">&#10005;</button>
+  <button id="lbClose" aria-label="Sluiten" data-track="Video sluiten">&#10005;</button>
   <div class="lb-wrap" id="lbWrap">
     <div class="lb-frame h" id="lbFrame"></div>
     <div class="lb-info" id="lbInfo"></div>
   </div>
 </div>
 
-<a class="wa-float wa-link" href="#" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span data-i18n="wa_label">WhatsApp</span></a>
-<div class="m-cta" id="mCta"><a class="btn solid" href="#booking" data-i18n="hero_cta1">Plan een gesprek</a><a class="m-wa wa-link" href="#" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a></div>
+<a class="wa-float wa-link" href="#" target="_blank" rel="noopener" aria-label="WhatsApp" data-track="WhatsApp (zwevende knop)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span data-i18n="wa_label">WhatsApp</span></a>
+<div class="m-cta" id="mCta"><a class="btn solid" href="#booking" data-i18n="hero_cta1" data-track="Plan een gesprek (mobiele balk)">Plan een gesprek</a><a class="m-wa wa-link" href="#" target="_blank" rel="noopener" aria-label="WhatsApp" data-track="WhatsApp (mobiele balk)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a></div>
 
 <footer>
   <span>© 2026 BROWN MEDIA MANAGEMENT</span>
-  <a href="https://instagram.com/brownmediamgmt" target="_blank" rel="noopener">@BROWNMEDIAMGMT</a>
+  <a href="https://instagram.com/brownmediamgmt" target="_blank" rel="noopener" data-track="Instagram (footer)">@BROWNMEDIAMGMT</a>
   <span data-i18n="footer_loc">VIDEOPRODUCTIE · GRONINGEN · NEDERLAND</span>
 </footer>
 
 <script>
+// statistics hooks — stubs until /t.js loads (and if it is blocked, nothing breaks)
+window.bmmTrack = window.bmmTrack || function () {};
 /* ---------- contact settings — edit here ---------- */
 const CONTACT = {
   whatsapp: '31620890835'   // international format, no + or spaces
@@ -1081,7 +1083,7 @@ function renderWork(){
         ? ` onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='${v.thumbFallback}'}else{this.style.visibility='hidden'}"`
         : ` onerror="this.style.visibility='hidden'"`;
       media = `<img src="${thumb || BLANK}" alt="${title}" loading="lazy"${dataVimeo}${fb}>
-        <div class="playbtn" data-play="${encodeURIComponent(v.play)}" data-orient="${isVert ? 'v' : 'h'}" role="button" aria-label="Speel ${title}" tabindex="0"><span class="pb"></span></div>`;
+        <div class="playbtn" data-play="${encodeURIComponent(v.play)}" data-orient="${isVert ? 'v' : 'h'}" role="button" aria-label="Speel ${title}" tabindex="0" data-track="Video: ${String(p.title_nl || title).replace(/"/g, '')}"><span class="pb"></span></div>`;
     } else if (p.thumb_url) {
       media = `<img src="${p.thumb_url}" alt="${title}" loading="lazy">`;
     } else {
@@ -1095,7 +1097,7 @@ function renderWork(){
       <div class="meta">
         <span class="cat">${String(i + 1).padStart(2, '0')} · ${I18N[lang][catKey[p.category]] || p.category}</span>
         <h3>${title}</h3>
-        ${desc ? `<p class="desc">${desc}</p><button class="more" type="button" data-more="${i}">${I18N[lang].read_more} +</button>` : ''}
+        ${desc ? `<p class="desc">${desc}</p><button class="more" type="button" data-more="${i}" data-track="Lees meer: ${String(p.title_nl || title).replace(/"/g, '')}">${I18N[lang].read_more} +</button>` : ''}
         ${p.client ? `<div class="client">CLIENT — ${p.client.toUpperCase()}</div>` : ''}
       </div></article>`;
   }).join('') || `<p style="color:var(--amber-dim);font-family:var(--mono);font-size:13px">—</p>`;
@@ -1255,9 +1257,9 @@ leadForm.addEventListener('submit', async e => {
 
   const endpoint = isCall ? '/api/bookings' : '/api/contact';
   const data = isCall
-    ? { name:f.name, email:f.email, phone:f.phone, service:f.service, preferred_date:f.preferred_date, location:f.location,
+    ? { sid: window.bmmSid, name:f.name, email:f.email, phone:f.phone, service:f.service, preferred_date:f.preferred_date, location:f.location,
         details: [f.message, f.company && `${I18N[lang].f_company}: ${f.company}`].filter(Boolean).join('\n'), lang }
-    : { name:f.name, email:f.email, phone:f.phone, company:f.company, service:f.service, message:f.message, lang };
+    : { sid: window.bmmSid, source: 'form', name:f.name, email:f.email, phone:f.phone, company:f.company, service:f.service, message:f.message, lang };
 
   const done = () => { document.getElementById('leadCard').classList.add('sent'); leadForm.reset(); syncIntent(); };
   if (f._honey) return done(); // spam bot filled the hidden field — pretend it worked, send nothing
@@ -1267,6 +1269,7 @@ leadForm.addEventListener('submit', async e => {
   try{
     const r = await fetch(endpoint, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
     if(!r.ok) throw new Error();
+    window.bmmTrack('cv', 'booking', isCall ? 'lead_call' : 'lead_question');
     done();
   }catch{
     fail(I18N[lang].sent_err);
@@ -1305,7 +1308,7 @@ function openLightbox(src, orient, idx){
     info.innerHTML = `<span class="cat">${I18N[lang][catKey[p.category]] || p.category}</span>
       <h3>${title}</h3>${desc ? `<p>${desc}</p>` : ''}
       ${p.client ? `<div class="client">CLIENT — ${p.client.toUpperCase()}</div>` : ''}
-      <a class="btn solid" href="#booking" data-lb-cta>${I18N[lang].lb_cta} →</a>`;
+      <a class="btn solid" href="#booking" data-lb-cta data-track="Plan een gesprek (videospeler)">${I18N[lang].lb_cta} →</a>`;
     info.style.display = '';
   } else { info.innerHTML = ''; info.style.display = 'none'; }
   lb.classList.add('open');
@@ -1610,7 +1613,7 @@ function renderQuiz(){
   if (qcStep < n) {
     const q = T.qs[qcStep];
     stage.innerHTML = '<div class="qc-step on"><h3 class="qc-q">' + q.q + '</h3><div class="qc-opts">' +
-      q.opts.map((o, i) => '<button type="button" class="qc-opt' + (qcAns[q.id] === o[0] ? ' sel' : '') + '" data-qc="' + q.id + '" data-v="' + o[0] + '"><span class="k">' + 'ABCDE'[i] + '</span><span>' + o[1] + (o[2] ? '<small>' + o[2] + '</small>' : '') + '</span></button>').join('') +
+      q.opts.map((o, i) => '<button type="button" data-notrack class="qc-opt' + (qcAns[q.id] === o[0] ? ' sel' : '') + '" data-qc="' + q.id + '" data-v="' + o[0] + '"><span class="k">' + 'ABCDE'[i] + '</span><span>' + o[1] + (o[2] ? '<small>' + o[2] + '</small>' : '') + '</span></button>').join('') +
       '</div></div>';
     return;
   }
@@ -1643,6 +1646,8 @@ document.getElementById('qc').addEventListener('click', async e => {
   const opt = e.target.closest('[data-qc]');
   if (opt) {
     qcAns[opt.dataset.qc] = opt.dataset.v;
+    window.bmmTrack('qz', 'check', 'step' + (qcStep + 1) + ':' + opt.dataset.v);
+    if (qcStep + 1 === QC[lang].qs.length) setTimeout(() => { try { window.bmmTrack('qz', 'check', 'result:' + qcAdvice(qcAns).name); } catch (e) {} }, 250);
     opt.classList.add('sel');
     setTimeout(() => { qcStep++; renderQuiz(); }, 220);
     return;
@@ -1665,8 +1670,9 @@ document.getElementById('qc').addEventListener('click', async e => {
     const btn = document.getElementById('qcSend'); btn.disabled = true; btn.style.opacity = .6;
     try {
       const res = await fetch('/api/contact', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ name, email, phone, service: r.service, message: text, lang }) });
+        body: JSON.stringify({ sid: window.bmmSid, source: 'quiz', name, email, phone, service: r.service, message: text, lang }) });
       if (!res.ok) throw new Error();
+      window.bmmTrack('cv', 'check', 'quiz_lead');
       qcDone = true; renderQuiz();
     } catch { msg.textContent = I18N[lang].sent_err; btn.disabled = false; btn.style.opacity = ''; }
   }
@@ -1674,6 +1680,7 @@ document.getElementById('qc').addEventListener('click', async e => {
 
 applyLang();
 </script>
+<script src="/t.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
 <script src="/effects.js" defer></script>
 </body>

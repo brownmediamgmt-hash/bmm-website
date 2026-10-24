@@ -1,554 +1,255 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>BMM — Admin</title>
-<meta name="robots" content="noindex">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{--ink:#0B0B0D;--surface:#131316;--line:#232328;--paper:#ECE7DD;--muted:#9C958A;--amber:#E0A35C;
-  --body:'Instrument Sans',sans-serif;--mono:'JetBrains Mono',monospace}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--ink);color:var(--paper);font-family:var(--body);font-size:15px;line-height:1.5;padding:24px;max-width:1100px;margin:0 auto}
-h1{font-family:var(--mono);font-size:16px;letter-spacing:.14em;margin-bottom:24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-h1 .dot{width:8px;height:8px;border-radius:50%;background:var(--amber)}
-.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.tabs button{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:9px 18px;
-  background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:3px;cursor:pointer}
-.tabs button.on{border-color:var(--amber);color:var(--amber)}
-.panel{display:none}.panel.on{display:block}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-select,input,textarea,button{font-family:var(--body);font-size:13px}
-select,input,textarea{background:var(--surface);border:1px solid var(--line);color:var(--paper);border-radius:3px;padding:8px 10px;width:100%}
-textarea{min-height:60px;resize:vertical}
-select:focus,input:focus,textarea:focus{outline:none;border-color:var(--amber)}
-.btn{background:var(--amber);color:var(--ink);border:0;border-radius:3px;padding:10px 18px;font-weight:600;cursor:pointer;
-  font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
-.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
-/* dashboard */
-.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
-@media(max-width:780px){.dash-grid{grid-template-columns:repeat(2,1fr)}}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:16px 16px 18px}
-.stat .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-.stat .val{font-family:var(--mono);font-size:30px;font-weight:500;color:var(--paper);line-height:1}
-.stat .sub{font-family:var(--mono);font-size:11px;color:var(--amber);margin-top:8px}
-.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:780px){.dash-row{grid-template-columns:1fr}}
-.dash-box{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:16px 18px 18px}
-.dash-box h3{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;font-weight:500}
-.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
-.bar-row .nm{flex:0 0 130px;color:var(--paper);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bar-track{flex:1;height:18px;background:var(--ink);border-radius:3px;overflow:hidden}
-.bar-fill{height:100%;background:var(--amber);border-radius:3px;min-width:2px;transition:width .4s}
-.bar-row .ct{flex:0 0 36px;text-align:right;font-family:var(--mono);font-size:12px;color:var(--muted)}
-.dash-empty{color:var(--muted);font-size:13px;font-style:italic}
-.btn.ghost:hover{border-color:#c4554d;color:#e0837c}
-.login{max-width:360px;margin:18vh auto;display:grid;gap:12px}
-.badge{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:3px;border:1px solid var(--line)}
-.badge.new,.badge.pending{border-color:var(--amber);color:var(--amber)}
-.badge.confirmed,.badge.won{border-color:#7dbb7d;color:#7dbb7d}
-.badge.declined,.badge.lost{border-color:#c4554d;color:#e0837c}
-.badge.done,.badge.contacted{color:var(--muted)}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px;margin-bottom:14px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:640px){.grid2{grid-template-columns:1fr}}
-.muted{color:var(--muted);font-size:12px}
-.err{color:#e0837c;font-family:var(--mono);font-size:12px}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px}
-.wrap{overflow-x:auto}
-label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:grid;gap:5px}
-</style>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#15120E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin-assets/admin.css">
 </head>
 <body>
 
-<div id="loginView" class="login">
-  <h1><span class="dot"></span>BMM ADMIN</h1>
-  <label>Password<input type="password" id="pw" autocomplete="current-password"></label>
-  <div class="err" id="loginErr"></div>
-  <button class="btn" id="loginBtn">Log in</button>
+<!-- ============ login ============ -->
+<div class="login" id="loginView" hidden>
+  <form class="login-card" id="loginForm" autocomplete="on">
+    <div class="brandline"><span class="rec"></span>BROWN MEDIA MGMT</div>
+    <h1>Admin</h1>
+    <p>Bezoekers, aanvragen, intakes en je portfolio op één plek.</p>
+    <label class="lbl">Wachtwoord<input class="input" type="password" id="pw" autocomplete="current-password" required></label>
+    <label class="check"><input type="checkbox" id="remember"> Ingelogd blijven op dit apparaat</label>
+    <button class="btn primary" style="width:100%" type="submit">Inloggen</button>
+    <div class="err" id="loginErr" role="alert"></div>
+  </form>
 </div>
 
-<div id="appView" style="display:none">
-  <div class="topbar">
-    <h1><span class="dot"></span>BMM ADMIN</h1>
-    <button class="btn ghost" id="logoutBtn">Log out</button>
-  </div>
-  <div class="tabs">
-    <button data-t="dashboard" class="on">Dashboard</button>
-    <button data-t="bookings">Bookings</button>
-    <button data-t="leads">Leads</button>
-    <button data-t="portfolio">Portfolio</button>
-  </div>
-
-  <div class="panel on" id="p-dashboard">
-    <div class="dash-grid" id="statCards"></div>
-    <div class="dash-row">
-      <div class="dash-box"><h3>Populairste pakketten & tiers</h3><div id="tierChart"></div></div>
-      <div class="dash-box"><h3>Boekingen per maand</h3><div id="monthChart"></div></div>
+<!-- ============ app ============ -->
+<div class="app" id="appView" hidden>
+  <aside class="side">
+    <div class="brandline"><span class="rec"></span><span><b>BROWN MEDIA</b> / ADMIN</span></div>
+    <nav class="nav" id="nav">
+      <button data-page="overzicht" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Overzicht</span></button>
+      <button data-page="bezoekers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span>Bezoekers</span></button>
+      <button data-page="gedrag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4l6.5 16 2.3-6.7L20.5 11z"/></svg><span>Gedrag</span></button>
+      <button data-page="aanvragen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l3-8h12l3 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg><span>Aanvragen</span><b class="count" id="cntReq" hidden></b></button>
+      <button data-page="intakes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3.5h6V6H9zM9 11h6M9 15h6M9 19h3"/></svg><span>Intakes</span><b class="count" id="cntIntake" hidden></b></button>
+      <button data-page="portfolio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/></svg><span>Portfolio</span></button>
+      <button data-page="instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg><span>Instellingen</span></button>
+    </nav>
+    <div class="side-foot">
+      <a href="/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Bekijk website</a>
+      <button id="logoutBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H4"/></svg>Uitloggen</button>
     </div>
-    <div class="dash-box" style="margin-top:12px">
-      <h3>Back-up</h3>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">
-        Download een kopie van je portfolio, boekingen en leads. Bewaar dit bestand ergens veilig —
-        hiermee zet je alles terug als de database ooit uitvalt.
-      </p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-        <button class="btn" id="backupBtn">Back-up downloaden</button>
-        <button class="btn ghost" id="restoreBtn">Portfolio terugzetten</button>
-        <input type="file" id="restoreFile" accept="application/json,.json" style="display:none">
-        <span id="backupMsg" style="font-family:var(--mono);font-size:11px;color:var(--muted)"></span>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <div>
+        <h1 id="pageTitle">Overzicht</h1>
+        <div class="sub" id="pageSub"></div>
       </div>
-    </div>
-  </div>
-
-  <div class="panel" id="p-bookings"><div class="wrap"><table>
-    <thead><tr><th>Date</th><th>Name</th><th>Contact</th><th>Service</th><th>Location / details</th><th>Status</th><th></th></tr></thead>
-    <tbody id="bookingsBody"></tbody>
-  </table></div></div>
-
-  <div class="panel" id="p-leads"><div class="wrap"><table>
-    <thead><tr><th>Received</th><th>Name</th><th>Contact</th><th>Company</th><th>Message</th><th>Status</th><th></th></tr></thead>
-    <tbody id="leadsBody"></tbody>
-  </table></div></div>
-
-  <div class="panel" id="p-portfolio">
-    <div class="card">
-      <strong style="font-family:var(--mono);font-size:12px;letter-spacing:.1em">UPLOAD REELS</strong>
-      <p class="muted" style="margin:8px 0 14px">
-        Sleep verticale exports hierheen. Titel, thumbnail en formaat worden automatisch ingevuld.
-        Daarna kun je ze hieronder bijwerken zoals elk ander project.
-      </p>
-
-      <label id="upDrop" for="upInput" tabindex="0"
-        style="border:1px dashed var(--line);border-radius:4px;padding:28px 16px;text-align:center;
-               cursor:pointer;display:block;letter-spacing:normal;text-transform:none;font-family:var(--body);
-               font-size:14px;color:var(--paper);transition:border-color .15s,background .15s">
-        Sleep video's hierheen of klik om te kiezen
-        <span class="muted" style="display:block;margin-top:6px">MP4 of MOV, meerdere tegelijk</span>
-        <input type="file" id="upInput" accept="video/*" multiple style="display:none">
-      </label>
-
-      <div class="grid2" style="margin-top:12px">
-        <label>Category<select id="upCategory">
-          <option value="social">Social</option>
-          <option value="business">Business</option>
-          <option value="brand-film">Brand film</option>
-          <option value="real-estate">Real estate</option>
-        </select></label>
-        <label>Client (optioneel)<input id="upClient" placeholder="Bijv. LUXV Design Studio"></label>
+      <div class="top-right">
+        <button class="live zero" id="livePill" title="Bezoekers in de afgelopen 5 minuten"><span class="rec"></span><span><b id="liveN">0</b> nu op de site</span></button>
+        <div class="seg" id="period" role="tablist" aria-label="Periode">
+          <button data-days="1">Vandaag</button><button data-days="7">7 dagen</button><button data-days="30" class="on">30 dagen</button><button data-days="90">90 dagen</button>
+        </div>
       </div>
+    </header>
 
-      <div id="upQueue" style="margin-top:12px;display:grid;gap:8px"></div>
-    </div>
+    <!-- ===== Overzicht ===== -->
+    <section class="page on" id="pg-overzicht">
+      <div class="grid g-kpi" id="kpis"></div>
+      <div class="grid g-21 mt">
+        <div class="card">
+          <div class="card-h"><h2 id="mainChartTitle">Bezoekers per dag</h2><span class="note" id="mainChartNote"></span></div>
+          <div class="chart" id="mainChart"></div>
+        </div>
+        <div class="card" id="liveCard">
+          <div class="card-h"><h2>Nu op de site</h2><span class="note">laatste 5 min</span></div>
+          <div id="liveList"></div>
+          <div class="card-h" style="margin:16px 0 8px"><h2>Live activiteit</h2></div>
+          <div class="feed" id="feed"></div>
+        </div>
+      </div>
+      <div class="grid g-3 mt">
+        <div class="card"><div class="card-h"><h2>Waar in Nederland</h2><button class="note" data-go="bezoekers">Kaart →</button></div><div id="ovProv"></div></div>
+        <div class="card"><div class="card-h"><h2>Hoe ze je vinden</h2></div><div id="ovSources"></div></div>
+        <div class="card"><div class="card-h"><h2>Meest geklikt</h2><button class="note" data-go="gedrag">Alles →</button></div><div id="ovClicks"></div></div>
+      </div>
+      <div class="grid g-2 mt">
+        <div class="card"><div class="card-h"><h2>Laatste aanvragen</h2><button class="note" data-go="aanvragen">Alle aanvragen →</button></div><div id="ovReq"></div></div>
+        <div class="card"><div class="card-h"><h2>Intakes</h2><button class="note" data-go="intakes">Naar intakes →</button></div><div id="ovIntakes"></div></div>
+      </div>
+    </section>
 
-    <div class="card">
-      <strong style="font-family:var(--mono);font-size:12px;letter-spacing:.1em">ADD PROJECT</strong>
-      <div class="grid2" style="margin-top:12px">
-        <label>Title (EN)<input id="np_title_en"></label>
-        <label>Titel (NL)<input id="np_title_nl"></label>
-        <label>Category<select id="np_category">
-          <option value="business">Business</option><option value="social">Social</option><option value="brand-film">Brand film</option><option value="real-estate">Real estate</option>
-        </select></label>
-        <label>Formaat<select id="np_format">
-          <option value="horizontal">Horizontaal (16:9)</option><option value="vertical">Verticaal (9:16 / reel)</option>
-        </select></label>
-        <label>Client<input id="np_client"></label>
-        <label>Video URL (YouTube/Vimeo)<input id="np_video"></label>
-        <label>Thumbnail URL<input id="np_thumb"></label>
-        <label>Description (EN)<textarea id="np_desc_en"></textarea></label>
-        <label>Beschrijving (NL)<textarea id="np_desc_nl"></textarea></label>
+    <!-- ===== Bezoekers ===== -->
+    <section class="page" id="pg-bezoekers">
+      <div class="card">
+        <div class="card-h"><h2>Bezoeken per provincie</h2><span class="note" id="mapNote"></span></div>
+        <div class="mapwrap">
+          <div class="map" id="nlMap"></div>
+          <div>
+            <div class="card-h" style="margin-bottom:8px"><h2>Steden</h2><span class="note">bezoeken</span></div>
+            <div id="cityList"></div>
+          </div>
+        </div>
       </div>
-      <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
-        <button class="btn" id="addProject">Add project</button>
-        <span class="err" id="addErr"></span>
+      <div class="grid g-3 mt">
+        <div class="card"><div class="card-h"><h2>Provincies</h2></div><div id="provList"></div></div>
+        <div class="card"><div class="card-h"><h2>Landen</h2></div><div id="countryList"></div></div>
+        <div class="card"><div class="card-h"><h2>Bronnen</h2><span class="note">bezoeken · aanvragen</span></div><div id="sourceList"></div></div>
       </div>
-    </div>
-    <div id="portfolioList"></div>
-  </div>
+      <div class="grid g-3 mt">
+        <div class="card"><div class="card-h"><h2>Apparaat</h2></div><div id="deviceShare"></div></div>
+        <div class="card"><div class="card-h"><h2>Browser</h2></div><div id="browserList"></div></div>
+        <div class="card"><div class="card-h"><h2>Besturingssysteem</h2></div><div id="osList"></div></div>
+      </div>
+      <div class="card mt">
+        <div class="card-h"><h2>Wanneer bezoeken mensen je site</h2><span class="note">dag × uur, Nederlandse tijd</span></div>
+        <div id="heat"></div>
+      </div>
+    </section>
+
+    <!-- ===== Gedrag ===== -->
+    <section class="page" id="pg-gedrag">
+      <div class="grid g-12">
+        <div class="card"><div class="card-h"><h2>Contactmomenten</h2><span class="note">in deze periode</span></div><div id="ctaBox"></div></div>
+        <div class="card"><div class="card-h"><h2>Hoe ver scrollen bezoekers</h2><span class="note">% van de bezoeken dat de sectie zag · klikken</span></div><div id="reach"></div></div>
+      </div>
+      <div class="grid g-2 mt">
+        <div class="card"><div class="card-h"><h2>Alle klikken</h2><span class="note">knop · sectie</span></div><div id="clickList"></div></div>
+        <div class="card">
+          <div class="card-h"><h2>Video-check (keuzehulp)</h2><span class="note">bezoeken per stap</span></div>
+          <div id="quizFunnel"></div>
+          <div class="card-h" style="margin:20px 0 10px"><h2>Gekozen antwoorden</h2></div>
+          <div id="quizAnswers"></div>
+        </div>
+      </div>
+      <div class="grid g-2 mt">
+        <div class="card"><div class="card-h"><h2>Meest bekeken video's</h2></div><div id="videoList"></div></div>
+        <div class="card"><div class="card-h"><h2>Klikken buiten de secties</h2><span class="note">menu, footer, zwevende knoppen</span></div><div id="otherClicks"></div></div>
+      </div>
+    </section>
+
+    <!-- ===== Aanvragen ===== -->
+    <section class="page" id="pg-aanvragen">
+      <div class="toolbar">
+        <div class="filters" id="reqFilters"></div>
+        <input class="input" id="reqSearch" placeholder="Zoek op naam, e-mail of tekst" style="max-width:280px">
+      </div>
+      <div id="reqList"></div>
+    </section>
+
+    <!-- ===== Intakes ===== -->
+    <section class="page" id="pg-intakes">
+      <div class="grid g-21">
+        <div class="card">
+          <div class="card-h"><h2>Nieuwe klant onboarden</h2></div>
+          <p style="color:var(--muted);font-size:14px;max-width:560px;margin-bottom:14px">Maak een persoonlijke link: de klant ziet zijn naam, jouw bericht en vult de vragenlijst in ±15 minuten in. Alles wordt tussendoor opgeslagen; jij ziet hier live hoe ver ze zijn.</p>
+          <button class="btn primary" id="newIntakeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nieuwe intake-link</button>
+        </div>
+        <div class="card">
+          <div class="card-h"><h2>Algemene link</h2></div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:10px">Voor in je bio of een mail aan meerdere mensen. Iedereen die start krijgt automatisch een eigen intake.</p>
+          <div class="linkbox"><span id="genericLink"></span><button class="btn ghost sm" data-copy-generic>Kopieer</button></div>
+        </div>
+      </div>
+      <div class="toolbar mt">
+        <div class="filters" id="ikFilters"></div>
+      </div>
+      <div id="ikList"></div>
+    </section>
+
+    <!-- ===== Portfolio ===== -->
+    <section class="page" id="pg-portfolio">
+      <div class="grid g-2">
+        <div class="card">
+          <div class="card-h"><h2>Video's uploaden</h2></div>
+          <label class="drop" id="upDrop" for="upInput" tabindex="0">
+            <strong>Sleep video's hierheen of klik om te kiezen</strong>
+            <span>MP4 of MOV, meerdere tegelijk. Titel, still en formaat worden automatisch ingevuld.</span>
+            <input type="file" id="upInput" accept="video/*" multiple hidden>
+          </label>
+          <div class="form-grid" style="margin-top:12px">
+            <label class="lbl">Categorie<select class="select" id="upCategory">
+              <option value="social">Social content</option><option value="business">Bedrijfsvideo</option><option value="brand-film">Brand film</option><option value="real-estate">Vastgoed</option>
+            </select></label>
+            <label class="lbl">Klant (optioneel)<input class="input" id="upClient" placeholder="Bijv. LUXV Design Studio"></label>
+          </div>
+          <div id="upQueue" style="margin-top:12px;display:grid;gap:8px"></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h2>Project met link toevoegen</h2><span class="note">YouTube / Vimeo / mp4</span></div>
+          <div class="form-grid">
+            <label class="lbl">Titel (NL)<input class="input" id="np_title_nl"></label>
+            <label class="lbl">Title (EN)<input class="input" id="np_title_en"></label>
+            <label class="lbl">Categorie<select class="select" id="np_category">
+              <option value="business">Bedrijfsvideo</option><option value="social">Social content</option><option value="brand-film">Brand film</option><option value="real-estate">Vastgoed</option>
+            </select></label>
+            <label class="lbl">Formaat<select class="select" id="np_format"><option value="horizontal">Horizontaal (16:9)</option><option value="vertical">Verticaal (9:16)</option></select></label>
+            <label class="lbl">Klant<input class="input" id="np_client"></label>
+            <label class="lbl">Video-URL<input class="input" id="np_video"></label>
+            <label class="lbl full">Thumbnail-URL<input class="input" id="np_thumb"></label>
+            <label class="lbl">Beschrijving (NL)<textarea class="textarea" id="np_desc_nl"></textarea></label>
+            <label class="lbl">Description (EN)<textarea class="textarea" id="np_desc_en"></textarea></label>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+            <button class="btn primary" id="addProject">Toevoegen</button><span class="err" id="addErr" style="margin:0"></span>
+          </div>
+        </div>
+      </div>
+      <div class="card-h mt" style="margin-top:22px"><h2>Projecten</h2><span class="note" id="pfCount"></span></div>
+      <div id="portfolioList"></div>
+    </section>
+
+    <!-- ===== Instellingen ===== -->
+    <section class="page" id="pg-instellingen">
+      <div class="grid g-2">
+        <div class="card">
+          <div class="card-h"><h2>Statistieken</h2></div>
+          <div class="switch">
+            <div><b>Mijn eigen bezoeken niet meetellen</b><p>Geldt voor deze browser. Op je telefoon: open één keer <span class="mono" style="font-size:11px;letter-spacing:.02em;text-transform:none;color:var(--amber-hi)">brown-media.nl/?notrack=1</span></p></div>
+            <button class="toggle" id="notrackToggle" role="switch" aria-label="Eigen bezoeken niet meetellen"></button>
+          </div>
+          <div class="switch" style="display:block">
+            <b>Statistieken wissen</b>
+            <p style="margin-bottom:10px">Bijvoorbeeld na het testen. Aanvragen, intakes en portfolio blijven staan. Typ WISSEN om te bevestigen.</p>
+            <div style="display:flex;gap:8px"><input class="input" id="wipeInput" placeholder="WISSEN" style="max-width:160px"><button class="btn danger" id="wipeBtn">Wis statistieken</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h2>Back-up</h2></div>
+          <p style="color:var(--muted);font-size:14px;margin-bottom:14px">Download een kopie van je portfolio, aanvragen en intakes. Bewaar dit bestand ergens veilig — hiermee zet je je portfolio terug als de database ooit uitvalt.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <button class="btn primary" id="backupBtn">Back-up downloaden</button>
+            <button class="btn ghost" id="restoreBtn">Portfolio terugzetten</button>
+            <input type="file" id="restoreFile" accept="application/json,.json" hidden>
+          </div>
+          <div class="err" id="backupMsg" style="color:var(--muted)"></div>
+        </div>
+      </div>
+      <div class="card mt">
+        <div class="card-h"><h2>Privacy</h2></div>
+        <p style="color:var(--muted);font-size:14px;max-width:760px">De statistieken gebruiken geen cookies en slaan geen IP-adressen op. Een bezoeker is een anonieme code die elke dag verandert, dus niemand wordt over dagen heen gevolgd. Locatie is bij benadering (stad/provincie op basis van het netwerk) — bij mobiel internet kan dat de stad van de provider zijn in plaats van waar iemand echt is. Gegevens worden na 400 dagen automatisch verwijderd. Daarom heb je hiervoor geen cookiebanner nodig.</p>
+      </div>
+    </section>
+  </main>
 </div>
 
-<script>
-let token = sessionStorage.getItem('bmm_token') || '';
-const $ = id => document.getElementById(id);
-const api = (url, opts={}) => fetch(url, {...opts, headers:{'Content-Type':'application/json','Authorization':'Bearer '+token, ...(opts.headers||{})}})
-  .then(r => { if(r.status===401){ logout(); throw new Error('auth'); } return r.json(); });
-const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+<!-- drawer, tooltip, toast -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-modal="true" role="dialog" aria-labelledby="drawerTitle">
+  <div class="drawer-h"><div><div class="when" id="drawerKicker"></div><h2 id="drawerTitle"></h2></div><button class="x" id="drawerClose" aria-label="Sluiten"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="drawer-b" id="drawerBody"></div>
+</aside>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast"><i></i><span></span></div>
 
-function show(loggedIn){
-  $('loginView').style.display = loggedIn ? 'none' : 'grid';
-  $('appView').style.display = loggedIn ? 'block' : 'none';
-  if (loggedIn) loadAll();
-}
-function logout(){ token=''; sessionStorage.removeItem('bmm_token'); show(false); }
-
-$('loginBtn').onclick = async () => {
-  $('loginErr').textContent = '';
-  const r = await fetch('/api/admin/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password: $('pw').value})});
-  if (!r.ok) { $('loginErr').textContent = 'Wrong password.'; return; }
-  token = (await r.json()).token; sessionStorage.setItem('bmm_token', token);
-  $('pw').value = ''; show(true);
-};
-$('pw').addEventListener('keydown', e => e.key==='Enter' && $('loginBtn').click());
-$('logoutBtn').onclick = () => { api('/api/admin/logout',{method:'POST'}).catch(()=>{}); logout(); };
-
-document.querySelector('.tabs').addEventListener('click', e => {
-  const b = e.target.closest('button'); if(!b) return;
-  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x===b));
-  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'p-'+b.dataset.t));
-});
-
-// ---------- backup / restore ----------
-function backupMsg(text, isErr){
-  const el = $('backupMsg');
-  el.textContent = text;
-  el.style.color = isErr ? '#d9704a' : 'var(--amber)';
-}
-$('backupBtn').onclick = async () => {
-  backupMsg('Bezig...');
-  try {
-    const data = await api('/api/admin/export');
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const d = new Date().toISOString().slice(0,10);
-    a.href = url; a.download = `bmm-backup-${d}.json`;
-    document.body.appendChild(a); a.click(); a.remove();
-    URL.revokeObjectURL(url);
-    const n = (data.portfolio||[]).length, bk = (data.bookings||[]).length, ld = (data.leads||[]).length;
-    backupMsg(`Gedownload — ${n} portfolio, ${bk} boekingen, ${ld} leads`);
-  } catch(e) { backupMsg('Back-up mislukt', true); }
-};
-$('restoreBtn').onclick = () => $('restoreFile').click();
-$('restoreFile').onchange = async (e) => {
-  const file = e.target.files && e.target.files[0];
-  if(!file) return;
-  backupMsg('Bezig met terugzetten...');
-  try {
-    const text = await file.text();
-    const data = JSON.parse(text);
-    if(!Array.isArray(data.portfolio)) { backupMsg('Geen portfolio in dit bestand', true); return; }
-    const res = await api('/api/admin/restore', {method:'POST', body: JSON.stringify({portfolio: data.portfolio})});
-    if(res.error){ backupMsg(res.error, true); return; }
-    backupMsg(`Teruggezet — ${res.added} toegevoegd, ${res.skipped} overgeslagen`);
-    loadPortfolio();
-  } catch(err) { backupMsg('Terugzetten mislukt — geldig back-upbestand?', true); }
-  finally { e.target.value = ''; }
-};
-
-const B_STATUSES = ['pending','confirmed','declined','done'];
-const L_STATUSES = ['new','contacted','won','lost'];
-
-function statusSelect(cur, list, id, kind){
-  return `<select data-kind="${kind}" data-id="${id}">` +
-    list.map(s => `<option ${s===cur?'selected':''}>${s}</option>`).join('') + '</select>';
-}
-
-let _bookings = [], _leads = [];
-async function loadBookings(){
-  const rows = await api('/api/admin/bookings');
-  _bookings = rows;
-  $('bookingsBody').innerHTML = rows.map(r => `<tr>
-    <td><strong>${esc(r.preferred_date)}</strong><div class="muted">in: ${esc(r.created_at)}</div></td>
-    <td>${esc(r.name)}</td>
-    <td>${esc(r.email)}<div class="muted">${esc(r.phone||'')}</div></td>
-    <td>${esc(r.service)}</td>
-    <td>${esc(r.location||'')}<div class="muted">${esc(r.details||'')}</div></td>
-    <td>${statusSelect(r.status, B_STATUSES, r.id, 'bookings')}</td>
-    <td><button class="btn ghost" data-del="bookings" data-id="${r.id}">✕</button></td>
-  </tr>`).join('') || '<tr><td colspan="7" class="muted">No bookings yet.</td></tr>';
-  renderDashboard();
-}
-async function loadLeads(){
-  const rows = await api('/api/admin/leads');
-  _leads = rows;
-  $('leadsBody').innerHTML = rows.map(r => `<tr>
-    <td>${esc(r.created_at)}</td>
-    <td>${esc(r.name)}</td>
-    <td>${esc(r.email)}<div class="muted">${esc(r.phone||'')}</div></td>
-    <td>${esc(r.company||'')}</td>
-    <td>${esc(r.message||'')}</td>
-    <td>${statusSelect(r.status, L_STATUSES, r.id, 'leads')}</td>
-    <td><button class="btn ghost" data-del="leads" data-id="${r.id}">✕</button></td>
-  </tr>`).join('') || '<tr><td colspan="7" class="muted">No leads yet.</td></tr>';
-  renderDashboard();
-}
-async function loadPortfolio(){
-  const rows = await api('/api/admin/portfolio');
-  $('portfolioList').innerHTML = rows.map(r => `<div class="card" data-pid="${r.id}">
-    <div class="grid2">
-      <label>Title (EN)<input data-f="title_en" value="${esc(r.title_en)}"></label>
-      <label>Titel (NL)<input data-f="title_nl" value="${esc(r.title_nl)}"></label>
-      <label>Category<select data-f="category">
-        ${['business','social','brand-film','real-estate'].map(c=>`<option ${c===r.category?'selected':''}>${c}</option>`).join('')}
-      </select></label>
-      <label>Formaat<select data-f="format">
-        <option value="horizontal" ${(r.format||'horizontal')==='horizontal'?'selected':''}>Horizontaal (16:9)</option>
-        <option value="vertical" ${r.format==='vertical'?'selected':''}>Verticaal (9:16 / reel)</option>
-      </select></label>
-      <label>Client<input data-f="client" value="${esc(r.client||'')}"></label>
-      <label>Video URL<input data-f="video_url" value="${esc(r.video_url||'')}"></label>
-      <label>Thumbnail URL<input data-f="thumb_url" value="${esc(r.thumb_url||'')}"></label>
-      <label>Description (EN)<textarea data-f="description_en">${esc(r.description_en||'')}</textarea></label>
-      <label>Beschrijving (NL)<textarea data-f="description_nl">${esc(r.description_nl||'')}</textarea></label>
-      <label>Sort order<input data-f="sort_order" type="number" value="${r.sort_order}"></label>
-      <label>Published<select data-f="published"><option value="1" ${r.published?'selected':''}>Yes</option><option value="0" ${r.published?'':'selected'}>No</option></select></label>
-    </div>
-    <div style="margin-top:12px;display:flex;gap:10px">
-      <button class="btn" data-save="${r.id}">Save</button>
-      <button class="btn ghost" data-del="portfolio" data-id="${r.id}">Delete</button>
-    </div>
-  </div>`).join('') || '<p class="muted">No projects yet.</p>';
-}
-function loadAll(){ loadBookings(); loadLeads(); loadPortfolio(); }
-
-// ---------- business dashboard ----------
-function parsePrice(details){
-  if(!details) return 0;
-  // matches "€1.250", "€325", "€1250" — Dutch thousands dot
-  const m = details.match(/€\s?([\d.]+)/);
-  if(!m) return 0;
-  return parseInt(m[1].replace(/\./g,''), 10) || 0;
-}
-function parseTier(details, service){
-  if(!details) return service ? `(${service}, geen pakket)` : 'Onbekend';
-  let m = details.match(/Pakket:\s*([A-Za-zÀ-ÿ]+)/i);       // monthly package
-  if(m) return 'Pakket: ' + m[1];
-  m = details.match(/Short-form video — ([A-Za-zÀ-ÿ]+)/i);   // short-form tier
-  if(m) return 'Short-form: ' + m[1];
-  return service ? `(${service}, los)` : 'Overig';
-}
-function monthKey(ts){
-  const d = new Date(ts);
-  if(isNaN(d)) return null;
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-}
-function thisMonthKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
-function fmtEUR(n){ return n.toLocaleString('nl-NL'); }
-
-function renderDashboard(){
-  const tm = thisMonthKey();
-  const bookingsThisMonth = _bookings.filter(b => monthKey(b.created_at)===tm).length;
-  const leadsThisMonth = _leads.filter(l => monthKey(l.created_at)===tm).length;
-  // pipeline = sum of prices of bookings not cancelled/declined
-  const openBookings = _bookings.filter(b => !['cancelled','declined','done'].includes((b.status||'').toLowerCase()));
-  const pipeline = openBookings.reduce((s,b)=> s + parsePrice(b.details), 0);
-  const wonValue = _bookings.filter(b => (b.status||'').toLowerCase()==='done').reduce((s,b)=>s+parsePrice(b.details),0);
-
-  // stat cards
-  $('statCards').innerHTML = `
-    <div class="stat"><div class="lbl">Boekingen / maand</div><div class="val">${bookingsThisMonth}</div><div class="sub">totaal: ${_bookings.length}</div></div>
-    <div class="stat"><div class="lbl">Leads / maand</div><div class="val">${leadsThisMonth}</div><div class="sub">totaal: ${_leads.length}</div></div>
-    <div class="stat"><div class="lbl">Open pipeline</div><div class="val">€${fmtEUR(pipeline)}</div><div class="sub">${openBookings.length} open boeking(en)</div></div>
-    <div class="stat"><div class="lbl">Omzet (afgerond)</div><div class="val">€${fmtEUR(wonValue)}</div><div class="sub">status = done</div></div>`;
-
-  // popular tiers
-  const tierCounts = {};
-  _bookings.forEach(b => { const t=parseTier(b.details,b.service); tierCounts[t]=(tierCounts[t]||0)+1; });
-  const tiers = Object.entries(tierCounts).sort((a,b)=>b[1]-a[1]);
-  const maxT = Math.max(1, ...tiers.map(t=>t[1]));
-  $('tierChart').innerHTML = tiers.length
-    ? tiers.map(([n,c])=>`<div class="bar-row"><div class="nm" title="${esc(n)}">${esc(n)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxT*100)}%"></div></div><div class="ct">${c}</div></div>`).join('')
-    : '<div class="dash-empty">Nog geen boekingen om te tonen.</div>';
-
-  // bookings per month (last 6 months)
-  const months = [];
-  const now = new Date();
-  for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1); months.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')); }
-  const monthCounts = months.map(mk => _bookings.filter(b=>monthKey(b.created_at)===mk).length);
-  const maxM = Math.max(1, ...monthCounts);
-  const monthLbl = mk => { const [y,m]=mk.split('-'); return ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'][parseInt(m)-1]+" '"+y.slice(2); };
-  $('monthChart').innerHTML = months.map((mk,i)=>`<div class="bar-row"><div class="nm">${monthLbl(mk)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(monthCounts[i]/maxM*100)}%"></div></div><div class="ct">${monthCounts[i]}</div></div>`).join('');
-}
-
-document.body.addEventListener('change', async e => {
-  const s = e.target.closest('select[data-kind]'); if(!s) return;
-  await api(`/api/admin/${s.dataset.kind}/${s.dataset.id}`, {method:'PATCH', body:JSON.stringify({status: s.value})});
-});
-document.body.addEventListener('click', async e => {
-  const del = e.target.closest('[data-del]');
-  if (del && confirm('Delete this item?')) {
-    await api(`/api/admin/${del.dataset.del}/${del.dataset.id}`, {method:'DELETE'});
-    loadAll(); return;
-  }
-  const save = e.target.closest('[data-save]');
-  if (save) {
-    const card = save.closest('.card'); const body = {};
-    card.querySelectorAll('[data-f]').forEach(el => body[el.dataset.f] = el.dataset.f==='published' || el.dataset.f==='sort_order' ? Number(el.value) : el.value);
-    await api(`/api/admin/portfolio/${save.dataset.save}`, {method:'PATCH', body:JSON.stringify(body)});
-    save.textContent = 'Saved ✓'; setTimeout(()=> save.textContent='Save', 1200);
-  }
-});
-$('addProject').onclick = async () => {
-  $('addErr').textContent = '';
-  const body = {
-    title_en: $('np_title_en').value, title_nl: $('np_title_nl').value, category: $('np_category').value, format: $('np_format').value,
-    client: $('np_client').value, video_url: $('np_video').value, thumb_url: $('np_thumb').value,
-    description_en: $('np_desc_en').value, description_nl: $('np_desc_nl').value
-  };
-  const r = await fetch('/api/admin/portfolio', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify(body)});
-  if (!r.ok) { $('addErr').textContent = 'Title (EN + NL) and category are required.'; return; }
-  ['np_title_en','np_title_nl','np_client','np_video','np_thumb','np_desc_en','np_desc_nl'].forEach(id => $(id).value='');
-  loadPortfolio();
-};
-
-show(!!token);
-if (token) api('/api/admin/bookings').catch(()=>{}); // validates token
-</script>
-
-<!-- ---------- reel uploads to R2 ---------- -->
-<script>
-(function () {
-  const drop   = document.getElementById('upDrop');
-  const input  = document.getElementById('upInput');
-  const queue  = document.getElementById('upQueue');
-  const catEl  = document.getElementById('upCategory');
-  const cliEl  = document.getElementById('upClient');
-
-  async function sign(kind, contentType) {
-    const res = await fetch('/api/admin/uploads/sign', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ kind, contentType }),
-    });
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Serverfout ' + res.status);
-    return res.json();
-  }
-
-  function grabThumb(file) {
-    return new Promise((resolve, reject) => {
-      const v = document.createElement('video');
-      const url = URL.createObjectURL(file);
-      let settled = false;
-      const fail = m => { if (!settled) { settled = true; URL.revokeObjectURL(url); reject(new Error(m)); } };
-
-      v.preload = 'metadata'; v.muted = true; v.playsInline = true; v.src = url;
-      v.addEventListener('loadeddata', () => { v.currentTime = Math.min(1.2, (v.duration || 2) * 0.12); });
-      v.addEventListener('seeked', () => {
-        if (settled) return;
-        try {
-          const c = document.createElement('canvas');
-          c.width = v.videoWidth; c.height = v.videoHeight;
-          c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-          const vertical = v.videoHeight >= v.videoWidth;
-          c.toBlob(blob => {
-            settled = true; URL.revokeObjectURL(url);
-            blob ? resolve({ blob, vertical, width: v.videoWidth, height: v.videoHeight, duration: v.duration }) : reject(new Error('Kon geen still maken'));
-          }, 'image/jpeg', 0.82);
-        } catch (e) { fail('Kon geen still maken'); }
-      });
-      v.addEventListener('error', () => fail('Kan deze video niet lezen'));
-      setTimeout(() => fail('Duurde te lang'), 30000);
-    });
-  }
-
-  function put(url, blob, type, onProgress) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('PUT', url, true);
-      xhr.setRequestHeader('Content-Type', type);
-      xhr.upload.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total); };
-      xhr.onload = () => (xhr.status >= 200 && xhr.status < 300)
-        ? resolve() : reject(new Error('Upload geweigerd (' + xhr.status + ')'));
-      xhr.onerror = () => reject(new Error('Upload onderbroken'));
-      xhr.send(blob);
-    });
-  }
-
-  function addRow(name) {
-    const el = document.createElement('div');
-    el.style.cssText = 'border:1px solid var(--line);border-radius:4px;padding:10px 12px;font-size:13px';
-    el.innerHTML =
-      '<div style="display:flex;justify-content:space-between;gap:12px">' +
-        '<span class="nm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>' +
-        '<span class="st" style="font-family:var(--mono);font-size:11px;color:var(--muted)">wachten</span>' +
-      '</div>' +
-      '<div style="height:3px;background:var(--ink);border-radius:2px;margin-top:8px;overflow:hidden">' +
-        '<i style="display:block;height:100%;width:0;background:var(--amber);transition:width .2s"></i>' +
-      '</div>';
-    el.querySelector('.nm').textContent = name;
-    queue.appendChild(el);
-    return {
-      state: t => { el.querySelector('.st').textContent = t; },
-      progress: f => { el.querySelector('i').style.width = Math.round(f * 100) + '%'; },
-      error: m => { el.style.borderColor = '#c4554d';
-                    const s = el.querySelector('.st'); s.textContent = m; s.style.color = '#e0837c'; },
-      done: () => setTimeout(() => el.remove(), 1500),
-    };
-  }
-
-  async function uploadOne(file) {
-    const row = addRow(file.name);
-    try {
-      row.state('still maken');
-      const thumb = await grabThumb(file);
-
-      // phones choke on 4K or very high bitrates (they stall or show a broken play icon)
-      const mbps = thumb.duration ? (file.size * 8 / thumb.duration / 1e6) : 0;
-      const longSide = Math.max(thumb.width || 0, thumb.height || 0);
-      if (longSide > 1920 || mbps > 16) {
-        const ok = confirm(
-          file.name + ' is te zwaar voor telefoons:\n' +
-          '• ' + thumb.width + '×' + thumb.height + ', ' + Math.round(mbps) + ' Mbit/s, ' + Math.round(file.size / 1e6) + ' MB\n\n' +
-          'Op mobiel laadt hij dan heel lang of speelt hij niet af.\n' +
-          'Exporteer liever een webversie: 1080×1920 (of 1920×1080), H.264, 8–10 Mbit/s.\n\n' +
-          'Toch deze versie uploaden?');
-        if (!ok) throw new Error('Gestopt — upload een webversie (1080p, H.264, ±8 Mbit/s)');
-      }
-
-      row.state('uploaden');
-      const vSlot = await sign('video', file.type || 'video/mp4');
-      await put(vSlot.uploadUrl, file, vSlot.contentType, row.progress);
-
-      row.state('still uploaden');
-      const tSlot = await sign('thumb', 'image/jpeg');
-      await put(tSlot.uploadUrl, thumb.blob, tSlot.contentType);
-
-      row.state('opslaan');
-      const title = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim() || 'Untitled';
-      const res = await fetch('/api/admin/portfolio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({
-          title_en: title,
-          title_nl: title,
-          category: catEl.value,
-          client: cliEl.value.trim(),
-          video_url: vSlot.publicUrl,
-          thumb_url: tSlot.publicUrl,
-          format: thumb.vertical ? 'vertical' : 'horizontal',
-        }),
-      });
-      if (!res.ok) throw new Error('Opslaan mislukt');
-
-      row.state('klaar');
-      row.done();
-      loadPortfolio();
-    } catch (err) {
-      row.error(err.message);
-    }
-  }
-
-  async function handleFiles(list) {
-    const files = Array.from(list).filter(f => f.type.startsWith('video/'));
-    if (!files.length) return;
-    for (const f of files) await uploadOne(f);
-  }
-
-  input.addEventListener('change', e => { handleFiles(e.target.files); input.value = ''; });
-  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => {
-    e.preventDefault(); drop.style.borderColor = 'var(--amber)'; drop.style.background = 'rgba(224,163,92,.06)';
-  }));
-  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => {
-    e.preventDefault(); drop.style.borderColor = 'var(--line)'; drop.style.background = 'transparent';
-  }));
-  drop.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
-  drop.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
-  });
-})();
-</script>
+<script src="/admin-assets/nl-provinces.js"></script>
+<script src="/intake-questions.js"></script>
+<script src="/admin-assets/admin.js"></script>
 </body>
 </html>

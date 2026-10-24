@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Intake — Brown Media Management</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F4EFE5">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="/intake-questions.js"></script>
+<style>
+:root{
+  --ink:#F4EFE5; --surface:#FBF8F1; --line:#DCD3C3; --line-2:#CBBFAB; --paper:#1A1712; --muted:#6F6759; --muted-2:#8A8172;
+  --amber:#B97C2E; --amber-deep:#8F5A1C; --amber-dim:#C9A468; --err:#A03D36;
+  --display:'Archivo',sans-serif; --body:'Instrument Sans',sans-serif; --mono:'JetBrains Mono',monospace;
+  --expo:cubic-bezier(.16,1,.3,1); --in:cubic-bezier(.55,0,1,.45); --spring:cubic-bezier(.34,1.45,.64,1);
+  --dock-h:84px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100svh;overflow-x:hidden}
+::selection{background:var(--amber);color:#FFF8EC}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+.mono{font-family:var(--mono);letter-spacing:.16em;text-transform:uppercase}
+
+/* film grain + viewfinder corners */
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.06;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.corner{position:fixed;width:18px;height:18px;border:2px solid var(--amber);z-index:5;pointer-events:none;opacity:.75}
+.corner.tl{top:12px;left:12px;border-right:0;border-bottom:0}
+.corner.tr{top:12px;right:12px;border-left:0;border-bottom:0}
+.corner.bl{bottom:12px;left:12px;border-right:0;border-top:0}
+.corner.br{bottom:12px;right:12px;border-left:0;border-top:0}
+
+/* letterbox intro */
+.bars{position:fixed;inset:0;z-index:50;pointer-events:none}
+.bars i{position:absolute;left:0;right:0;height:50.5%;background:var(--paper);transition:transform 1s cubic-bezier(.77,0,.18,1)}
+.bars i:first-child{top:0}.bars i:last-child{bottom:0}
+.bars.open i:first-child{transform:translateY(-100%)}
+.bars.open i:last-child{transform:translateY(100%)}
+.bars.gone{display:none}
+
+/* HUD */
+.hud{position:fixed;top:0;left:0;right:0;z-index:20;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;
+  padding:22px clamp(28px,4vw,48px) 14px;background:linear-gradient(var(--ink) 70%,rgba(244,239,229,0))}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.18em;display:flex;align-items:center;gap:9px;white-space:nowrap}
+.rec{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:blink 2s infinite;transition:border-radius .3s,background .3s}
+.rec.stop{animation:none;border-radius:1px;background:var(--paper)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.tc{justify-self:end;font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tc b{color:var(--paper);font-weight:500}
+
+/* chapter rail */
+.rail{list-style:none;display:flex;align-items:center;gap:0}
+.rail li{display:flex;align-items:center}
+.rail .node{position:relative;display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);padding:4px 2px;transition:color .4s}
+.rail .dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center;font-size:9px;letter-spacing:0;background:var(--ink);transition:background .45s,border-color .45s,color .45s}
+.rail .lbl{max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .6s var(--expo)}
+.rail .active .lbl{max-width:140px}
+.rail .active{color:var(--paper)}
+.rail .active .dot{border-color:var(--amber);color:var(--amber-deep)}
+.rail .done .dot{background:var(--amber);border-color:var(--amber);color:#FFF8EC}
+.rail .seg{position:relative;width:clamp(10px,2vw,28px);height:1.5px;background:var(--line);margin:0 6px;overflow:hidden}
+.rail .seg i{position:absolute;inset:0;background:var(--amber);transform:scaleX(0);transform-origin:0 50%;transition:transform .6s var(--expo)}
+.rail .seg.done i{transform:scaleX(1)}
+.rail-mini{display:none;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--muted)}
+.rail-mini b{color:var(--paper);font-weight:500}
+
+/* stage */
+main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:center;justify-content:center;
+  padding:110px clamp(20px,5vw,56px) calc(var(--dock-h) + 48px)}
+.slide{width:100%;max-width:780px}
+.kicker{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber-deep);margin-bottom:26px}
+.kicker::after{content:"";flex:1;height:1px;background:var(--line);transform-origin:0 50%;animation:draw .9s var(--expo) both}
+@keyframes draw{from{transform:scaleX(0)}}
+.q{margin-bottom:46px}
+.q:last-child{margin-bottom:0}
+.q-label{display:block;font-family:var(--display);font-variation-settings:'wdth' 104;font-weight:700;font-size:clamp(21px,2.5vw,30px);line-height:1.18;letter-spacing:-.005em;margin-bottom:8px}
+.q-label .req{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--amber-deep);vertical-align:middle;margin-left:8px;font-weight:500;border:1px solid var(--amber-dim);border-radius:20px;padding:2px 8px;white-space:nowrap}
+.q-help{color:var(--muted);font-size:15px;margin-bottom:18px}
+.q-body{margin-top:18px}
+.w{display:inline-block;white-space:pre}
+
+/* text inputs: underline that draws in amber on focus */
+.field{position:relative}
+.field input,.field textarea{width:100%;background:transparent;border:0;border-bottom:1.5px solid var(--line-2);color:var(--paper);
+  font-family:var(--body);font-size:clamp(18px,2vw,21px);padding:12px 0 10px;outline:none;border-radius:0}
+.field::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--amber);transform:scaleX(0);transform-origin:0 50%;transition:transform .5s var(--expo)}
+.field:focus-within::after{transform:scaleX(1)}
+.field input::placeholder,.field textarea::placeholder{color:#A69C8C}
+.field.area textarea{border:1.5px solid var(--line-2);border-radius:6px;background:rgba(251,248,241,.6);padding:14px 16px;min-height:128px;resize:none;line-height:1.5;font-size:17px;transition:border-color .3s,background .3s}
+.field.area::after{display:none}
+.field.area textarea:focus{border-color:var(--amber);background:var(--surface)}
+.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.sub{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+/* choice cards */
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.opts.compact{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.opt{display:flex;align-items:center;gap:13px;text-align:left;padding:14px 16px;border:1.5px solid var(--line);border-radius:6px;background:rgba(251,248,241,.55);
+  font-size:16px;line-height:1.3;transition:border-color .25s,background .25s,transform .25s var(--expo)}
+.opt:hover{border-color:var(--amber-dim);transform:translateY(-1px)}
+.opt:active{transform:scale(.985)}
+.opt .k{flex-shrink:0;width:26px;height:26px;border-radius:5px;border:1.5px solid var(--line-2);display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--muted);transition:background .25s,border-color .25s,color .25s}
+.opt.radio .k{border-radius:50%}
+.opt[aria-pressed="true"]{border-color:var(--amber);background:#F6E9D4}
+.opt[aria-pressed="true"] .k{background:var(--amber);border-color:var(--amber);color:#FFF8EC}
+.opt:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.other{margin-top:12px;display:none}
+.other.on{display:block;animation:rise .5s var(--expo)}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+
+/* file drop */
+.drop{display:block;border:1.5px dashed var(--amber-dim);border-radius:8px;padding:30px 20px;text-align:center;background:rgba(251,248,241,.55);cursor:pointer;transition:border-color .25s,background .25s}
+.drop:hover,.drop.over{border-color:var(--amber);background:#F6E9D4}
+.drop strong{display:block;font-family:var(--display);font-variation-settings:'wdth' 104;font-weight:700;font-size:19px;margin-bottom:4px}
+.drop span{color:var(--muted);font-size:14px}
+.files{display:grid;gap:8px;margin-top:12px}
+.file{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font-size:14px}
+.file .thumb{width:40px;height:40px;border-radius:4px;background:var(--ink) center/contain no-repeat;flex-shrink:0;display:grid;place-items:center;font-family:var(--mono);font-size:9px;color:var(--muted)}
+.file .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file .bar{height:2px;background:var(--line);margin-top:6px;border-radius:2px;overflow:hidden}
+.file .bar i{display:block;height:100%;width:0;background:var(--amber);transition:width .2s}
+.file .rm{font-family:var(--mono);font-size:11px;color:var(--muted);padding:6px}
+.file .rm:hover{color:var(--err)}
+.file.err{border-color:#d9a19c;color:var(--err)}
+
+.err-msg{display:none;margin-top:10px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--err)}
+.q.invalid .err-msg{display:block;animation:rise .4s var(--expo)}
+.q.invalid .field input,.q.invalid .field textarea{border-color:#d9a19c}
+
+/* intro / end card */
+.title{font-family:var(--display);font-variation-settings:'wdth' 118;font-weight:850;text-transform:uppercase;font-size:clamp(40px,7.4vw,92px);line-height:.95;letter-spacing:-.01em}
+.title .l{display:block;overflow:hidden;padding-bottom:.04em}
+.title .l > span{display:block}
+.title .amber{color:var(--amber-deep)}
+.lede{margin-top:26px;max-width:600px;color:#4d463c;font-size:clamp(16px,1.6vw,18px);line-height:1.65}
+.note{margin-top:26px;max-width:600px;border-left:2px solid var(--amber);padding:4px 0 4px 18px}
+.note .mono{font-size:10px;color:var(--amber-deep);margin-bottom:6px;display:block}
+.note p{font-size:16px;color:var(--paper);white-space:pre-line}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--line-2);border-radius:30px;padding:8px 14px;color:#4d463c}
+.cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:34px}
+.btn{display:inline-flex;align-items:center;gap:12px;padding:16px 26px;border-radius:4px;font-family:var(--body);font-weight:600;font-size:14px;letter-spacing:.1em;text-transform:uppercase;transition:transform .2s var(--expo),background .25s,color .25s,box-shadow .25s}
+.btn.solid{background:var(--amber);color:#FFF8EC;box-shadow:0 14px 30px -16px rgba(143,90,28,.8)}
+.btn.solid:hover{transform:translateY(-2px)}
+.btn.solid:active{transform:scale(.97)}
+.btn.ghost{border:1.5px solid var(--line-2);color:var(--paper)}
+.btn.ghost:hover{border-color:var(--amber);color:var(--amber-deep)}
+.btn[disabled]{opacity:.55;pointer-events:none}
+.link{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line-2);padding-bottom:3px}
+.link:hover{color:var(--amber-deep);border-color:var(--amber)}
+.underline{display:block;width:min(420px,70%);height:16px;margin-top:6px}
+.underline path{fill:none;stroke:var(--amber);stroke-width:3;stroke-linecap:round;stroke-dasharray:480;stroke-dashoffset:480}
+.underline.on path{animation:ink .9s .5s var(--expo) forwards}
+@keyframes ink{to{stroke-dashoffset:0}}
+
+/* review */
+.rv-sec{border-top:1px solid var(--line);padding:18px 0}
+.rv-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
+.rv-head h3{font-family:var(--display);font-variation-settings:'wdth' 110;font-weight:800;text-transform:uppercase;font-size:17px;letter-spacing:.01em}
+.rv-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:18px;padding:7px 0;font-size:14px;border-bottom:1px dashed transparent}
+.rv-row .ql{color:var(--muted)}
+.rv-row .qa{white-space:pre-line;word-break:break-word}
+.rv-row.missing .qa{color:var(--err);font-family:var(--mono);font-size:12px;letter-spacing:.06em}
+.rv-row.empty .qa{color:#A69C8C}
+@media(max-width:640px){.rv-row{grid-template-columns:1fr;gap:2px}}
+
+/* dock */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:14px clamp(28px,4vw,48px) calc(18px + env(safe-area-inset-bottom));background:linear-gradient(rgba(244,239,229,0),var(--ink) 34%)}
+.dock .back{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:12px 4px}
+.dock .back:hover{color:var(--paper)}
+.dock .back[hidden]{visibility:hidden;display:block}
+.dock .right{display:flex;align-items:center;gap:16px}
+.save{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:7px;white-space:nowrap}
+.save i{width:6px;height:6px;border-radius:50%;background:var(--line-2);transition:background .3s}
+.save.ok i{background:#7a9a5b}
+.save.busy i{background:var(--amber);animation:blink 1s infinite}
+.save.off i{background:var(--err)}
+.hint{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#A69C8C;text-transform:uppercase}
+.progress{position:fixed;left:0;right:0;bottom:0;height:2px;z-index:21;background:rgba(203,191,171,.45)}
+.progress i{display:block;height:100%;background:var(--amber);transform-origin:0 50%;transform:scaleX(0);transition:transform .7s var(--expo)}
+.dock.hide{display:none}
+
+@media(max-width:960px){ .rail{display:none} .rail-mini{display:block} }
+@media(max-width:640px){
+  :root{--dock-h:76px}
+  .hud{grid-template-columns:auto 1fr;padding:18px 24px 10px}
+  .hud .tc{display:none}
+  .rail-mini{justify-self:end}
+  main{align-items:flex-start;padding-top:86px}
+  .hint{display:none}
+  .name-grid{grid-template-columns:1fr;gap:14px}
+  .opts{grid-template-columns:1fr}
+  .opts.compact{grid-template-columns:repeat(2,1fr)}
+  .dock{padding-left:22px;padding-right:22px}
+  .save span{display:none}
+  .btn{padding:15px 20px}
+  .corner{display:none}
+}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:.01ms!important;transition-duration:.01ms!important} }
+
+/* print = a clean copy of the answers */
+.print-only{display:none}
+@media print{
+  body{background:#fff}
+  .hud,.dock,.progress,.grain,.corner,.bars,main{display:none!important}
+  .print-only{display:block;padding:24px;font-size:12px;color:#000}
+  .print-only h1{font-family:var(--display);font-size:22px;margin-bottom:4px}
+  .print-only h2{font-family:var(--display);font-size:14px;text-transform:uppercase;margin:18px 0 6px;border-bottom:1px solid #999;padding-bottom:4px}
+  .print-only dt{font-weight:600;margin-top:8px}
+  .print-only dd{margin:2px 0 0;white-space:pre-line}
+}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<i class="corner tl" aria-hidden="true"></i><i class="corner tr" aria-hidden="true"></i><i class="corner bl" aria-hidden="true"></i><i class="corner br" aria-hidden="true"></i>
+<div class="bars" id="bars" aria-hidden="true"><i></i><i></i></div>
+
+<header class="hud">
+  <div class="brand"><span class="rec" id="rec"></span><span id="recLbl">REC</span><span aria-hidden="true">·</span>BROWN MEDIA MGMT</div>
+  <ol class="rail" id="rail" aria-label="Onderdelen"></ol>
+  <div class="rail-mini" id="railMini"></div>
+  <div class="tc"><span id="tcLbl">INTAKE</span> <b id="tc">00:00:00</b></div>
+</header>
+
+<main><div class="slide" id="stage" aria-live="polite"></div></main>
+
+<footer class="dock hide" id="dock">
+  <button class="back" id="back" type="button">← Terug</button>
+  <div class="right">
+    <div class="save" id="save" aria-live="polite"><i></i><span></span></div>
+    <span class="hint" id="hint">Enter ↵</span>
+    <button class="btn solid" id="next" type="button">Volgende <span aria-hidden="true">→</span></button>
+  </div>
+</footer>
+<div class="progress" aria-hidden="true"><i id="prog"></i></div>
+<div class="print-only" id="print"></div>
+
+<script>
+(function () {
+  'use strict';
+  const Q = window.BMM_INTAKE;
+  const WA = 'https://wa.me/31620890835';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- steps: intro → every question step → review → done ----------
+  const STEPS = [{ kind: 'intro' }];
+  Q.sections.forEach((sec, si) => sec.steps.forEach((qs, qi) => STEPS.push({ kind: 'q', sec, si, qi, qs })));
+  STEPS.push({ kind: 'review' });
+  const REVIEW = STEPS.length - 1;
+  const QUESTION_STEPS = STEPS.filter(s => s.kind === 'q').length;
+
+  let token = (location.pathname.match(/^\/start\/([A-Za-z0-9_-]{16,40})\/?$/) || [])[1] || '';
+  let state = { answers: {}, contact_name: '', company: '', note: '', status: 'new', files: [] };
+  let cur = 0, busy = false, dirty = false, saveTimer = null, saving = false, lastSaved = 0, elapsed = 0, t0 = Date.now();
+  const LS = () => 'bmm_intake_' + (token || 'new');
+
+  // ---------- timecode: time spent on the intake ----------
+  try { elapsed = Number(localStorage.getItem(LS() + '_t')) || 0; } catch (e) {}
+  setInterval(() => {
+    if (state.status === 'completed') return;
+    const total = elapsed + (Date.now() - t0);
+    const s = Math.floor(total / 1000);
+    $('tc').textContent = [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map(n => String(n).padStart(2, '0')).join(':');
+    try { localStorage.setItem(LS() + '_t', String(total)); } catch (e) {}
+  }, 1000);
+
+  // ---------- chapter rail ----------
+  function buildRail() {
+    $('rail').innerHTML = Q.sections.map((s, i) =>
+      (i ? '<li aria-hidden="true"><span class="seg" data-seg="' + i + '"><i></i></span></li>' : '') +
+      '<li><span class="node" data-node="' + i + '"><span class="dot">' + String(i + 1).padStart(2, '0') + '</span><span class="lbl">' + esc(s.title) + '</span></span></li>').join('');
+  }
+  function updateRail() {
+    const step = STEPS[cur];
+    const active = step.kind === 'q' ? step.si : (step.kind === 'review' ? Q.sections.length : -1);
+    document.querySelectorAll('[data-node]').forEach(n => {
+      const i = +n.dataset.node;
+      const wasDone = n.classList.contains('done');
+      n.classList.toggle('done', i < active);
+      n.classList.toggle('active', i === active);
+      n.querySelector('.dot').innerHTML = i < active ? '&#10003;' : String(i + 1).padStart(2, '0');
+      if (i < active && !wasDone && !reduce) n.querySelector('.dot').animate([{ transform: 'scale(.6)' }, { transform: 'scale(1.08)' }, { transform: 'scale(1)' }], { duration: 520, easing: 'cubic-bezier(.34,1.45,.64,1)' });
+    });
+    // segment i connects chapter i-1 to chapter i
+    document.querySelectorAll('[data-seg]').forEach(s => s.classList.toggle('done', +s.dataset.seg <= active));
+    $('railMini').innerHTML = step.kind === 'q'
+      ? '<b>' + String(step.si + 1).padStart(2, '0') + '</b> / ' + String(Q.sections.length).padStart(2, '0') + ' · ' + esc(step.sec.title.toUpperCase())
+      : step.kind === 'review' ? '<b>CHECK</b>' : '';
+    const qIndex = STEPS.slice(1, cur).filter(s => s.kind === 'q').length;
+    $('prog').style.transform = 'scaleX(' + (step.kind === 'intro' ? 0 : step.kind === 'review' ? 1 : qIndex / QUESTION_STEPS) + ')';
+  }
+
+  // ---------- field renderers ----------
+  const LETTERS = 'ABCDEFGHIJ';
+  function fieldHTML(q) {
+    const v = state.answers[q.id];
+    const id = 'f_' + q.id;
+    const req = q.required ? '<span class="req">VERPLICHT</span>' : '';
+    let body = '';
+    switch (q.type) {
+      case 'name':
+        body = '<div class="name-grid"><label class="field"><input id="' + id + '_first" data-q="' + q.id + '" data-part="first" autocomplete="given-name" value="' + esc(v && v.first) + '"><span class="sub">Voornaam</span></label>' +
+          '<label class="field"><input data-q="' + q.id + '" data-part="last" autocomplete="family-name" value="' + esc(v && v.last) + '"><span class="sub">Achternaam</span></label></div>';
+        break;
+      case 'textarea':
+        body = '<div class="field area"><textarea id="' + id + '" data-q="' + q.id + '" rows="4" placeholder="' + esc(q.placeholder || 'Typ hier je antwoord…') + '">' + esc(v) + '</textarea></div>';
+        break;
+      case 'radio': case 'checkbox': {
+        const multi = q.type === 'checkbox';
+        const vals = multi ? ((v && v.values) || []) : (v && v.value ? [v.value] : []);
+        const opts = q.options.map(o => [o, o]).concat(q.other ? [['__other', 'Anders']] : []);
+        body = '<div class="opts' + (q.compact ? ' compact' : '') + '" role="' + (multi ? 'group' : 'radiogroup') + '">' + opts.map(([val, lbl], i) =>
+          '<button type="button" class="opt ' + q.type + '" data-q="' + q.id + '" data-v="' + esc(val) + '" aria-pressed="' + vals.includes(val) + '"><span class="k">' + (vals.includes(val) && multi ? '&#10003;' : LETTERS[i]) + '</span><span>' + esc(lbl) + '</span></button>').join('') + '</div>' +
+          (q.other ? '<label class="field other' + (vals.includes('__other') ? ' on' : '') + '" data-other="' + q.id + '"><input data-q="' + q.id + '" data-part="other" placeholder="Namelijk…" value="' + esc(v && v.other) + '"></label>' : '');
+        break;
+      }
+      case 'file':
+        body = '<label class="drop" id="drop_' + q.id + '"><strong>Sleep je bestanden hierheen</strong><span>of klik om te kiezen · ' + esc(q.help || '') + '</span>' +
+          '<input type="file" multiple hidden data-file="' + q.id + '" accept="image/*,.pdf,.zip,.ai,.eps,.svg"></label><div class="files" id="files_' + q.id + '">' + filesHTML(q.id) + '</div>';
+        break;
+      default: {
+        const type = { email: 'email', tel: 'tel', url: 'url' }[q.type] || 'text';
+        const im = { email: 'email', tel: 'tel', url: 'url' }[q.type] || 'text';
+        body = '<label class="field"><input id="' + id + '" type="' + type + '" inputmode="' + im + '" data-q="' + q.id + '" placeholder="' + esc(q.placeholder || '') + '" autocomplete="' + esc(q.autocomplete || 'off') + '" value="' + esc(v) + '"></label>';
+      }
+    }
+    const isGroup = q.type === 'radio' || q.type === 'checkbox' || q.type === 'file';
+    const labelTag = isGroup ? '<p class="q-label" id="l_' + q.id + '">' : '<label class="q-label" id="l_' + q.id + '" for="' + id + (q.type === 'name' ? '_first' : '') + '">';
+    body = isGroup ? body.replace('<div class="opts', '<div aria-labelledby="l_' + q.id + '" class="opts') : body;
+    return '<div class="q" data-qwrap="' + q.id + '">' + labelTag + words(q.label) + req + (isGroup ? '</p>' : '</label>') +
+      (q.help && q.type !== 'file' ? '<p class="q-help">' + esc(q.help) + '</p>' : '') +
+      '<div class="q-body">' + body + '</div><p class="err-msg" role="alert"></p></div>';
+  }
+  const words = t => esc(t).split(/(\s+)/).map(w => /^\s+$/.test(w) ? w : '<span class="w">' + w + '</span>').join('');
+  const fmtSize = n => n > 1e6 ? (n / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1e3)) + ' KB';
+  function filesHTML(qid) {
+    const list = Array.isArray(state.answers[qid]) ? state.answers[qid] : [];
+    return list.map(f => '<div class="file" data-fid="' + f.id + '"><span class="thumb" ' + (f.preview ? 'style="background-image:url(' + f.preview + ')"' : '') + '>' + (f.preview ? '' : esc((f.name.split('.').pop() || '').toUpperCase().slice(0, 4))) + '</span><span class="nm">' + esc(f.name) + '<span class="sub">' + fmtSize(f.size) + '</span></span><button type="button" class="rm" data-rm="' + qid + '" data-fid="' + f.id + '">Verwijder</button></div>').join('');
+  }
+
+  // ---------- slides ----------
+  function render(dir) {
+    const step = STEPS[cur];
+    const stage = $('stage');
+    let html = '';
+    if (step.kind === 'intro') html = introHTML();
+    else if (step.kind === 'review') html = reviewHTML();
+    else {
+      const first = step.qi === 0;
+      html = '<div class="kicker">' + String(step.si + 1).padStart(2, '0') + ' — ' + esc(step.sec.title) + (first ? ' · ' + esc(step.sec.kicker) : '') + '</div>' + step.qs.map(fieldHTML).join('');
+    }
+    stage.innerHTML = html;
+    $('dock').classList.toggle('hide', step.kind === 'intro');
+    $('back').hidden = cur <= 1;
+    $('next').innerHTML = step.kind === 'review' ? 'Verstuur intake <span aria-hidden="true">✓</span>' : 'Volgende <span aria-hidden="true">→</span>';
+    $('hint').style.display = step.kind === 'review' ? 'none' : '';
+    updateRail();
+    animateIn(dir || 1);
+    autoGrow();
+    if (step.kind === 'q') {
+      const firstInput = stage.querySelector('input:not([type=file]),textarea');
+      if (firstInput && matchMedia('(pointer:fine)').matches) setTimeout(() => firstInput.focus({ preventScroll: true }), 380);
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function animateIn(dir) {
+    if (reduce) return;
+    const stage = $('stage');
+    const ease = 'cubic-bezier(.16,1,.3,1)';
+    stage.querySelectorAll('.q-label .w').forEach((w, i) => w.animate(
+      [{ opacity: 0, transform: 'translateY(' + (16 * dir) + 'px)', filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
+      { duration: 380, delay: Math.min(i * 22, 380), easing: ease, fill: 'backwards' }));
+    stage.querySelectorAll('.q-help, .q-body, .lede, .note, .chips, .cta-row, .rv-sec, .kicker').forEach((el, i) => el.animate(
+      [{ opacity: 0, transform: 'translateY(' + (18 * dir) + 'px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 560, delay: 120 + i * 60, easing: ease, fill: 'backwards' }));
+    stage.querySelectorAll('.title .l > span').forEach((el, i) => el.animate(
+      [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: 900, delay: 150 + i * 120, easing: ease, fill: 'backwards' }));
+  }
+  function animateOut(dir) {
+    if (reduce) return Promise.resolve();
+    const a = $('stage').animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(' + (-22 * dir) + 'px)' }],
+      { duration: 240, easing: 'cubic-bezier(.55,0,1,.45)', fill: 'forwards' });
+    return a.finished.then(() => a.cancel());
+  }
+
+  function firstName() {
+    const n = state.answers.contact_name;
+    const f = (n && n.first) || String(state.contact_name || '').split(/\s+/)[0] || '';
+    return f.trim();
+  }
+  function introHTML() {
+    const name = firstName();
+    // coming back via the same link: offer to continue where they stopped
+    const resume = state.step > 1 && state.step < STEPS.length && STEPS[state.step].kind !== 'intro';
+    return '<div class="kicker">Intake · Brown Media Management</div>' +
+      '<h1 class="title"><span class="l"><span>' + (name ? 'Hoi ' + esc(name) + ',' : 'Welkom,') + '</span></span><span class="l"><span class="amber">welkom aan boord.</span></span></h1>' +
+      '<p class="lede">Bedankt voor het vertrouwen' + (state.company ? ', ' + esc(state.company) : '') + '. Met deze vragen leer ik je bedrijf, je klanten en je doelen goed kennen — zodat elke video die we maken klopt, vanaf de eerste filmdag. Je antwoorden worden automatisch bewaard: je kunt stoppen en later verder via dezelfde link.</p>' +
+      (state.note ? '<div class="note"><span class="mono">Bericht van Ruben</span><p>' + esc(state.note) + '</p></div>' : '') +
+      '<div class="chips"><span class="chip">± ' + Q.minutes + ' minuten</span><span class="chip">' + Q.sections.length + ' onderdelen</span><span class="chip">Automatisch opgeslagen</span></div>' +
+      '<div class="cta-row"><button class="btn solid" type="button" data-go="' + (resume ? state.step : 1) + '">' + (resume ? 'Ga verder waar je was' : 'Start de intake') + ' <span aria-hidden="true">→</span></button>' +
+      (resume ? '<button class="link" type="button" data-go="1">Of begin bij het begin</button>' : '') + '</div>';
+  }
+
+  function reviewHTML() {
+    const missing = Q.questions.filter(q => q.required && !Q.isAnswered(q, state.answers[q.id]));
+    return '<div class="kicker">Laatste check</div>' +
+      '<h1 class="title" style="font-size:clamp(34px,5.4vw,64px)"><span class="l"><span>Alles goed</span></span><span class="l"><span class="amber">zo?</span></span></h1>' +
+      '<p class="lede">' + (missing.length ? 'Er ' + (missing.length === 1 ? 'mist nog één verplichte vraag' : 'missen nog ' + missing.length + ' verplichte vragen') + ' — klik op “Invullen” om ernaartoe te gaan.' : 'Loop je antwoorden nog even na. Aanpassen kan per onderdeel; als alles klopt, verstuur je de intake.') + '</p>' +
+      '<div style="margin-top:28px">' + Q.sections.map((sec, si) => {
+        const stepIndex = STEPS.findIndex(s => s.kind === 'q' && s.si === si);
+        const rows = sec.steps.flat().map(q => {
+          const a = Q.formatAnswer(q, state.answers[q.id]);
+          const miss = q.required && !a;
+          const stepOf = STEPS.findIndex(s => s.kind === 'q' && s.qs.includes(q));
+          return '<div class="rv-row' + (miss ? ' missing' : (a ? '' : ' empty')) + '"><span class="ql">' + esc(q.label) + '</span><span class="qa">' +
+            (miss ? '<button class="link" type="button" data-go="' + stepOf + '" style="color:var(--err);border-color:var(--err)">Invullen →</button>' : esc(a || '—')) + '</span></div>';
+        }).join('');
+        return '<section class="rv-sec"><div class="rv-head"><h3>' + String(si + 1).padStart(2, '0') + ' — ' + esc(sec.title) + '</h3><button class="link" type="button" data-go="' + stepIndex + '">Wijzig</button></div>' + rows + '</section>';
+      }).join('') + '</div>';
+  }
+
+  function doneHTML(already) {
+    const name = firstName();
+    return '<div class="kicker">■ CUT — THAT’S A TAKE</div>' +
+      '<h1 class="title"><span class="l"><span>Bedankt' + (name ? ', ' + esc(name) : '') + '.</span></span><span class="l"><span class="amber">we hebben ’m.</span></span></h1>' +
+      '<svg class="underline" viewBox="0 0 420 16" aria-hidden="true"><path d="M3 11 C 80 4, 160 14, 240 8 S 360 5, 417 9"/></svg>' +
+      '<p class="lede">' + (already ? 'Deze intake is al verstuurd' + (state.completed_at ? ' op ' + new Date(state.completed_at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' }) : '') + '. Wil je nog iets aanpassen of aanvullen? Stuur Ruben even een bericht.' :
+        'Je antwoorden zijn binnen. Ik neem ze rustig door en neem binnen 24 uur contact met je op over de eerste filmdag. Tot snel!') + '</p>' +
+      '<div class="cta-row"><a class="btn solid" href="https://brown-media.nl/">Naar brown-media.nl <span aria-hidden="true">→</span></a>' +
+      '<a class="btn ghost" href="' + WA + '" target="_blank" rel="noopener">WhatsApp Ruben</a>' +
+      '<button class="link" type="button" id="printBtn">Download een kopie (PDF)</button></div>';
+  }
+
+  function showDone(already) {
+    state.status = 'completed';
+    $('rec').classList.add('stop'); $('recLbl').textContent = 'CUT';
+    $('tcLbl').textContent = 'JOUW TAKE';
+    $('dock').classList.add('hide');
+    document.querySelectorAll('[data-node]').forEach(n => { n.classList.add('done'); n.classList.remove('active'); n.querySelector('.dot').innerHTML = '&#10003;'; });
+    document.querySelectorAll('[data-seg]').forEach(s => s.classList.add('done'));
+    $('railMini').innerHTML = '<b>KLAAR</b>';
+    $('prog').style.transform = 'scaleX(1)';
+    $('stage').innerHTML = doneHTML(already);
+    animateIn(1);
+    requestAnimationFrame(() => { const u = document.querySelector('.underline'); if (u) u.classList.add('on'); });
+    buildPrint();
+  }
+
+  function showError(title, text) {
+    $('dock').classList.add('hide');
+    $('stage').innerHTML = '<div class="kicker">Intake</div><h1 class="title" style="font-size:clamp(34px,5.4vw,64px)"><span class="l"><span>' + esc(title) + '</span></span></h1>' +
+      '<p class="lede">' + text + '</p><div class="cta-row"><a class="btn solid" href="' + WA + '" target="_blank" rel="noopener">WhatsApp Ruben</a><a class="btn ghost" href="mailto:info@brown-media.nl">Mail info@brown-media.nl</a></div>';
+    animateIn(1);
+  }
+
+  // ---------- answers ----------
+  function setAnswer(qid, value) { state.answers[qid] = value; dirty = true; scheduleSave(); clearError(qid); }
+  function clearError(qid) { const w = document.querySelector('[data-qwrap="' + qid + '"]'); if (w) w.classList.remove('invalid'); }
+  const qById = id => Q.questions.find(q => q.id === id);
+
+  document.addEventListener('input', e => {
+    const el = e.target.closest('[data-q]');
+    if (!el || el.tagName === 'BUTTON') return;
+    const q = qById(el.dataset.q);
+    if (!q) return;
+    if (q.type === 'name') setAnswer(q.id, Object.assign({ first: '', last: '' }, state.answers[q.id], { [el.dataset.part]: el.value }));
+    else if (el.dataset.part === 'other') {
+      const v = Object.assign(q.type === 'checkbox' ? { values: [] } : { value: '' }, state.answers[q.id], { other: el.value });
+      setAnswer(q.id, v);
+    } else setAnswer(q.id, el.value);
+    if (el.tagName === 'TEXTAREA') grow(el);
+  });
+
+  document.addEventListener('click', e => {
+    const go = e.target.closest('[data-go]');
+    if (go) { goTo(+go.dataset.go); return; }
+    if (e.target.closest('#printBtn')) { buildPrint(); window.print(); return; }
+    const opt = e.target.closest('.opt');
+    if (opt) { pick(opt); return; }
+    const rm = e.target.closest('[data-rm]');
+    if (rm) { removeFile(rm.dataset.rm, +rm.dataset.fid); }
+  });
+
+  function pick(opt) {
+    const q = qById(opt.dataset.q);
+    const val = opt.dataset.v;
+    if (q.type === 'radio') {
+      const v = { value: val, other: (state.answers[q.id] && state.answers[q.id].other) || '' };
+      setAnswer(q.id, v);
+      opt.parentNode.querySelectorAll('.opt').forEach((o, i) => { o.setAttribute('aria-pressed', o === opt); });
+    } else {
+      const v = Object.assign({ values: [], other: '' }, state.answers[q.id]);
+      v.values = v.values.includes(val) ? v.values.filter(x => x !== val) : v.values.concat(val);
+      setAnswer(q.id, v);
+      const on = v.values.includes(val);
+      opt.setAttribute('aria-pressed', on);
+      opt.querySelector('.k').innerHTML = on ? '&#10003;' : LETTERS[[...opt.parentNode.children].indexOf(opt)];
+    }
+    const other = document.querySelector('[data-other="' + q.id + '"]');
+    if (other) {
+      const show = q.type === 'radio' ? val === '__other' : state.answers[q.id].values.includes('__other');
+      other.classList.toggle('on', show);
+      if (show && val === '__other') setTimeout(() => other.querySelector('input').focus(), 60);
+    }
+    if (!reduce) opt.animate([{ transform: 'scale(.97)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'cubic-bezier(.34,1.45,.64,1)' });
+    // single question, single choice, nothing else to type → move on by itself (feels quick, still reversible)
+    const step = STEPS[cur];
+    if (q.type === 'radio' && val !== '__other' && step.kind === 'q' && step.qs.length === 1) setTimeout(() => { if (STEPS[cur] === step) next(); }, 420);
+  }
+
+  // ---------- validation ----------
+  function validate(step) {
+    let firstBad = null;
+    for (const q of step.qs) {
+      const v = state.answers[q.id];
+      let msg = '';
+      if (q.required && !Q.isAnswered(q, v)) msg = q.type === 'name' ? 'Vul je voor- en achternaam in.' : (q.type === 'radio' || q.type === 'checkbox') ? 'Kies minimaal één optie.' : 'Dit veld is verplicht.';
+      else if (q.type === 'email' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v).trim())) msg = 'Dit lijkt geen geldig e-mailadres.';
+      else if (q.type === 'tel' && v && String(v).replace(/\D/g, '').length < 9) msg = 'Dit lijkt geen geldig telefoonnummer.';
+      else if (q.type === 'url' && v && !/\.[a-z]{2,}/i.test(String(v))) msg = 'Dit lijkt geen geldige website.';
+      const w = document.querySelector('[data-qwrap="' + q.id + '"]');
+      if (w) { w.classList.toggle('invalid', !!msg); w.querySelector('.err-msg').textContent = msg; }
+      if (msg && !firstBad) firstBad = w;
+    }
+    if (firstBad) {
+      firstBad.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
+      const inp = firstBad.querySelector('input,textarea,.opt'); if (inp) setTimeout(() => inp.focus({ preventScroll: true }), 250);
+      if (!reduce) firstBad.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(5px)' }, { transform: 'translateX(0)' }], { duration: 320, easing: 'ease-out' });
+      return false;
+    }
+    return true;
+  }
+
+  // ---------- navigation ----------
+  async function goTo(i, dir) {
+    if (busy || i === cur || i < 0 || i >= STEPS.length) return;
+    busy = true;
+    const d = dir || (i > cur ? 1 : -1);
+    if (!token && i > 0) {   // a generic /start link: create the intake on the first step
+      try { const r = await fetch('/api/intake', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }); if (!r.ok) throw 0; token = (await r.json()).token; history.replaceState(null, '', '/start/' + token); }
+      catch (e) {
+        busy = false;
+        const row = document.querySelector('.cta-row');
+        if (row && !document.getElementById('startErr')) row.insertAdjacentHTML('afterend', '<p class="err-msg" id="startErr" style="display:block">Geen verbinding — controleer je internet en probeer het opnieuw.</p>');
+        return;
+      }
+    }
+    await animateOut(d);
+    cur = i; state.step = i;
+    render(d);
+    scheduleSave(true);
+    busy = false;
+  }
+  async function next() {
+    const step = STEPS[cur];
+    if (step.kind === 'q' && !validate(step)) return;
+    if (step.kind === 'review') return submit();
+    goTo(cur + 1, 1);
+  }
+  $('next').addEventListener('click', next);
+  $('back').addEventListener('click', () => goTo(cur - 1, -1));
+
+  document.addEventListener('keydown', e => {
+    if (state.status === 'completed' || busy) return;
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (e.key === 'Enter') {
+      if (STEPS[cur].kind === 'intro') { e.preventDefault(); const b = document.querySelector('[data-go]'); if (b) b.click(); return; }
+      if (tag === 'textarea' && !(e.metaKey || e.ctrlKey)) return;
+      if (tag === 'button' && e.target.classList.contains('opt')) return;
+      e.preventDefault(); next(); return;
+    }
+    // letter keys pick an option when there is exactly one choice question on the slide and you're not typing
+    if (tag === 'input' || tag === 'textarea' || e.metaKey || e.ctrlKey || e.altKey || e.key.length !== 1) return;
+    const step = STEPS[cur];
+    if (step.kind !== 'q') return;
+    const choice = step.qs.filter(q => q.type === 'radio' || q.type === 'checkbox');
+    if (choice.length !== 1) return;
+    const idx = LETTERS.indexOf(e.key.toUpperCase());
+    const btn = document.querySelectorAll('.opt[data-q="' + choice[0].id + '"]')[idx];
+    if (btn) { e.preventDefault(); pick(btn); btn.focus(); }
+  });
+
+  // ---------- autosave ----------
+  function status(kind, text) { const s = $('save'); s.className = 'save ' + kind; s.querySelector('span').textContent = text; }
+  function persistLocal() {
+    try { localStorage.setItem(LS(), JSON.stringify({ answers: cleanAnswers(), step: cur, savedAt: Date.now() })); } catch (e) {}
+  }
+  const cleanAnswers = () => JSON.parse(JSON.stringify(state.answers, (k, v) => k === 'preview' ? undefined : v));
+  function scheduleSave(now) {
+    persistLocal();
+    if (!token || state.status === 'completed') return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, now ? 50 : 900);
+  }
+  let retry = 0;
+  async function save() {
+    if (saving) { scheduleSave(); return; }
+    saving = true; status('busy', 'Opslaan…');
+    try {
+      const r = await fetch('/api/intake/' + token, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: cleanAnswers(), step: cur }) });
+      if (r.status === 409) { saving = false; showDone(true); return; }
+      if (!r.ok) throw 0;
+      dirty = false; retry = 0; lastSaved = Date.now();
+      status('ok', 'Opgeslagen ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }));
+    } catch (e) {
+      status('off', 'Offline — we proberen het opnieuw');
+      retry = Math.min(retry + 1, 6);
+      clearTimeout(saveTimer); saveTimer = setTimeout(save, 1500 * retry);
+    }
+    saving = false;
+  }
+  // closing the tab mid-answer: keep a local copy and push the last changes out
+  addEventListener('pagehide', () => {
+    persistLocal();
+    if (dirty && token && state.status !== 'completed') {
+      try { fetch('/api/intake/' + token, { method: 'PUT', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: cleanAnswers(), step: cur }) }); } catch (e) {}
+    }
+  });
+
+  // ---------- files ----------
+  document.addEventListener('change', e => {
+    const inp = e.target.closest('[data-file]');
+    if (inp) { upload(inp.dataset.file, [...inp.files]); inp.value = ''; }
+  });
+  ['dragenter', 'dragover'].forEach(ev => document.addEventListener(ev, e => { const d = e.target.closest && e.target.closest('.drop'); if (d) { e.preventDefault(); d.classList.add('over'); } }));
+  ['dragleave', 'drop'].forEach(ev => document.addEventListener(ev, e => { const d = e.target.closest && e.target.closest('.drop'); if (d) { e.preventDefault(); d.classList.remove('over'); if (ev === 'drop') upload(d.querySelector('[data-file]').dataset.file, [...e.dataTransfer.files]); } }));
+
+  const OK_FILE = /\.(png|jpe?g|gif|webp|svg|heic|heif|avif|pdf|zip|ai|eps)$/i;
+  async function upload(qid, files) {
+    if (!token) return;
+    const box = $('files_' + qid);
+    for (const file of files) {
+      const row = document.createElement('div');
+      row.className = 'file';
+      row.innerHTML = '<span class="thumb">…</span><span class="nm">' + esc(file.name) + '<span class="bar"><i></i></span></span>';
+      box.appendChild(row);
+      const fail = msg => { row.classList.add('err'); row.querySelector('.nm').innerHTML = esc(file.name) + '<span class="sub">' + esc(msg) + '</span>'; setTimeout(() => row.remove(), 6000); };
+      if (!OK_FILE.test(file.name)) { fail('Dit bestandstype wordt niet ondersteund'); continue; }
+      if (file.size > 10 * 1024 * 1024) { fail('Te groot — max 10 MB'); continue; }
+      if ((state.answers[qid] || []).length >= 8) { fail('Maximaal 8 bestanden'); continue; }
+      try {
+        const data = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1] || ''); fr.onerror = rej; fr.readAsDataURL(file); });
+        const meta = await new Promise((res, rej) => {
+          const x = new XMLHttpRequest();
+          x.open('POST', '/api/intake/' + token + '/files');
+          x.setRequestHeader('Content-Type', 'application/json');
+          x.upload.onprogress = ev => { if (ev.lengthComputable) row.querySelector('.bar i').style.width = Math.round(ev.loaded / ev.total * 100) + '%'; };
+          x.onload = () => x.status === 200 ? res(JSON.parse(x.responseText)) : rej(x.status);
+          x.onerror = () => rej(0);
+          x.send(JSON.stringify({ name: file.name, type: file.type, data }));
+        });
+        if (/^image\//.test(file.type) && file.size < 6e6) meta.preview = URL.createObjectURL(file);
+        setAnswer(qid, (state.answers[qid] || []).concat(meta));
+        box.innerHTML = filesHTML(qid);
+      } catch (err) { fail(err === 413 ? 'Te groot — max 10 MB' : err === 415 ? 'Dit bestandstype wordt niet ondersteund' : err === 409 ? 'Maximaal 8 bestanden' : 'Uploaden mislukt — probeer het opnieuw'); }
+    }
+  }
+  async function removeFile(qid, fid) {
+    try { await fetch('/api/intake/' + token + '/files/' + fid, { method: 'DELETE' }); } catch (e) {}
+    setAnswer(qid, (state.answers[qid] || []).filter(f => f.id !== fid));
+    $('files_' + qid).innerHTML = filesHTML(qid);
+  }
+
+  // ---------- submit ----------
+  async function submit() {
+    const missing = Q.questions.filter(q => q.required && !Q.isAnswered(q, state.answers[q.id]));
+    if (missing.length) { const i = STEPS.findIndex(s => s.kind === 'q' && s.qs.some(q => q.id === missing[0].id)); goTo(i, -1); return; }
+    const btn = $('next'); btn.disabled = true; btn.innerHTML = 'Versturen…';
+    try {
+      clearTimeout(saveTimer);
+      const r = await fetch('/api/intake/' + token + '/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: cleanAnswers() }) });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 400 && j.missing) { const i = STEPS.findIndex(s => s.kind === 'q' && s.qs.some(q => j.missing.includes(q.id))); btn.disabled = false; goTo(i, -1); return; }
+      if (!r.ok) throw 0;
+      try { localStorage.removeItem(LS()); } catch (e) {}
+      state.completed_at = Date.now();
+      await animateOut(1);
+      showDone(false);
+    } catch (e) {
+      btn.disabled = false; btn.innerHTML = 'Verstuur intake <span aria-hidden="true">✓</span>';
+      status('off', 'Versturen mislukt — probeer het opnieuw');
+    }
+  }
+
+  function buildPrint() {
+    const n = state.answers.contact_name;
+    $('print').innerHTML = '<h1>Intake — ' + esc(state.answers.company || state.company || '') + '</h1><p>' + esc(n ? n.first + ' ' + n.last : '') + ' · Brown Media Management</p>' +
+      Q.sections.map(sec => '<h2>' + esc(sec.title) + '</h2><dl>' + sec.steps.flat().map(q => { const a = Q.formatAnswer(q, state.answers[q.id]); return a ? '<dt>' + esc(q.label) + '</dt><dd>' + esc(a) + '</dd>' : ''; }).join('') + '</dl>').join('');
+  }
+
+  // ---------- textarea auto-grow ----------
+  function grow(t) { t.style.height = 'auto'; t.style.height = Math.min(Math.max(t.scrollHeight + 2, 128), 420) + 'px'; }
+  function autoGrow() { document.querySelectorAll('.field.area textarea').forEach(grow); }
+
+  // ---------- boot ----------
+  async function boot() {
+    buildRail();
+    const bars = $('bars');
+    const openBars = () => { bars.classList.add('open'); setTimeout(() => bars.classList.add('gone'), 1100); };
+    if (token) {
+      try {
+        const r = await fetch('/api/intake/' + token);
+        if (r.status === 404) { openBars(); return showError('Deze link klopt niet.', 'Misschien is hij verlopen of niet helemaal gekopieerd. Stuur Ruben even een bericht, dan krijg je een nieuwe.'); }
+        if (!r.ok) throw 0;
+        const d = await r.json();
+        state = Object.assign(state, d);
+        state.answers = d.answers || {};
+        if (Array.isArray(d.files) && d.files.length && !state.answers.logo) state.answers.logo = d.files;
+      } catch (e) { openBars(); return showError('Even geen verbinding.', 'Controleer je internet en ververs de pagina. Je antwoorden staan veilig opgeslagen.'); }
+      // a newer local copy (e.g. after losing connection) wins
+      try {
+        const local = JSON.parse(localStorage.getItem(LS()) || 'null');
+        if (local && local.answers && state.status !== 'completed' && local.savedAt > (state.updated_at || 0)) {
+          state.answers = Object.assign({}, state.answers, local.answers); state.step = local.step; dirty = true;
+        }
+      } catch (e) {}
+      if (state.status === 'completed') { openBars(); return showDone(true); }
+    }
+    cur = 0;
+    render(1);
+    if (reduce) bars.classList.add('gone'); else setTimeout(openBars, 250);
+    if (dirty) scheduleSave(true);
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
