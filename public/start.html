@@ -47,8 +47,10 @@ a{color:inherit}
 .hud{position:fixed;top:0;left:0;right:0;z-index:20;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;
   padding:22px clamp(28px,4vw,48px) 14px;background:linear-gradient(var(--ink) 70%,rgba(244,239,229,0))}
 .brand{font-family:var(--mono);font-size:11px;letter-spacing:.18em;display:flex;align-items:center;gap:9px;white-space:nowrap}
-.rec{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:blink 2s infinite;transition:border-radius .3s,background .3s}
+/* REC light: a slow, soft on/off — about 3 s per cycle */
+.rec{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:recblink 2.8s ease-in-out infinite;transition:border-radius .3s,background .3s}
 .rec.stop{animation:none;border-radius:1px;background:var(--paper)}
+@keyframes recblink{0%,100%{opacity:1}50%{opacity:.18}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 .tc{justify-self:end;font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
 .tc b{color:var(--paper);font-weight:500}
@@ -70,8 +72,19 @@ a{color:inherit}
 .rail-mini b{color:var(--paper);font-weight:500}
 
 /* stage */
-main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:center;justify-content:center;
+main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:center;justify-content:center;overflow-x:clip;
   padding:110px clamp(20px,5vw,56px) calc(var(--dock-h) + 48px)}
+
+/* film strip — like the reel on the site: sprocket rails above and below the gate,
+   "Volgende" pulls the film one frame to the left, "Terug" one frame back */
+.film-rail{position:fixed;left:0;right:0;height:12px;z-index:15;pointer-events:none;overflow:hidden;background:var(--ink)}
+.film-rail.top{top:62px}
+.film-rail.bot{bottom:calc(var(--dock-h) + 6px)}
+.film-rail i{position:absolute;top:0;bottom:0;left:-100vw;width:300vw;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='12'%3E%3Crect x='10' y='2.5' width='14' height='7' rx='1.6' fill='%231A1712' fill-opacity='.11'/%3E%3C/svg%3E") repeat-x 0 0/34px 12px}
+.film-seam{position:fixed;top:62px;bottom:calc(var(--dock-h) + 6px);width:2px;margin-left:-1px;z-index:14;pointer-events:none;background:rgba(26,23,18,.1)}
+.ghost{z-index:3;pointer-events:none}
+.ghost *,.ghost *::before,.ghost *::after{animation:none!important;transition:none!important}
 .slide{width:100%;max-width:780px}
 .kicker{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber-deep);margin-bottom:26px}
 .kicker::after{content:"";flex:1;height:1px;background:var(--line);transform-origin:0 50%;animation:draw .9s var(--expo) both}
@@ -195,7 +208,8 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
   :root{--dock-h:76px}
   .hud{grid-template-columns:auto 1fr;padding:18px 24px 10px}
   .hud .tc{display:none}
-  .rail-mini{justify-self:end}
+  .rail-mini{justify-self:end;white-space:nowrap}
+  .rail-mini .rm-t{display:none}   /* the slide's own heading already names the section; keeps the header one line */
   main{align-items:flex-start;padding-top:86px}
   .hint{display:none}
   .name-grid{grid-template-columns:1fr;gap:14px}
@@ -205,14 +219,21 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
   .save span{display:none}
   .btn{padding:15px 20px}
   .corner{display:none}
+  .film-rail.top,.film-seam{top:54px}
 }
-@media (prefers-reduced-motion: reduce){ *{animation-duration:.01ms!important;transition-duration:.01ms!important} }
+/* "reduce motion" (e.g. Windows with animation effects off): everything plays once, instantly —
+   repeating animations must stop, or a 0.01 ms loop flickers at screen rate. The REC light keeps its slow fade. */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .rec{animation-duration:2.8s!important;animation-iteration-count:infinite!important}
+  .rec.stop{animation:none!important}
+}
 
 /* print = a clean copy of the answers */
 .print-only{display:none}
 @media print{
   body{background:#fff}
-  .hud,.dock,.progress,.grain,.corner,.bars,main{display:none!important}
+  .hud,.dock,.progress,.grain,.corner,.bars,.film-rail,.film-seam,.ghost,main{display:none!important}
   .print-only{display:block;padding:24px;font-size:12px;color:#000}
   .print-only h1{font-family:var(--display);font-size:22px;margin-bottom:4px}
   .print-only h2{font-family:var(--display);font-size:14px;text-transform:uppercase;margin:18px 0 6px;border-bottom:1px solid #999;padding-bottom:4px}
@@ -233,6 +254,7 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
   <div class="tc"><span id="tcLbl">INTAKE</span> <b id="tc">00:00:00</b></div>
 </header>
 
+<div class="film-rail top" aria-hidden="true"><i></i></div><div class="film-rail bot" aria-hidden="true"><i></i></div>
 <main><div class="slide" id="stage" aria-live="polite"></div></main>
 
 <footer class="dock hide" id="dock">
@@ -297,7 +319,7 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
     // segment i connects chapter i-1 to chapter i
     document.querySelectorAll('[data-seg]').forEach(s => s.classList.toggle('done', +s.dataset.seg <= active));
     $('railMini').innerHTML = step.kind === 'q'
-      ? '<b>' + String(step.si + 1).padStart(2, '0') + '</b> / ' + String(Q.sections.length).padStart(2, '0') + ' · ' + esc(step.sec.title.toUpperCase())
+      ? '<b>' + String(step.si + 1).padStart(2, '0') + '</b> / ' + String(Q.sections.length).padStart(2, '0') + '<span class="rm-t"> · ' + esc(step.sec.title.toUpperCase()) + '</span>'
       : step.kind === 'review' ? '<b>CHECK</b>' : '';
     const qIndex = STEPS.slice(1, cur).filter(s => s.kind === 'q').length;
     $('prog').style.transform = 'scaleX(' + (step.kind === 'intro' ? 0 : step.kind === 'review' ? 1 : qIndex / QUESTION_STEPS) + ')';
@@ -352,7 +374,7 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
   }
 
   // ---------- slides ----------
-  function render(dir) {
+  function render(dir, film) {
     const step = STEPS[cur];
     const stage = $('stage');
     let html = '';
@@ -368,13 +390,61 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
     $('next').innerHTML = step.kind === 'review' ? 'Verstuur intake <span aria-hidden="true">✓</span>' : 'Volgende <span aria-hidden="true">→</span>';
     $('hint').style.display = step.kind === 'review' ? 'none' : '';
     updateRail();
-    animateIn(dir || 1);
+    if (!film) { animateIn(dir || 1); focusFirst(380); }   // a film move brings the frame in by itself
     autoGrow();
-    if (step.kind === 'q') {
-      const firstInput = stage.querySelector('input:not([type=file]),textarea');
-      if (firstInput && matchMedia('(pointer:fine)').matches) setTimeout(() => firstInput.focus({ preventScroll: true }), 380);
-    }
     window.scrollTo(0, 0);
+  }
+  function focusFirst(delay) {
+    if (STEPS[cur].kind !== 'q' || !matchMedia('(pointer:fine)').matches) return;
+    const el = $('stage').querySelector('input:not([type=file]),textarea');
+    if (el) setTimeout(() => el.focus({ preventScroll: true }), delay);
+  }
+
+  // ---------- film advance: the old frame and the new one move as one strip ----------
+  const FILM_MS = 760;
+  const rails = [...document.querySelectorAll('.film-rail i')];
+  let railX = 0;
+  // in-out pull, then a tiny settle as the frame registers in the gate
+  function pull(from, to) {
+    const d = to - from, over = Math.sign(d) * Math.min(5, Math.abs(d) * .004);
+    return [
+      { transform: 'translate3d(' + from + 'px,0,0)', easing: 'cubic-bezier(.5,0,.15,1)' },
+      { transform: 'translate3d(' + (to + over) + 'px,0,0)', offset: .84, easing: 'cubic-bezier(.3,0,.3,1)' },
+      { transform: 'translate3d(' + to + 'px,0,0)' },
+    ];
+  }
+  async function filmMove(dir, swap) {
+    if (reduce) { swap(); return; }
+    const stage = $('stage');
+    const W = document.documentElement.clientWidth;
+    // freeze the current frame exactly where it is on screen (also when scrolled down)
+    const r = stage.getBoundingClientRect();
+    const ghost = stage.cloneNode(true);
+    const from = stage.querySelectorAll('input,textarea'), to = ghost.querySelectorAll('input,textarea');
+    from.forEach((el, i) => { if (to[i] && el.type !== 'file') to[i].value = el.value; });   // typed text isn't an attribute
+    ghost.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+    ghost.removeAttribute('id'); ghost.removeAttribute('aria-live');
+    ghost.setAttribute('aria-hidden', 'true'); ghost.inert = true;
+    ghost.classList.add('ghost');
+    Object.assign(ghost.style, { position: 'fixed', top: r.top + 'px', left: r.left + 'px', width: r.width + 'px', margin: '0' });
+    document.body.appendChild(ghost);
+    from.forEach((el, i) => { if (to[i] && el.scrollTop) to[i].scrollTop = el.scrollTop; });   // a long answer stays scrolled where it was
+    const seam = document.createElement('div');
+    seam.className = 'film-seam'; seam.setAttribute('aria-hidden', 'true');
+    seam.style.left = (dir > 0 ? W : 0) + 'px';
+    document.body.appendChild(seam);
+    swap();   // the new frame, in place (renders at the top of the page)
+    const opts = { duration: FILM_MS, fill: 'both' };
+    const anims = [
+      ghost.animate(pull(0, -dir * W), opts),
+      stage.animate(pull(dir * W, 0), opts),
+      seam.animate(pull(0, -dir * W), opts),
+    ].concat(rails.map(el => el.animate(pull(railX, railX - dir * W), opts)));
+    await Promise.all(anims.map(a => a.finished.catch(() => {})));
+    railX = (railX - dir * W) % 34;   // the sprocket pattern repeats every 34px: same picture, small number
+    rails.forEach(el => { el.style.transform = 'translate3d(' + railX + 'px,0,0)'; });
+    anims.forEach(a => a.cancel());
+    ghost.remove(); seam.remove();
   }
 
   function animateIn(dir) {
@@ -389,12 +459,6 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
       { duration: 560, delay: 120 + i * 60, easing: ease, fill: 'backwards' }));
     stage.querySelectorAll('.title .l > span').forEach((el, i) => el.animate(
       [{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: 900, delay: 150 + i * 120, easing: ease, fill: 'backwards' }));
-  }
-  function animateOut(dir) {
-    if (reduce) return Promise.resolve();
-    const a = $('stage').animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(' + (-22 * dir) + 'px)' }],
-      { duration: 240, easing: 'cubic-bezier(.55,0,1,.45)', fill: 'forwards' });
-    return a.finished.then(() => a.cancel());
   }
 
   function firstName() {
@@ -445,7 +509,7 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
       '<button class="link" type="button" id="printBtn">Download een kopie (PDF)</button></div>';
   }
 
-  function showDone(already) {
+  function showDone(already, film) {
     state.status = 'completed';
     $('rec').classList.add('stop'); $('recLbl').textContent = 'CUT';
     $('tcLbl').textContent = 'JOUW TAKE';
@@ -455,8 +519,11 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
     $('railMini').innerHTML = '<b>KLAAR</b>';
     $('prog').style.transform = 'scaleX(1)';
     $('stage').innerHTML = doneHTML(already);
-    animateIn(1);
-    requestAnimationFrame(() => { const u = document.querySelector('.underline'); if (u) u.classList.add('on'); });
+    window.scrollTo(0, 0);
+    if (!film) {   // after a film move the underline is drawn once the frame has landed
+      animateIn(1);
+      requestAnimationFrame(() => { const u = document.querySelector('.underline'); if (u) u.classList.add('on'); });
+    }
     buildPrint();
   }
 
@@ -559,9 +626,8 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
         return;
       }
     }
-    await animateOut(d);
-    cur = i; state.step = i;
-    render(d);
+    await filmMove(d, () => { cur = i; state.step = i; render(d, true); });
+    focusFirst(0);
     scheduleSave(true);
     busy = false;
   }
@@ -613,11 +679,13 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
     try {
       const r = await fetch('/api/intake/' + token, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: cleanAnswers(), step: cur }) });
       if (r.status === 409) { saving = false; showDone(true); return; }
+      if (r.status === 429 || r.status >= 500) throw { busy: true };
       if (!r.ok) throw 0;
       dirty = false; retry = 0; lastSaved = Date.now();
       status('ok', 'Opgeslagen ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }));
     } catch (e) {
-      status('off', 'Offline — we proberen het opnieuw');
+      // the server is busy (not the connection): keep quiet and try again a little later
+      if (e && e.busy) status('busy', 'Opslaan…'); else status('off', 'Offline — we proberen het opnieuw');
       retry = Math.min(retry + 1, 6);
       clearTimeout(saveTimer); saveTimer = setTimeout(save, 1500 * retry);
     }
@@ -682,14 +750,22 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
     const btn = $('next'); btn.disabled = true; btn.innerHTML = 'Versturen…';
     try {
       clearTimeout(saveTimer);
-      const r = await fetch('/api/intake/' + token + '/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: cleanAnswers() }) });
+      // sending must not fail on a hiccup: a busy server or a dropped request is retried (after 1.5, 3 and 6 s)
+      let r = null;
+      for (let attempt = 0; attempt < 4; attempt++) {
+        if (attempt) await new Promise(res => setTimeout(res, 1500 * 2 ** (attempt - 1)));
+        try { r = await fetch('/api/intake/' + token + '/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: cleanAnswers() }) }); }
+        catch (e) { r = null; }
+        if (r && r.status !== 429 && r.status < 500) break;
+      }
+      if (!r) throw 0;
       const j = await r.json().catch(() => ({}));
       if (r.status === 400 && j.missing) { const i = STEPS.findIndex(s => s.kind === 'q' && s.qs.some(q => j.missing.includes(q.id))); btn.disabled = false; goTo(i, -1); return; }
       if (!r.ok) throw 0;
       try { localStorage.removeItem(LS()); } catch (e) {}
       state.completed_at = Date.now();
-      await animateOut(1);
-      showDone(false);
+      await filmMove(1, () => showDone(false, true));   // last frame: "that's a take"
+      const u = document.querySelector('.underline'); if (u) u.classList.add('on');
     } catch (e) {
       btn.disabled = false; btn.innerHTML = 'Verstuur intake <span aria-hidden="true">✓</span>';
       status('off', 'Versturen mislukt — probeer het opnieuw');

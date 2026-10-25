@@ -122,7 +122,7 @@ module.exports = function createIntake({ app, getDb, h, requireAuth, rateLimit, 
   }));
 
   // autosave (every step)
-  app.put('/api/intake/:token', rateLimit('intake-save', 90), h(async (req, res) => {
+  app.put('/api/intake/:token', rateLimit('intake-save', 240), h(async (req, res) => {
     const db = getDb();
     const row = await byToken(db, req.params.token);
     if (!row) return res.status(404).json({ error: 'not found' });
@@ -173,7 +173,8 @@ module.exports = function createIntake({ app, getDb, h, requireAuth, rateLimit, 
     res.json({ ok: true });
   }));
 
-  app.post('/api/intake/:token/submit', rateLimit('intake-save', 90), h(async (req, res) => {
+  // sending has its own budget, so a burst of autosaves can never block it
+  app.post('/api/intake/:token/submit', rateLimit('intake-submit', 20), h(async (req, res) => {
     const db = getDb();
     const row = await byToken(db, req.params.token);
     if (!row) return res.status(404).json({ error: 'not found' });
