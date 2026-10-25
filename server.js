@@ -128,6 +128,7 @@ async function initDB() {
   await db.query(USE_PG ? "DELETE FROM sessions WHERE created_at < NOW() - INTERVAL '30 days'" : "DELETE FROM sessions WHERE created_at < datetime('now','-30 days')");
   await analytics.init(db);
   await intake.init(db);
+  await privacy.init(db);
 
   const { rows } = await db.query('SELECT COUNT(*) AS c FROM portfolio');
   if (Number(rows[0].c) === 0) {
@@ -147,8 +148,18 @@ async function initDB() {
 }
 
 const app = express();
-// backup files can be large — allow more only on the restore endpoint
 app.set('trust proxy', true);
+app.disable('x-powered-by');
+// basic security headers (AVG art. 32: appropriate security)
+app.use((req, res, next) => {
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.set('X-Frame-Options', 'SAMEORIGIN');
+  res.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if (/^\/(admin|api\/admin)/.test(req.path)) res.set('Cache-Control', 'no-store');
+  next();
+});
+// backup files can be large — allow more only on the restore endpoint
 app.use('/api/admin/restore', express.json({ limit: '8mb' }));
 // intake file uploads (base64) are bigger than the global 200kb JSON limit
 app.use(/^\/api\/intake\/[^/]+\/files$/, express.json({ limit: '15mb' }));
@@ -206,6 +217,7 @@ async function getSetting(key) {
 }
 const analytics = require('./analytics')({ app, getDb, h, requireAuth, rateLimit, USE_PG, getSetting });
 const intake = require('./intake')({ app, getDb, h, requireAuth, rateLimit, USE_PG, notify });
+const privacy = require('./privacy')({ app, getDb, h, requireAuth, rateLimit, USE_PG });
 
 // who is this lead? (location, device, and — via the visit — source and what they looked at)
 async function visitorContext(req, sid) {

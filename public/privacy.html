@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacyverklaring — Brown Media Management</title>
+<meta name="description" content="Hoe Brown Media Management omgaat met je persoonsgegevens: welke gegevens, waarom, hoe lang, met wie, en je rechten onder de AVG.">
+<meta name="theme-color" content="#F4EFE5">
+<link rel="canonical" href="https://brown-media.nl/privacy">
+<link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+:root{--ink:#F4EFE5;--surface:#FBF8F1;--line:#DCD3C3;--paper:#1A1712;--muted:#6F6759;--amber:#B97C2E;--amber-deep:#8F5A1C;
+  --display:'Archivo',sans-serif;--body:'Instrument Sans',sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);font-size:16.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+::selection{background:var(--amber);color:#FFF8EC}
+nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px;padding:0 clamp(16px,4vw,48px);
+  background:color-mix(in srgb,var(--ink) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.brand{font-family:var(--mono);font-size:13px;letter-spacing:.14em;display:flex;align-items:center;gap:10px;text-decoration:none}
+.rec{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:recblink 2.8s ease-in-out infinite}
+@keyframes recblink{0%,100%{opacity:1}50%{opacity:.18}}
+.right{display:flex;align-items:center;gap:18px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.right a{text-decoration:none;color:var(--muted)}
+.right a:hover{color:var(--paper)}
+.lang{display:flex;border:1px solid var(--line);border-radius:30px;overflow:hidden}
+.lang button{font:inherit;background:none;border:0;padding:6px 12px;cursor:pointer;color:var(--muted);letter-spacing:.12em}
+.lang button.on{background:var(--paper);color:var(--ink)}
+main{max-width:780px;margin:0 auto;padding:clamp(48px,8vw,96px) clamp(20px,5vw,40px) 80px}
+.kicker{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber-deep);margin-bottom:22px}
+.kicker::after{content:"";flex:1;height:1px;background:var(--line)}
+h1{font-family:var(--display);font-variation-settings:'wdth' 118;font-weight:850;text-transform:uppercase;font-size:clamp(38px,7vw,76px);line-height:.95;letter-spacing:-.01em;overflow-wrap:anywhere}
+h1 .amber{color:var(--amber-deep)}
+.lede{margin-top:24px;font-size:clamp(17px,1.8vw,19px);color:#4d463c;max-width:640px}
+.short{margin:40px 0 8px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:6px;padding:22px 24px}
+.short h2{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber-deep);margin-bottom:10px;font-weight:500}
+.short ul{list-style:none;display:grid;gap:8px}
+.short li{padding-left:22px;position:relative}
+.short li::before{content:"";position:absolute;left:2px;top:.72em;width:8px;height:8px;border-radius:50%;background:var(--amber)}
+section{margin-top:48px}
+section h2{font-family:var(--display);font-variation-settings:'wdth' 108;font-weight:800;font-size:clamp(21px,2.4vw,26px);line-height:1.2;margin-bottom:12px;display:flex;gap:14px;align-items:baseline}
+section h2 span{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.14em;color:var(--amber-deep)}
+section h3{font-weight:600;font-size:17px;margin:20px 0 6px}
+p+p{margin-top:12px}
+section ul{margin:10px 0 0 20px;display:grid;gap:6px}
+.table{margin-top:14px;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:16px;padding:12px 16px;border-top:1px solid var(--line);font-size:15px}
+.row:first-child{border-top:0}
+.row.head{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--ink)}
+.row b{font-weight:600}
+.row small{display:block;color:var(--muted);font-size:13.5px;margin-top:2px}
+.note{font-size:14px;color:var(--muted);margin-top:10px}
+footer{border-top:1px solid var(--line);padding:32px clamp(16px,6vw,72px);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.08em}
+footer a{text-decoration:none}
+footer a:hover{color:var(--amber)}
+[hidden]{display:none!important}
+@media(max-width:640px){ .row{grid-template-columns:1fr;gap:2px} .right .home{display:none} }
+@media print{ nav,footer{display:none} body{background:#fff} .short,.table{background:#fff} }
+</style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/"><span class="rec" aria-hidden="true"></span>BROWN MEDIA MGMT</a>
+  <div class="right">
+    <a class="home" href="/" data-nl="← Naar de site" data-en="← Back to the site">← Naar de site</a>
+    <div class="lang" role="group" aria-label="Taal / Language"><button type="button" data-lang="nl" class="on">NL</button><button type="button" data-lang="en">EN</button></div>
+  </div>
+</nav>
+
+<!-- ===================== NEDERLANDS ===================== -->
+<main id="nl" lang="nl">
+  <div class="kicker">AVG · Laatst bijgewerkt op 25 oktober 2026</div>
+  <h1>Privacy&shy;verklaring<br><span class="amber">kort en eerlijk.</span></h1>
+  <p class="lede">Brown Media Management maakt video’s voor bedrijven. Daarvoor heb ik soms gegevens van je nodig. Hier lees je welke, waarom, hoe lang ik ze bewaar en wat je rechten zijn.</p>
+
+  <div class="short">
+    <h2>In het kort</h2>
+    <ul>
+      <li>Ik gebruik je gegevens alleen om je aanvraag te beantwoorden en onze samenwerking goed te laten verlopen.</li>
+      <li>Geen tracking- of advertentiecookies, en ik verkoop of deel je gegevens nooit voor marketing.</li>
+      <li>De websitestatistieken zijn anoniem: zonder cookies en zonder je IP-adres op te slaan.</li>
+      <li>Aanvragen en intakes worden na 24 maanden automatisch verwijderd. Eerder? Stuur een mail.</li>
+    </ul>
+  </div>
+
+  <section>
+    <h2><span>01</span>Wie ben ik</h2>
+    <p>Brown Media Management, videoproductie, gevestigd in Groningen. Ik ben verantwoordelijk voor de verwerking van je persoonsgegevens zoals beschreven in deze verklaring.</p>
+    <p>Vragen of een verzoek over je gegevens? Mail naar <a href="mailto:info@brown-media.nl">info@brown-media.nl</a> of stuur een WhatsApp-bericht naar <a href="https://wa.me/31620890835" target="_blank" rel="noopener">+31 6 20 89 08 35</a>.</p>
+  </section>
+
+  <section>
+    <h2><span>02</span>Welke gegevens en waarom</h2>
+    <div class="table">
+      <div class="row head"><span>Wanneer</span><span>Wat en waarom</span></div>
+      <div class="row"><span><b>Je plant een gesprek of stelt een vraag</b></span><span>Naam, e-mailadres, en als je die invult: telefoonnummer, bedrijf, onderwerp, je bericht, voorkeursdatum en opnamelocatie. Om je aanvraag te beantwoorden en een afspraak of voorstel te maken.<small>Grondslag: maatregelen vóór een overeenkomst, op jouw verzoek (art. 6 lid 1 sub b AVG).</small></span></div>
+      <div class="row"><span><b>Je doet de video-check</b></span><span>Je antwoorden op de vier vragen, en als je het advies laat sturen: naam, e-mailadres en eventueel telefoonnummer. Om je een passend advies en voorstel te geven.<small>Grondslag: maatregelen vóór een overeenkomst (art. 6 lid 1 sub b AVG).</small></span></div>
+      <div class="row"><span><b>Bij een aanvraag ook</b></span><span>Ongeveer waar je vandaan komt (stad of provincie, afgeleid van je IP-adres — het IP-adres zelf sla ik niet op), wat voor apparaat je gebruikt, via welke site je kwam en welke onderdelen van de site je bekeek tijdens dat bezoek. Zo weet ik hoe klanten me vinden en kan ik je beter helpen.<small>Grondslag: gerechtvaardigd belang (art. 6 lid 1 sub f AVG). Je kunt hier bezwaar tegen maken.</small></span></div>
+      <div class="row"><span><b>Je wordt klant en vult de intake in</b></span><span>Je antwoorden op de vragenlijst (over je bedrijf, doelen, klanten, merk, opnames en samenwerking), contactgegevens, wie de video’s goedkeurt, en bestanden die je uploadt zoals je logo. Om de opdracht goed uit te voeren.<small>Grondslag: uitvoering van de overeenkomst (art. 6 lid 1 sub b AVG).</small></span></div>
+      <div class="row"><span><b>Je bezoekt de site</b></span><span>Anonieme statistieken: welke onderdelen bekeken worden, waarop geklikt wordt, hoe lang een bezoek duurt, het type apparaat en browser, de stad of provincie en via welke site bezoekers komen. Om de site te verbeteren.<small>Grondslag: gerechtvaardigd belang (art. 6 lid 1 sub f AVG). Zie hieronder hoe dit werkt.</small></span></div>
+      <div class="row"><span><b>Je neemt contact op via WhatsApp, e-mail of Instagram</b></span><span>Wat je zelf stuurt, om je te antwoorden. Die berichten lopen via de dienst die je zelf kiest (zoals WhatsApp of Instagram), met hun eigen privacyvoorwaarden.</span></div>
+    </div>
+    <p class="note">Ik neem geen besluiten over je die volledig automatisch tot stand komen. Het advies uit de video-check is een suggestie, geen besluit.</p>
+  </section>
+
+  <section>
+    <h2><span>03</span>Statistieken zonder cookies</h2>
+    <p>De site telt bezoeken op een manier die je niet volgt:</p>
+    <ul>
+      <li>Er worden geen cookies geplaatst. Een willekeurige code in je browser (sessionStorage) houdt één bezoek bij elkaar en verdwijnt zodra je het tabblad sluit.</li>
+      <li>Je IP-adres wordt niet opgeslagen. Op de server wordt er een anonieme bezoekerscode van gemaakt die elke dag verandert, zodat bezoeken niet over meerdere dagen aan elkaar te koppelen zijn.</li>
+      <li>De stad of provincie wordt bepaald met een database op mijn eigen server; je IP-adres gaat daarvoor niet naar een ander bedrijf.</li>
+      <li>Staat in je browser “Do Not Track” of “Global Privacy Control” aan? Dan word je helemaal niet meegeteld.</li>
+      <li>De statistieken worden met niemand gedeeld en na 400 dagen automatisch gewist.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span>04</span>Cookies en opslag in je browser</h2>
+    <p>Deze site gebruikt geen tracking- of advertentiecookies. Daarom zie je ook geen cookiemelding. Wel bewaart je browser een paar dingen die nodig zijn om de site te laten werken:</p>
+    <ul>
+      <li>Je taalkeuze (Nederlands of Engels).</li>
+      <li>De bezoekcode voor de statistieken (alleen zolang het tabblad open is).</li>
+      <li>Bij de intake: een tussentijdse kopie van je antwoorden, zodat je niets kwijtraakt als je verbinding wegvalt. Na het versturen wordt die verwijderd.</li>
+    </ul>
+    <h3>Video’s van Vimeo en YouTube</h3>
+    <p>Een deel van de video’s wordt afgespeeld via Vimeo. Pas als je een video afspeelt of met je muis over een video beweegt, maakt je browser contact met Vimeo. Vimeo ontvangt dan je IP-adres. Ik gebruik daarbij Vimeo’s “do not track”-instelling, zodat Vimeo je kijkgedrag niet volgt. Staat een video op YouTube, dan wordt die pas geladen als je op afspelen klikt, in de privacyvriendelijke modus van YouTube (youtube-nocookie.com). De voorbeeldafbeeldingen haalt mijn eigen server op, dus daarvoor maakt je browser geen contact met Vimeo of YouTube.</p>
+    <p>Posts van Instagram worden niet op de site ingebouwd: je opent ze met een link op Instagram zelf.</p>
+    <p>Lettertypes en scripts komen van deze site zelf, niet van Google of een ander bedrijf.</p>
+  </section>
+
+  <section>
+    <h2><span>05</span>Met wie deel ik gegevens</h2>
+    <p>Ik verkoop je gegevens nooit. Voor het draaien van de site en het afhandelen van aanvragen gebruik ik een paar dienstverleners (verwerkers). Zij mogen je gegevens alleen voor mij gebruiken:</p>
+    <div class="table">
+      <div class="row head"><span>Dienst</span><span>Waarvoor</span></div>
+      <div class="row"><span><b>Render</b></span><span>Hosting van de website en de database waarin aanvragen en intakes staan.</span></div>
+      <div class="row"><span><b>Cloudflare</b></span><span>Beveiliging en snelheid van de website, en opslag van de video’s.</span></div>
+      <div class="row"><span><b>Resend</b></span><span>Versturen van de e-mailmelding met je aanvraag of intake naar mijn mailbox.</span></div>
+      <div class="row"><span><b>Google (Gmail)</b></span><span>Mijn mailbox, waar die meldingen en je e-mails binnenkomen.</span></div>
+      <div class="row"><span><b>Vimeo</b></span><span>Afspelen van video’s, alleen als jij een video start of erover beweegt.</span></div>
+      <div class="row"><span><b>YouTube (Google)</b></span><span>Afspelen van een video die op YouTube staat, alleen als jij op afspelen klikt.</span></div>
+    </div>
+    <p class="note">Een deel van deze bedrijven zit in de Verenigde Staten. Doorgifte gebeurt dan op basis van het EU-VS Data Privacy Framework of de standaardcontractbepalingen van de Europese Commissie.</p>
+  </section>
+
+  <section>
+    <h2><span>06</span>Hoe lang bewaar ik je gegevens</h2>
+    <div class="table">
+      <div class="row head"><span>Gegevens</span><span>Bewaartermijn</span></div>
+      <div class="row"><span><b>Aanvragen</b> (gesprek, vraag, video-check)</span><span>24 maanden na binnenkomst, daarna automatisch verwijderd.</span></div>
+      <div class="row"><span><b>Intakes</b> en geüploade bestanden</span><span>24 maanden na de laatste wijziging, daarna automatisch verwijderd. Eerder als de samenwerking stopt en je daarom vraagt.</span></div>
+      <div class="row"><span><b>Websitestatistieken</b></span><span>400 dagen, daarna automatisch gewist.</span></div>
+      <div class="row"><span><b>E-mails en berichten</b></span><span>Zolang nodig voor ons contact, maximaal 24 maanden na het laatste contact als je geen klant wordt.</span></div>
+      <div class="row"><span><b>Facturen en administratie</b></span><span>7 jaar, omdat de wet (fiscale bewaarplicht) dat vereist.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span>07</span>Je rechten</h2>
+    <p>Je hebt het recht om je gegevens in te zien, te laten corrigeren of verwijderen, de verwerking te laten beperken, bezwaar te maken (bijvoorbeeld tegen de statistieken of het koppelen van je bezoek aan je aanvraag) en je gegevens in een bestand te ontvangen om mee te nemen.</p>
+    <p>Stuur je verzoek naar <a href="mailto:info@brown-media.nl">info@brown-media.nl</a>. Ik reageer binnen een maand. Om zeker te weten dat het om jouw gegevens gaat, stuur je het verzoek vanaf het e-mailadres dat je bij je aanvraag hebt gebruikt.</p>
+    <p>Ben je niet tevreden over hoe ik met je gegevens omga? Laat het me eerst weten, dan los ik het graag op. Je kunt ook een klacht indienen bij de <a href="https://autoriteitpersoonsgegevens.nl" target="_blank" rel="noopener">Autoriteit Persoonsgegevens</a>.</p>
+  </section>
+
+  <section>
+    <h2><span>08</span>Beveiliging</h2>
+    <p>De site werkt alleen via een beveiligde verbinding (https). Aanvragen en intakes staan in een afgeschermde database waar alleen ik met een wachtwoord bij kan. Intakelinks zijn persoonlijk en niet te raden. Ik bewaar niet meer dan nodig en ruim oude gegevens automatisch op.</p>
+  </section>
+
+  <section>
+    <h2><span>09</span>Wijzigingen</h2>
+    <p>Verandert er iets aan hoe ik met gegevens omga, dan pas ik deze verklaring aan. Bovenaan staat de datum van de laatste wijziging.</p>
+  </section>
+</main>
+
+<!-- ===================== ENGLISH ===================== -->
+<main id="en" lang="en" hidden>
+  <div class="kicker">GDPR · Last updated 25 October 2026</div>
+  <h1>Privacy<br><span class="amber">short and honest.</span></h1>
+  <p class="lede">Brown Media Management makes videos for businesses. For that I sometimes need some of your details. Here you can read which ones, why, how long I keep them and what your rights are.</p>
+
+  <div class="short">
+    <h2>In short</h2>
+    <ul>
+      <li>I only use your details to answer your request and to make our work together go well.</li>
+      <li>No tracking or advertising cookies, and I never sell or share your details for marketing.</li>
+      <li>The website statistics are anonymous: no cookies and your IP address is not stored.</li>
+      <li>Requests and intakes are deleted automatically after 24 months. Sooner? Send an email.</li>
+    </ul>
+  </div>
+
+  <section>
+    <h2><span>01</span>Who I am</h2>
+    <p>Brown Media Management, video production, based in Groningen, the Netherlands. I am responsible (controller) for processing your personal data as described here.</p>
+    <p>Questions or a request about your data? Email <a href="mailto:info@brown-media.nl">info@brown-media.nl</a> or send a WhatsApp message to <a href="https://wa.me/31620890835" target="_blank" rel="noopener">+31 6 20 89 08 35</a>.</p>
+  </section>
+
+  <section>
+    <h2><span>02</span>Which data and why</h2>
+    <div class="table">
+      <div class="row head"><span>When</span><span>What and why</span></div>
+      <div class="row"><span><b>You book a call or ask a question</b></span><span>Name, email address and, if you fill them in: phone number, company, subject, your message, preferred date and shoot location. To answer your request and make an appointment or proposal.<small>Legal basis: steps prior to a contract, at your request (Art. 6(1)(b) GDPR).</small></span></div>
+      <div class="row"><span><b>You take the video check</b></span><span>Your answers to the four questions and, if you ask for the advice: name, email address and optionally phone number. To give you fitting advice and a proposal.<small>Legal basis: steps prior to a contract (Art. 6(1)(b) GDPR).</small></span></div>
+      <div class="row"><span><b>With a request, also</b></span><span>Roughly where you are (city or province, derived from your IP address — the IP address itself is not stored), the kind of device you use, which site you came from and which parts of the site you viewed during that visit. So I know how clients find me and can help you better.<small>Legal basis: legitimate interest (Art. 6(1)(f) GDPR). You can object to this.</small></span></div>
+      <div class="row"><span><b>You become a client and fill in the intake</b></span><span>Your answers to the questionnaire (about your business, goals, customers, brand, shoots and how we work together), contact details, who approves the videos, and files you upload such as your logo. To carry out the assignment.<small>Legal basis: performance of the contract (Art. 6(1)(b) GDPR).</small></span></div>
+      <div class="row"><span><b>You visit the site</b></span><span>Anonymous statistics: which parts are viewed, what is clicked, how long a visit lasts, the type of device and browser, the city or province, and which site visitors come from. To improve the site.<small>Legal basis: legitimate interest (Art. 6(1)(f) GDPR). See below how this works.</small></span></div>
+      <div class="row"><span><b>You contact me via WhatsApp, email or Instagram</b></span><span>What you send yourself, to answer you. Those messages go through the service you choose (such as WhatsApp or Instagram), under their own privacy terms.</span></div>
+    </div>
+    <p class="note">I don’t make decisions about you that are fully automated. The advice from the video check is a suggestion, not a decision.</p>
+  </section>
+
+  <section>
+    <h2><span>03</span>Statistics without cookies</h2>
+    <p>The site counts visits in a way that doesn’t follow you:</p>
+    <ul>
+      <li>No cookies are set. A random code in your browser (sessionStorage) keeps one visit together and disappears when you close the tab.</li>
+      <li>Your IP address is not stored. The server turns it into an anonymous visitor code that changes every day, so visits can’t be linked across days.</li>
+      <li>The city or province is looked up in a database on my own server; your IP address is not sent to another company for that.</li>
+      <li>Is “Do Not Track” or “Global Privacy Control” switched on in your browser? Then you are not counted at all.</li>
+      <li>The statistics are not shared with anyone and are wiped automatically after 400 days.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span>04</span>Cookies and storage in your browser</h2>
+    <p>This site uses no tracking or advertising cookies, which is why there is no cookie banner. Your browser does keep a few things the site needs to work:</p>
+    <ul>
+      <li>Your language choice (Dutch or English).</li>
+      <li>The visit code for the statistics (only while the tab is open).</li>
+      <li>For the intake: an interim copy of your answers, so nothing is lost if your connection drops. It is removed once you send the intake.</li>
+    </ul>
+    <h3>Videos from Vimeo and YouTube</h3>
+    <p>Some videos play through Vimeo. Only when you play a video or move your mouse over one does your browser contact Vimeo, which then receives your IP address. I use Vimeo’s “do not track” setting so Vimeo doesn’t track your viewing. If a video is on YouTube, it only loads once you click play, in YouTube’s privacy-enhanced mode (youtube-nocookie.com). The preview images are fetched by my own server, so your browser doesn’t contact Vimeo or YouTube for those.</p>
+    <p>Instagram posts are not embedded on the site: you open them with a link on Instagram itself.</p>
+    <p>Fonts and scripts are served by this site itself, not by Google or another company.</p>
+  </section>
+
+  <section>
+    <h2><span>05</span>Who I share data with</h2>
+    <p>I never sell your data. To run the site and handle requests I use a few service providers (processors). They may only use your data on my behalf:</p>
+    <div class="table">
+      <div class="row head"><span>Service</span><span>What for</span></div>
+      <div class="row"><span><b>Render</b></span><span>Hosting the website and the database that holds requests and intakes.</span></div>
+      <div class="row"><span><b>Cloudflare</b></span><span>Security and speed of the website, and storing the videos.</span></div>
+      <div class="row"><span><b>Resend</b></span><span>Sending the email notification with your request or intake to my inbox.</span></div>
+      <div class="row"><span><b>Google (Gmail)</b></span><span>My inbox, where those notifications and your emails arrive.</span></div>
+      <div class="row"><span><b>Vimeo</b></span><span>Playing videos, only when you start one or move over it.</span></div>
+      <div class="row"><span><b>YouTube (Google)</b></span><span>Playing a video that is on YouTube, only when you click play.</span></div>
+    </div>
+    <p class="note">Some of these companies are based in the United States. Transfers then take place under the EU-US Data Privacy Framework or the European Commission’s standard contractual clauses.</p>
+  </section>
+
+  <section>
+    <h2><span>06</span>How long I keep your data</h2>
+    <div class="table">
+      <div class="row head"><span>Data</span><span>Retention</span></div>
+      <div class="row"><span><b>Requests</b> (call, question, video check)</span><span>24 months after they come in, then deleted automatically.</span></div>
+      <div class="row"><span><b>Intakes</b> and uploaded files</span><span>24 months after the last change, then deleted automatically. Sooner if our work together ends and you ask for it.</span></div>
+      <div class="row"><span><b>Website statistics</b></span><span>400 days, then wiped automatically.</span></div>
+      <div class="row"><span><b>Emails and messages</b></span><span>As long as needed for our contact, at most 24 months after the last contact if you don’t become a client.</span></div>
+      <div class="row"><span><b>Invoices and accounts</b></span><span>7 years, because Dutch tax law requires it.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span>07</span>Your rights</h2>
+    <p>You have the right to access your data, have it corrected or deleted, restrict its processing, object (for example to the statistics or to linking your visit to your request) and receive your data in a file to take with you.</p>
+    <p>Send your request to <a href="mailto:info@brown-media.nl">info@brown-media.nl</a>. I reply within one month. To be sure it’s about your data, please send it from the email address you used for your request.</p>
+    <p>Not happy with how I handle your data? Please tell me first and I’ll gladly sort it out. You can also file a complaint with the Dutch Data Protection Authority, the <a href="https://autoriteitpersoonsgegevens.nl/en" target="_blank" rel="noopener">Autoriteit Persoonsgegevens</a>.</p>
+  </section>
+
+  <section>
+    <h2><span>08</span>Security</h2>
+    <p>The site only works over a secure connection (https). Requests and intakes are kept in a shielded database that only I can access with a password. Intake links are personal and can’t be guessed. I keep no more than needed and clean up old data automatically.</p>
+  </section>
+
+  <section>
+    <h2><span>09</span>Changes</h2>
+    <p>If anything changes in how I handle data, I’ll update this statement. The date of the last change is at the top.</p>
+  </section>
+</main>
+
+<footer>
+  <span>© 2026 BROWN MEDIA MANAGEMENT</span>
+  <a href="mailto:info@brown-media.nl">INFO@BROWN-MEDIA.NL</a>
+  <span data-nl="VIDEOPRODUCTIE · GRONINGEN" data-en="VIDEO PRODUCTION · GRONINGEN">VIDEOPRODUCTIE · GRONINGEN</span>
+</footer>
+
+<script>
+(function () {
+  // same language choice as the main site (localStorage "bmm_lang"); ?lang=en works too
+  var q = (location.search.match(/[?&]lang=(nl|en)/) || [])[1];
+  var lang = q;
+  if (!lang) { try { lang = localStorage.getItem('bmm_lang'); } catch (e) {} }
+  if (lang !== 'en') lang = 'nl';
+  function apply(l) {
+    lang = l;
+    document.documentElement.lang = l;
+    document.getElementById('nl').hidden = l !== 'nl';
+    document.getElementById('en').hidden = l !== 'en';
+    document.title = l === 'nl' ? 'Privacyverklaring — Brown Media Management' : 'Privacy statement — Brown Media Management';
+    document.querySelectorAll('[data-nl]').forEach(function (el) { el.textContent = el.getAttribute('data-' + l); });
+    document.querySelectorAll('.lang button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-lang') === l); b.setAttribute('aria-pressed', b.getAttribute('data-lang') === l); });
+  }
+  document.querySelector('.lang').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-lang]'); if (!b) return;
+    apply(b.getAttribute('data-lang'));
+    try { localStorage.setItem('bmm_lang', lang); } catch (e) {}
+  });
+  apply(lang);
+})();
+</script>
+</body>
+</html>

@@ -6,9 +6,7 @@
 <title>BMM — Admin</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#15120E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="/admin-assets/admin.css">
 </head>
 <body>
@@ -232,8 +230,14 @@
         </div>
       </div>
       <div class="card mt">
-        <div class="card-h"><h2>Privacy</h2></div>
-        <p style="color:var(--muted);font-size:14px;max-width:760px">De statistieken gebruiken geen cookies en slaan geen IP-adressen op. Een bezoeker is een anonieme code die elke dag verandert, dus niemand wordt over dagen heen gevolgd. Locatie is bij benadering (stad/provincie op basis van het netwerk) — bij mobiel internet kan dat de stad van de provider zijn in plaats van waar iemand echt is. Gegevens worden na 400 dagen automatisch verwijderd. Daarom heb je hiervoor geen cookiebanner nodig.</p>
+        <div class="card-h"><h2>Privacyverzoek (AVG)</h2><span class="note">inzage · verwijderen</span></div>
+        <p style="color:var(--muted);font-size:14px;max-width:760px;margin-bottom:14px">Vraagt iemand welke gegevens je van hem of haar hebt, of wil iemand verwijderd worden? Zoek op e-mailadres. Je kunt alles als bestand downloaden om op te sturen, of alles in één keer verwijderen: aanvragen, intakes met bestanden en de gekoppelde websitebezoeken. Je moet binnen een maand reageren.</p>
+        <form id="pvForm" style="display:flex;gap:8px;flex-wrap:wrap"><input class="input" id="pvEmail" type="email" placeholder="naam@bedrijf.nl" style="max-width:320px" required><button class="btn ghost" type="submit">Zoeken</button></form>
+        <div id="pvResult" style="margin-top:14px"></div>
+      </div>
+      <div class="card mt">
+        <div class="card-h"><h2>Privacy</h2><a class="note" href="/privacy" target="_blank" rel="noopener">Privacyverklaring ↗</a></div>
+        <p style="color:var(--muted);font-size:14px;max-width:760px">De statistieken gebruiken geen cookies en slaan geen IP-adressen op. Een bezoeker is een anonieme code die elke dag verandert, dus niemand wordt over dagen heen gevolgd. Browsers met “Do Not Track” of “Global Privacy Control” aan tellen niet mee. Locatie is bij benadering (stad/provincie op basis van het netwerk) — bij mobiel internet kan dat de stad van de provider zijn in plaats van waar iemand echt is. Statistieken worden na 400 dagen gewist, aanvragen en intakes na 24 maanden. Lettertypes, scripts en Vimeo-voorbeeldafbeeldingen komen van je eigen server, dus de site heeft geen cookiebanner nodig.</p>
       </div>
     </section>
   </main>

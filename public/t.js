@@ -1,5 +1,6 @@
 /* Brown Media — privacy-friendly site statistics.
    No cookies, nothing personal: which sections people see, what they click, how long they stay.
+   Browsers that send Do Not Track or Global Privacy Control are not counted at all.
    A random id per browser tab (sessionStorage) ties one visit together. Your own visits can be
    excluded with ?notrack=1 (or automatically after logging in to the admin panel). */
 (function () {
@@ -13,6 +14,8 @@
     if (localStorage.getItem('bmm_notrack') === '1') return;
   } catch (e) {}
   if (navigator.webdriver && !/[?&]bmmtest=1/.test(location.search)) return;   // automated browsers
+  // the visitor's browser says "don't track me" (Global Privacy Control / Do Not Track): then we don't
+  if (navigator.globalPrivacyControl === true || navigator.doNotTrack === '1' || w.doNotTrack === '1' || navigator.msDoNotTrack === '1') return;
 
   var sid;
   try { sid = sessionStorage.getItem('bmm_sid'); } catch (e) {}

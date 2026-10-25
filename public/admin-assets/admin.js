@@ -1046,6 +1046,50 @@
     finally { e.target.value = ''; }
   };
 
+  // ---------- privacy request (AVG): find, export or delete everything for one email address ----------
+  let pvEmail = '';
+  async function pvFind(email) {
+    pvEmail = email;
+    $('pvResult').innerHTML = loading;
+    try {
+      const r = await api('/api/admin/privacy?email=' + encodeURIComponent(email));
+      const c = r.counts, total = c.leads + c.bookings + c.intakes;
+      if (!total) { $('pvResult').innerHTML = `<div class="empty" style="text-align:left">Niets gevonden voor ${esc(r.email)}. Je kunt antwoorden dat je geen gegevens van deze persoon hebt.</div>`; return; }
+      $('pvResult').innerHTML = `<div class="kv"><span>Gevonden</span><b>${plural(c.leads, 'vraag', 'vragen')} · ${plural(c.bookings, 'gesprek', 'gesprekken')} · ${plural(c.intakes, 'intake', 'intakes')} · ${plural(c.files, 'bestand', 'bestanden')} · ${plural(c.visitEvents, 'websitegebeurtenis', 'websitegebeurtenissen')}</b></div>
+        <div style="display:grid;gap:4px;margin-bottom:14px">${r.items.map(i => `<div class="who" style="grid-template-columns:110px minmax(0,1fr) auto"><span class="chip">${esc(i.kind)}</span><b>${esc(i.name || '—')}</b><small>${esc(when(i.created_at))}</small></div>`).join('')}</div>
+        <div class="actions">
+          <button class="btn ghost sm" id="pvExport">${ic('download')}Download alle gegevens (JSON)</button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center">
+          <input class="input" id="pvConfirm" placeholder="Typ VERWIJDER" style="max-width:180px">
+          <button class="btn danger sm" id="pvDelete">${ic('trash')}Verwijder alles van ${esc(r.email)}</button>
+        </div>`;
+    } catch (err) { $('pvResult').innerHTML = `<div class="empty" style="text-align:left">${err.status === 400 ? 'Dat is geen geldig e-mailadres.' : 'Zoeken mislukt.'}</div>`; }
+  }
+  $('pvForm').addEventListener('submit', e => { e.preventDefault(); pvFind($('pvEmail').value.trim()); });
+  $('pvResult').addEventListener('click', async e => {
+    if (e.target.closest('#pvExport')) {
+      try {
+        const r = await fetch('/api/admin/privacy/export?email=' + encodeURIComponent(pvEmail), { headers: { Authorization: 'Bearer ' + token } });
+        if (!r.ok) throw new Error();
+        const url = URL.createObjectURL(await r.blob());
+        const a = document.createElement('a'); a.href = url; a.download = 'gegevens-' + pvEmail.replace(/[^a-z0-9@._-]/gi, '_') + '.json';
+        document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+        toast('Gegevens gedownload');
+      } catch (err) { toast('Downloaden mislukt', true); }
+    }
+    if (e.target.closest('#pvDelete')) {
+      if ($('pvConfirm').value.trim() !== 'VERWIJDER') { toast('Typ eerst VERWIJDER', true); $('pvConfirm').focus(); return; }
+      try {
+        const r = await api('/api/admin/privacy', { method: 'DELETE', body: JSON.stringify({ email: pvEmail, confirm: 'VERWIJDER' }) });
+        const d = r.deleted;
+        $('pvResult').innerHTML = `<div class="empty" style="text-align:left">Verwijderd: ${plural(d.leads, 'vraag', 'vragen')}, ${plural(d.bookings, 'gesprek', 'gesprekken')}, ${plural(d.intakes, 'intake', 'intakes')}, ${plural(d.files, 'bestand', 'bestanden')} en ${plural(d.visitEvents, 'websitegebeurtenis', 'websitegebeurtenissen')}. Laat de persoon weten dat het geregeld is, en verwijder ook de mails over deze aanvraag uit je mailbox.</div>`;
+        await Promise.all([loadRequests(), loadIntakes()]);
+        toast('Alles verwijderd');
+      } catch (err) { toast('Verwijderen mislukt', true); }
+    }
+  });
+
   // ---------- resize: redraw charts ----------
   let rzT, lastW = innerWidth;
   addEventListener('resize', () => {
