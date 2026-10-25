@@ -221,13 +221,7 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
   .corner{display:none}
   .film-rail.top,.film-seam{top:54px}
 }
-/* "reduce motion" (e.g. Windows with animation effects off): everything plays once, instantly —
-   repeating animations must stop, or a 0.01 ms loop flickers at screen rate. The REC light keeps its slow fade. */
-@media (prefers-reduced-motion: reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-  .rec{animation-duration:2.8s!important;animation-iteration-count:infinite!important}
-  .rec.stop{animation:none!important}
-}
+/* No prefers-reduced-motion override here: like the main site, the motion is always on (owner preference). */
 
 /* print = a clean copy of the answers */
 .print-only{display:none}
@@ -275,7 +269,9 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
   const WA = 'https://wa.me/31620890835';
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // animations always on (owner preference, same as effects.js on the main site): Windows "animation effects off"
+  // would otherwise remove the film move, so the OS reduce-motion setting is deliberately not applied
+  const reduce = false;
 
   // ---------- steps: intro → every question step → review → done ----------
   const STEPS = [{ kind: 'intro' }];
@@ -781,6 +777,67 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
   // ---------- textarea auto-grow ----------
   function grow(t) { t.style.height = 'auto'; t.style.height = Math.min(Math.max(t.scrollHeight + 2, 128), 420) + 'px'; }
   function autoGrow() { document.querySelectorAll('.field.area textarea').forEach(grow); }
+
+  // ---------- smooth wheel scrolling (the same feel as the Splendid site) ----------
+  // The wheel sets a target and the page glides toward it every frame. Keyboard, scrollbar and touch
+  // stay native. Only with a real mouse, and only once the frame rate proves healthy.
+  const EASE = 0.09;
+  const finePointer = matchMedia('(hover:hover) and (pointer:fine)').matches;
+  let smoothOn = false, smoothTarget = scrollY, lastSet = -1, driving = false;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const maxScroll = () => Math.max(0, document.documentElement.scrollHeight - innerHeight);
+  // a long answer box under the pointer that can still scroll this way keeps the wheel for itself
+  function scrollsItself(el, dy) {
+    for (; el && el.nodeType === 1 && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+      if (!/(auto|scroll)/.test(getComputedStyle(el).overflowY) || el.scrollHeight <= el.clientHeight + 1) continue;
+      if (dy < 0 ? el.scrollTop > 0 : el.scrollTop + el.clientHeight < el.scrollHeight - 1) return true;
+    }
+    return false;
+  }
+  function onWheel(e) {
+    if (!smoothOn || e.ctrlKey || busy) return;   // ctrl+wheel = zoom; during a film move the page is reset anyway
+    let d = e.deltaY;
+    if (e.deltaMode === 1) d *= 16;
+    else if (e.deltaMode === 2) d *= innerHeight;
+    if (!d || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;   // sideways trackpad swipes stay native
+    if (scrollsItself(e.target, d)) return;
+    e.preventDefault();
+    if (!driving) smoothTarget = scrollY;
+    driving = true;
+    smoothTarget = clamp(smoothTarget + d, 0, maxScroll());
+  }
+  if (finePointer) addEventListener('wheel', onWheel, { passive: false });
+  function smoothStep(dt) {
+    if (!smoothOn) return;
+    const now = scrollY;
+    if (!driving) { smoothTarget = now; lastSet = -1; return; }
+    // something else moved the page (keyboard, scrollbar, a jump to the top): let it win
+    if (lastSet >= 0 && Math.abs(now - lastSet) > 2) { smoothTarget = now; driving = false; lastSet = -1; return; }
+    const diff = smoothTarget - now;
+    if (Math.abs(diff) > 0.4) {
+      // 9% of the way per 60 Hz frame, scaled by real time: the same glide on a 60, 120 or 144 Hz screen
+      const k = 1 - Math.pow(1 - EASE, Math.min(dt, 100) / (1000 / 60));
+      // at least 1px a frame: the browser rounds sub-pixel moves away, which would stall the glide a few px short
+      let step = diff * k;
+      if (Math.abs(step) < 1) step = Math.sign(diff) * Math.min(1, Math.abs(diff));
+      const next = clamp(now + step, 0, maxScroll());
+      window.scrollTo(0, next);
+      lastSet = next;
+    } else { smoothTarget = now; driving = false; lastSet = -1; }
+  }
+  let ticks = 0, windowStart = 0, lastT = 0;
+  requestAnimationFrame(function loop(t) {
+    ticks++;
+    // measure 20 frames at a time until the frame rate is healthy (a busy moment while the page loads
+    // shouldn't switch smooth scrolling off for the whole visit)
+    if (!smoothOn && finePointer) {
+      if (ticks % 20 === 1) windowStart = t;
+      else if (ticks % 20 === 0 && 19000 / Math.max(1, t - windowStart) > 40) smoothOn = true;
+    }
+    smoothStep(lastT ? t - lastT : 1000 / 60);
+    lastT = t;
+    requestAnimationFrame(loop);
+  });
 
   // ---------- boot ----------
   async function boot() {
