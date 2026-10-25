@@ -6,9 +6,9 @@
 <title>Intake — Brown Media Management</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#F4EFE5">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- fonts are served from this site (no request to Google) -->
+<link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
 <script src="/intake-questions.js"></script>
 <style>
 :root{
@@ -170,6 +170,9 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
 .btn[disabled]{opacity:.55;pointer-events:none}
 .link{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line-2);padding-bottom:3px}
 .link:hover{color:var(--amber-deep);border-color:var(--amber)}
+.fine{margin-top:22px;max-width:600px;font-size:13px;line-height:1.55;color:var(--muted)}
+.fine a{text-decoration:underline;text-underline-offset:3px}
+.fine a:hover{color:var(--amber-deep)}
 .underline{display:block;width:min(420px,70%);height:16px;margin-top:6px}
 .underline path{fill:none;stroke:var(--amber);stroke-width:3;stroke-linecap:round;stroke-dasharray:480;stroke-dashoffset:480}
 .underline.on path{animation:ink .9s .5s var(--expo) forwards}
@@ -472,7 +475,8 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
       (state.note ? '<div class="note"><span class="mono">Bericht van Ruben</span><p>' + esc(state.note) + '</p></div>' : '') +
       '<div class="chips"><span class="chip">± ' + Q.minutes + ' minuten</span><span class="chip">' + Q.sections.length + ' onderdelen</span><span class="chip">Automatisch opgeslagen</span></div>' +
       '<div class="cta-row"><button class="btn solid" type="button" data-go="' + (resume ? state.step : 1) + '">' + (resume ? 'Ga verder waar je was' : 'Start de intake') + ' <span aria-hidden="true">→</span></button>' +
-      (resume ? '<button class="link" type="button" data-go="1">Of begin bij het begin</button>' : '') + '</div>';
+      (resume ? '<button class="link" type="button" data-go="1">Of begin bij het begin</button>' : '') + '</div>' +
+      '<p class="fine">Je antwoorden zijn vertrouwelijk en alleen bedoeld voor onze samenwerking. <a href="/privacy" target="_blank" rel="noopener">Privacyverklaring</a></p>';
   }
 
   function reviewHTML() {
@@ -490,7 +494,8 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
             (miss ? '<button class="link" type="button" data-go="' + stepOf + '" style="color:var(--err);border-color:var(--err)">Invullen →</button>' : esc(a || '—')) + '</span></div>';
         }).join('');
         return '<section class="rv-sec"><div class="rv-head"><h3>' + String(si + 1).padStart(2, '0') + ' — ' + esc(sec.title) + '</h3><button class="link" type="button" data-go="' + stepIndex + '">Wijzig</button></div>' + rows + '</section>';
-      }).join('') + '</div>';
+      }).join('') + '</div>' +
+      '<p class="fine">Met versturen deel je je antwoorden en bestanden met Brown Media Management, alleen voor onze samenwerking. Ze worden 24 maanden na je laatste wijziging automatisch verwijderd. <a href="/privacy" target="_blank" rel="noopener">Privacyverklaring</a></p>';
   }
 
   function doneHTML(already) {
@@ -758,7 +763,7 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
       const j = await r.json().catch(() => ({}));
       if (r.status === 400 && j.missing) { const i = STEPS.findIndex(s => s.kind === 'q' && s.qs.some(q => j.missing.includes(q.id))); btn.disabled = false; goTo(i, -1); return; }
       if (!r.ok) throw 0;
-      try { localStorage.removeItem(LS()); } catch (e) {}
+      try { localStorage.removeItem(LS()); localStorage.removeItem(LS() + '_t'); } catch (e) {}
       state.completed_at = Date.now();
       await filmMove(1, () => showDone(false, true));   // last frame: "that's a take"
       const u = document.querySelector('.underline'); if (u) u.classList.add('on');
