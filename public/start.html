@@ -99,13 +99,17 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
 
 /* choice cards */
 .opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
-.opts.compact{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+/* short options (days, contact) size to their text instead of a fixed column */
+.opts.compact{display:flex;flex-wrap:wrap}
+.opts.compact .opt{flex:0 0 auto;padding-right:20px}
 .opt{display:flex;align-items:center;gap:13px;text-align:left;padding:14px 16px;border:1.5px solid var(--line);border-radius:6px;background:rgba(251,248,241,.55);
   font-size:16px;line-height:1.3;transition:border-color .25s,background .25s,transform .25s var(--expo)}
 .opt:hover{border-color:var(--amber-dim);transform:translateY(-1px)}
 .opt:active{transform:scale(.985)}
 .opt .k{flex-shrink:0;width:26px;height:26px;border-radius:5px;border:1.5px solid var(--line-2);display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--muted);transition:background .25s,border-color .25s,color .25s}
 .opt.radio .k{border-radius:50%}
+.opt{min-width:0}
+.opt > span:last-child{min-width:0;overflow-wrap:anywhere}   /* a long word wraps inside the card, never past its edge */
 .opt[aria-pressed="true"]{border-color:var(--amber);background:#F6E9D4}
 .opt[aria-pressed="true"] .k{background:var(--amber);border-color:var(--amber);color:#FFF8EC}
 .opt:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
@@ -196,7 +200,7 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
   .hint{display:none}
   .name-grid{grid-template-columns:1fr;gap:14px}
   .opts{grid-template-columns:1fr}
-  .opts.compact{grid-template-columns:repeat(2,1fr)}
+  .opts.compact{display:grid;grid-template-columns:repeat(2,1fr)}
   .dock{padding-left:22px;padding-right:22px}
   .save span{display:none}
   .btn{padding:15px 20px}
@@ -403,7 +407,7 @@ main{position:relative;z-index:2;min-height:100svh;display:flex;align-items:cent
     // coming back via the same link: offer to continue where they stopped
     const resume = state.step > 1 && state.step < STEPS.length && STEPS[state.step].kind !== 'intro';
     return '<div class="kicker">Intake · Brown Media Management</div>' +
-      '<h1 class="title"><span class="l"><span>' + (name ? 'Hoi ' + esc(name) + ',' : 'Welkom,') + '</span></span><span class="l"><span class="amber">welkom aan boord.</span></span></h1>' +
+      '<h1 class="title"><span class="l"><span>' + (name ? 'Hoi ' + esc(name) + ',' : 'Hoi,') + '</span></span><span class="l"><span class="amber">welkom aan boord.</span></span></h1>' +
       '<p class="lede">Bedankt voor het vertrouwen' + (state.company ? ', ' + esc(state.company) : '') + '. Met deze vragen leer ik je bedrijf, je klanten en je doelen goed kennen — zodat elke video die we maken klopt, vanaf de eerste filmdag. Je antwoorden worden automatisch bewaard: je kunt stoppen en later verder via dezelfde link.</p>' +
       (state.note ? '<div class="note"><span class="mono">Bericht van Ruben</span><p>' + esc(state.note) + '</p></div>' : '') +
       '<div class="chips"><span class="chip">± ' + Q.minutes + ' minuten</span><span class="chip">' + Q.sections.length + ' onderdelen</span><span class="chip">Automatisch opgeslagen</span></div>' +
