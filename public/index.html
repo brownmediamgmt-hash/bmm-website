@@ -851,6 +851,7 @@ html,body{overflow-x:clip}
   <a href="https://instagram.com/brownmediamgmt" target="_blank" rel="noopener" data-track="Instagram (footer)">@BROWNMEDIAMGMT</a>
   <span data-i18n="footer_loc">VIDEOPRODUCTIE · GRONINGEN · NEDERLAND</span>
   <a href="/privacy" data-i18n="footer_privacy" data-track="Privacyverklaring (footer)">PRIVACY</a>
+  <a href="#" data-cookie-settings data-track="Cookie-instellingen (footer)">COOKIES</a>
 </footer>
 
 <script>
@@ -1273,6 +1274,7 @@ leadForm.addEventListener('submit', async e => {
     const r = await fetch(endpoint, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
     if(!r.ok) throw new Error();
     window.bmmTrack('cv', 'booking', isCall ? 'lead_call' : 'lead_question');
+    window.bmmAd && window.bmmAd('Lead', { content_name: isCall ? 'call' : 'question' });
     done();
   }catch{
     fail(I18N[lang].sent_err);
@@ -1686,6 +1688,7 @@ document.getElementById('qc').addEventListener('click', async e => {
         body: JSON.stringify({ sid: window.bmmSid, source: 'quiz', name, email, phone, service: r.service, message: text, lang }) });
       if (!res.ok) throw new Error();
       window.bmmTrack('cv', 'check', 'quiz_lead');
+      window.bmmAd && window.bmmAd('Lead', { content_name: 'quiz' });
       qcDone = true; renderQuiz();
     } catch { msg.textContent = I18N[lang].sent_err; btn.disabled = false; btn.style.opacity = ''; }
   }
@@ -1694,6 +1697,7 @@ document.getElementById('qc').addEventListener('click', async e => {
 applyLang();
 </script>
 <script src="/t.js" defer></script>
+<script src="/consent.js" defer></script>
 <script src="/vendor/lenis-1.1.13.min.js" defer></script>
 <script src="/effects.js" defer></script>
 </body>

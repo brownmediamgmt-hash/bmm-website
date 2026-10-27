@@ -53,6 +53,8 @@ section ul{margin:10px 0 0 20px;display:grid;gap:6px}
 .row b{font-weight:600}
 .row small{display:block;color:var(--muted);font-size:13.5px;margin-top:2px}
 .note{font-size:14px;color:var(--muted);margin-top:10px}
+.cookie-btn{font:inherit;font-weight:600;background:none;border:1.5px solid var(--amber);color:var(--paper);border-radius:999px;padding:4px 14px;cursor:pointer}
+.cookie-btn:hover{background:var(--amber);color:#fff}
 footer{border-top:1px solid var(--line);padding:32px clamp(16px,6vw,72px);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.08em}
 footer a{text-decoration:none}
 footer a:hover{color:var(--amber)}
@@ -72,7 +74,7 @@ footer a:hover{color:var(--amber)}
 
 <!-- ===================== NEDERLANDS ===================== -->
 <main id="nl" lang="nl">
-  <div class="kicker">AVG · Laatst bijgewerkt op 25 oktober 2026</div>
+  <div class="kicker">AVG · Laatst bijgewerkt op 27 oktober 2026</div>
   <h1>Privacy&shy;verklaring<br><span class="amber">kort en eerlijk.</span></h1>
   <p class="lede">Brown Media Management maakt video’s voor bedrijven. Daarvoor heb ik soms gegevens van je nodig. Hier lees je welke, waarom, hoe lang ik ze bewaar en wat je rechten zijn.</p>
 
@@ -80,7 +82,7 @@ footer a:hover{color:var(--amber)}
     <h2>In het kort</h2>
     <ul>
       <li>Ik gebruik je gegevens alleen om je aanvraag te beantwoorden en onze samenwerking goed te laten verlopen.</li>
-      <li>Geen tracking- of advertentiecookies, en ik verkoop of deel je gegevens nooit voor marketing.</li>
+      <li>Advertentiecookies van Meta alleen als jij op “Accepteren” klikt. Ik verkoop je gegevens nooit.</li>
       <li>De websitestatistieken zijn anoniem: zonder cookies en zonder je IP-adres op te slaan.</li>
       <li>Aanvragen en intakes worden na 24 maanden automatisch verwijderd. Eerder? Stuur een mail.</li>
     </ul>
@@ -119,10 +121,14 @@ footer a:hover{color:var(--amber)}
   </section>
 
   <section>
-    <h2><span>04</span>Cookies en opslag in je browser</h2>
-    <p>Deze site gebruikt geen tracking- of advertentiecookies. Daarom zie je ook geen cookiemelding. Wel bewaart je browser een paar dingen die nodig zijn om de site te laten werken:</p>
+    <h2 id="cookies"><span>04</span>Cookies en opslag in je browser</h2>
+    <h3>Advertentiecookies van Meta (alleen met jouw toestemming)</h3>
+    <p>Ik adverteer op Instagram. Klik je in de cookiemelding op “Accepteren”, dan laadt de site de Meta-pixel van Meta Platforms Ireland. Die plaatst cookies en stuurt Meta welke pagina je bekijkt en of je een formulier hebt verstuurd of op de WhatsApp-knop hebt geklikt, samen met je IP-adres en browsergegevens. Zo zie ik welke advertenties werken en kan Meta mijn advertenties aan de juiste mensen laten zien. Wat je in een formulier invult gaat niet naar Meta. Meta gebruikt deze gegevens ook voor eigen doeleinden; zie het <a href="https://www.facebook.com/privacy/policy/">privacybeleid van Meta</a>.</p>
+    <p>Klik je op “Weigeren”, of stuurt je browser een Global Privacy Control-signaal, dan wordt de pixel niet geladen en werkt de site precies hetzelfde. Je keuze kun je altijd veranderen: <button type="button" class="cookie-btn" data-cookie-settings>Cookie-instellingen</button></p>
+    <h3>Wat je browser verder bewaart</h3>
+    <p>Daarnaast bewaart je browser een paar dingen die nodig zijn om de site te laten werken:</p>
     <ul>
-      <li>Je taalkeuze (Nederlands of Engels).</li>
+      <li>Je taalkeuze (Nederlands of Engels) en je cookiekeuze.</li>
       <li>De bezoekcode voor de statistieken (alleen zolang het tabblad open is).</li>
       <li>Bij de intake: een tussentijdse kopie van je antwoorden, zodat je niets kwijtraakt als je verbinding wegvalt. Na het versturen wordt die verwijderd.</li>
     </ul>
@@ -143,6 +149,7 @@ footer a:hover{color:var(--amber)}
       <div class="row"><span><b>Google (Gmail)</b></span><span>Mijn mailbox, waar die meldingen en je e-mails binnenkomen.</span></div>
       <div class="row"><span><b>Vimeo</b></span><span>Afspelen van video’s, alleen als jij een video start of erover beweegt.</span></div>
       <div class="row"><span><b>YouTube (Google)</b></span><span>Afspelen van een video die op YouTube staat, alleen als jij op afspelen klikt.</span></div>
+      <div class="row"><span><b>Meta (Facebook/Instagram)</b></span><span>Meten welke advertenties werken, alleen als jij advertentiecookies accepteert. Voor de pixel zijn Meta en ik samen verantwoordelijk.</span></div>
     </div>
     <p class="note">Een deel van deze bedrijven zit in de Verenigde Staten. Doorgifte gebeurt dan op basis van het EU-VS Data Privacy Framework of de standaardcontractbepalingen van de Europese Commissie.</p>
   </section>
@@ -179,7 +186,7 @@ footer a:hover{color:var(--amber)}
 
 <!-- ===================== ENGLISH ===================== -->
 <main id="en" lang="en" hidden>
-  <div class="kicker">GDPR · Last updated 25 October 2026</div>
+  <div class="kicker">GDPR · Last updated 27 October 2026</div>
   <h1>Privacy<br><span class="amber">short and honest.</span></h1>
   <p class="lede">Brown Media Management makes videos for businesses. For that I sometimes need some of your details. Here you can read which ones, why, how long I keep them and what your rights are.</p>
 
@@ -187,7 +194,7 @@ footer a:hover{color:var(--amber)}
     <h2>In short</h2>
     <ul>
       <li>I only use your details to answer your request and to make our work together go well.</li>
-      <li>No tracking or advertising cookies, and I never sell or share your details for marketing.</li>
+      <li>Advertising cookies from Meta only if you click “Accept”. I never sell your details.</li>
       <li>The website statistics are anonymous: no cookies and your IP address is not stored.</li>
       <li>Requests and intakes are deleted automatically after 24 months. Sooner? Send an email.</li>
     </ul>
@@ -226,10 +233,14 @@ footer a:hover{color:var(--amber)}
   </section>
 
   <section>
-    <h2><span>04</span>Cookies and storage in your browser</h2>
-    <p>This site uses no tracking or advertising cookies, which is why there is no cookie banner. Your browser does keep a few things the site needs to work:</p>
+    <h2 id="cookies-en"><span>04</span>Cookies and storage in your browser</h2>
+    <h3>Advertising cookies from Meta (only with your consent)</h3>
+    <p>I advertise on Instagram. If you click “Accept” in the cookie notice, the site loads the Meta pixel from Meta Platforms Ireland. It sets cookies and tells Meta which page you view and whether you sent a form or clicked the WhatsApp button, together with your IP address and browser details. That way I can see which ads work and Meta can show my ads to the right people. What you type into a form is not sent to Meta. Meta also uses this data for its own purposes; see <a href="https://www.facebook.com/privacy/policy/">Meta’s privacy policy</a>.</p>
+    <p>If you click “Decline”, or your browser sends a Global Privacy Control signal, the pixel is not loaded and the site works exactly the same. You can change your choice any time: <button type="button" class="cookie-btn" data-cookie-settings>Cookie settings</button></p>
+    <h3>What else your browser keeps</h3>
+    <p>Your browser also keeps a few things the site needs to work:</p>
     <ul>
-      <li>Your language choice (Dutch or English).</li>
+      <li>Your language choice (Dutch or English) and your cookie choice.</li>
       <li>The visit code for the statistics (only while the tab is open).</li>
       <li>For the intake: an interim copy of your answers, so nothing is lost if your connection drops. It is removed once you send the intake.</li>
     </ul>
@@ -250,6 +261,7 @@ footer a:hover{color:var(--amber)}
       <div class="row"><span><b>Google (Gmail)</b></span><span>My inbox, where those notifications and your emails arrive.</span></div>
       <div class="row"><span><b>Vimeo</b></span><span>Playing videos, only when you start one or move over it.</span></div>
       <div class="row"><span><b>YouTube (Google)</b></span><span>Playing a video that is on YouTube, only when you click play.</span></div>
+      <div class="row"><span><b>Meta (Facebook/Instagram)</b></span><span>Measuring which ads work, only if you accept advertising cookies. Meta and I are jointly responsible for the pixel.</span></div>
     </div>
     <p class="note">Some of these companies are based in the United States. Transfers then take place under the EU-US Data Privacy Framework or the European Commission’s standard contractual clauses.</p>
   </section>
@@ -314,5 +326,6 @@ footer a:hover{color:var(--amber)}
   apply(lang);
 })();
 </script>
+<script src="/consent.js" defer></script>
 </body>
 </html>
