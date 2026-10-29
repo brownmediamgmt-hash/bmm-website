@@ -66,7 +66,7 @@ module.exports = function createAnalytics({ app, getDb, h, requireAuth, rateLimi
     const vid = crypto.createHash('sha256').update(salt + '|' + clientIp(req) + '|' + (req.headers['user-agent'] || '')).digest('hex').slice(0, 20);
     const geo = locate(req);
     const utm = body.u && typeof body.u === 'object' ? body.u : {};
-    const src = trafficSource({ ref: str(body.r, 500), utmSource: str(utm.s, 60), browser: ua.browser });
+    const src = trafficSource({ ref: str(body.r, 500), utmSource: str(utm.s, 60), utmMedium: str(utm.m, 60), browser: ua.browser });
     const path = str(body.p, 120) || '/';
     const lang = str(body.l, 5);
 
