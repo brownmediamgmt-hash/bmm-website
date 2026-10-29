@@ -129,6 +129,7 @@ async function initDB() {
   await analytics.init(db);
   await intake.init(db);
   await privacy.init(db);
+  await meta.init(db);
 
   const { rows } = await db.query('SELECT COUNT(*) AS c FROM portfolio');
   if (Number(rows[0].c) === 0) {
@@ -163,6 +164,8 @@ app.use((req, res, next) => {
 app.use('/api/admin/restore', express.json({ limit: '8mb' }));
 // intake file uploads (base64) are bigger than the global 200kb JSON limit
 app.use(/^\/api\/intake\/[^/]+\/files$/, express.json({ limit: '15mb' }));
+// Meta lead webhook: keep the raw body so its signature can be checked
+app.use('/api/meta/webhook', express.raw({ type: () => true, limit: '1mb' }));
 app.use(express.json({ limit: '200kb' }));
 const createUploadsRouter = require('./r2-uploads-router');
 app.use(createUploadsRouter({ requireAuth }));
@@ -215,9 +218,15 @@ async function getSetting(key) {
   settingsCache.set(key, value || '');
   return value || '';
 }
+async function setSetting(key, value) {
+  await db.query('DELETE FROM settings WHERE key = $1', [key]);
+  await db.query('INSERT INTO settings (key, value) VALUES ($1, $2)', [key, value]);
+  settingsCache.set(key, value);
+}
 const analytics = require('./analytics')({ app, getDb, h, requireAuth, rateLimit, USE_PG, getSetting });
 const intake = require('./intake')({ app, getDb, h, requireAuth, rateLimit, USE_PG, notify });
 const privacy = require('./privacy')({ app, getDb, h, requireAuth, rateLimit, USE_PG });
+const meta = require('./meta')({ app, getDb, h, requireAuth, rateLimit, USE_PG, notify, getSetting, setSetting, waLink, dayKey: analytics.dayKey });
 
 // who is this lead? (location, device, and — via the visit — source and what they looked at)
 async function visitorContext(req, sid) {

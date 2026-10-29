@@ -51,6 +51,23 @@ ADMIN_PASSWORD=xxx NOTIFY_EMAIL=you@gmail.com SMTP_HOST=smtp.gmail.com SMTP_PORT
 
 On Render/Railway you add these in the dashboard under Environment Variables. If you skip this setup, everything still works — submissions just live in the admin panel only.
 
+## Meta ads: Instant Form leads → CRM, and ad results in the admin
+
+`meta.js` pulls leads from every Instant Form on the Facebook Page **Brown Media Management** into the same `leads` table as the website forms (`source = 'meta'`, with campaign, ad, form and platform). They show up in Admin → **Aanvragen** (filter "Advertenties") and you get the usual email. Admin → **Meta Ads** shows spend, reach, impressions, clicks, leads, cost per lead, Instagram vs Facebook, per campaign and per ad, plus how many Meta leads became clients and how many site visits came from ads.
+
+| Env var | What |
+|---|---|
+| `META_ACCESS_TOKEN` | System-user token (never expires) with `ads_read, leads_retrieval, pages_show_list, pages_read_engagement, pages_manage_metadata, pages_manage_ads, business_management`. Can also be pasted in Admin → Meta Ads instead. |
+| `META_APP_SECRET` | Optional. Signs API calls and lets the webhook check that messages really come from Meta. |
+| `META_VERIFY_TOKEN` | Optional. Webhook verify token; otherwise one is generated and shown in the admin. |
+| `META_PAGE_ID`, `META_AD_ACCOUNT_ID` | Default to Brown Media Management's Page and ad account. |
+
+Leads are fetched every 5 minutes. For instant delivery, subscribe the Meta app's Page webhook to `leadgen` with callback `https://<site>/api/meta/webhook`.
+
+Website visits from ads are recognised by `utm_source=meta` (or `utm_medium=paid` with an Instagram/Facebook source) on the ad's link; they show as source "Meta Ads".
+
+The Meta pixel (dataset `1810035896907327`) is in `public/consent.js` and only loads after the visitor accepts cookies.
+
 ## SEO — what's built in
 
 - Keyword-targeted title and meta description (videoproductie, bedrijfsvideo laten maken, videograaf Groningen, video production company Netherlands)

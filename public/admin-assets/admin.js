@@ -87,7 +87,7 @@
   const L_STATUS = { new: 'Nieuw', contacted: 'Contact gehad', won: 'Klant geworden', lost: 'Afgevallen' };
   const B_STATUS = { pending: 'Te bevestigen', confirmed: 'Bevestigd', declined: 'Afgewezen', done: 'Afgerond' };
   const IK_STATUS = { sent: 'Verstuurd', opened: 'Geopend', in_progress: 'Bezig', completed: 'Ingevuld' };
-  const KIND = { gesprek: 'Gesprek', vraag: 'Vraag', check: 'Video-check' };
+  const KIND = { gesprek: 'Gesprek', vraag: 'Vraag', check: 'Video-check', meta: 'Advertentie' };
   function quizLabel(l) {
     const s = String(l || ''), i = s.indexOf(':');
     const st = i < 0 ? s : s.slice(0, i), v = i < 0 ? '' : s.slice(i + 1);
@@ -205,9 +205,9 @@
   $('logoutBtn').onclick = () => { api('/api/admin/logout', { method: 'POST' }).catch(() => {}).finally(logout); };
 
   // ---------- state & navigation ----------
-  const PAGES = { overzicht: ['Overzicht', true], bezoekers: ['Bezoekers', true], gedrag: ['Gedrag', true], aanvragen: ['Aanvragen', false],
+  const PAGES = { overzicht: ['Overzicht', true], bezoekers: ['Bezoekers', true], gedrag: ['Gedrag', true], meta: ['Meta Ads', true], aanvragen: ['Aanvragen', false],
     intakes: ['Intakes', false], portfolio: ['Portfolio', false], instellingen: ['Instellingen', false] };
-  const D = { an: null, live: { active: [], feed: [] }, leads: [], bookings: [], intakes: [], portfolio: null };
+  const D = { an: null, live: { active: [], feed: [] }, leads: [], bookings: [], intakes: [], portfolio: null, meta: null };
   let page = 'overzicht', ready = false;
   let days =[1, 7, 30, 90].includes(Number(store.get('bmm_days', 30))) ? Number(store.get('bmm_days', 30)) : 30;
   let metric = store.get('bmm_metric', 'visitors');
@@ -223,6 +223,8 @@
     if (location.hash !== '#' + p) history.replaceState(null, '', '#' + p);
     window.scrollTo(0, 0);
     render(p);
+    // ad results change through the day: show what's there, then fetch fresh numbers
+    if (p === 'meta' && D.meta) loadMeta().then(() => { if (page === 'meta' && !drawerOpen()) renderMeta(); }).catch(() => {});
   }
   $('nav').addEventListener('click', e => { const b = e.target.closest('button[data-page]'); if (b) go(b.dataset.page); });
   function markPeriod() { document.querySelectorAll('#period button').forEach(b => b.classList.toggle('on', Number(b.dataset.days) === days)); }
@@ -230,7 +232,7 @@
     const b = e.target.closest('button[data-days]');
     if (!b) return;
     days = Number(b.dataset.days); store.set('bmm_days', days); markPeriod();
-    try { await loadAnalytics(); render(page); } catch (err) { if (err.message !== 'auth') toast('Laden mislukt', true); }
+    try { await (page === 'meta' ? loadMeta() : loadAnalytics()); render(page); } catch (err) { if (err.message !== 'auth') toast('Laden mislukt', true); }
   });
 
   async function loadAnalytics() { D.an = await api('/api/admin/analytics?days=' + days); }
@@ -238,6 +240,7 @@
   async function loadRequests() { const [l, b] = await Promise.all([api('/api/admin/leads'), api('/api/admin/bookings')]); D.leads = l; D.bookings = b; updateCounts(); }
   async function loadIntakes() { D.intakes = await api('/api/admin/intakes'); updateCounts(); }
   async function loadPortfolio() { D.portfolio = await api('/api/admin/portfolio'); }
+  async function loadMeta() { D.meta = await api('/api/admin/meta?days=' + days); }
 
   let timers = [];
   function startTimers() {
@@ -249,8 +252,8 @@
   const editing = () => { const a = document.activeElement; return a && a.closest && a.closest('.main') && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName); };
   async function refreshData() {
     try {
-      await Promise.all([loadAnalytics(), loadRequests(), loadIntakes()]);
-      if (['overzicht', 'bezoekers', 'gedrag', 'aanvragen', 'intakes'].includes(page) && !editing() && !drawerOpen()) render(page);
+      await Promise.all([loadAnalytics(), loadRequests(), loadIntakes(), page === 'meta' ? loadMeta() : null]);
+      if (['overzicht', 'bezoekers', 'gedrag', 'meta', 'aanvragen', 'intakes'].includes(page) && !editing() && !drawerOpen()) render(page);
     } catch (e) {}
   }
 
@@ -265,13 +268,14 @@
   }
 
   function render(p) {
-    ({ overzicht: renderOverview, bezoekers: renderVisitors, gedrag: renderBehaviour, aanvragen: renderRequests,
+    ({ overzicht: renderOverview, bezoekers: renderVisitors, gedrag: renderBehaviour, meta: renderMeta, aanvragen: renderRequests,
       intakes: renderIntakes, portfolio: renderPortfolio, instellingen: renderSettings })[p]();
     setSub();
   }
   function setSub() {
     let t = '';
     if (PAGES[page][1]) t = days === 1 ? 'Vandaag vanaf 00:00 · vergelijking met de uren ervoor' : `Laatste ${days} dagen · vergelijking met de ${days} dagen ervoor`;
+    if (page === 'meta') t = (days === 1 ? 'Vandaag' : `Laatste ${days} dagen`) + ' · advertentieresultaten uit Meta, leads uit je CRM';
     if (page === 'aanvragen') { const r = requests(); t = `${r.filter(x => x.open).length} open · ${r.length} totaal`; }
     if (page === 'intakes') { const a = D.intakes.filter(i => !i.archived); t = `${a.filter(i => i.status !== 'completed').length} lopend · ${a.filter(i => i.status === 'completed').length} ingevuld`; }
     if (page === 'portfolio' && D.portfolio) t = `${D.portfolio.length} projecten · ${D.portfolio.filter(p => Number(p.published)).length} zichtbaar op de site`;
@@ -527,9 +531,145 @@
     $('otherClicks').innerHTML = bars(an.clicks.filter(c => !SECTION_ORDER.includes(c.section)).map(c => ({ name: c.label, sub: secName(c.section), v: c.count })), { noun: ['klik', 'klikken'], empty: 'Nog geen klikken in het menu of op zwevende knoppen.' });
   }
 
+  // ---------- Meta Ads ----------
+  const eur = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' });
+  const money = v => eur.format(v || 0);
+  const per = (a, b) => (b ? a / b : 0);
+  let metaMetric = store.get('bmm_meta_metric', 'spend'), metaLoading = false;
+  const META_M = { spend: ['Uitgaven', ['euro', 'euro']], leads: ['Leads', ['lead', 'leads']], impressions: ['Weergaven', ['weergave', 'weergaven']], linkClicks: ['Klikken', ['klik', 'klikken']] };
+  if (!META_M[metaMetric]) metaMetric = 'spend';
+  function renderMeta() {
+    const m = D.meta;
+    if (!m) {
+      $('metaKpis').innerHTML = loading; $('metaSetup').innerHTML = ''; $('metaConn').hidden = true;
+      if (!metaLoading) { metaLoading = true; loadMeta().then(() => page === 'meta' && renderMeta()).catch(e => { if (e.message !== 'auth') toast('Meta-gegevens laden mislukt', true); }).finally(() => { metaLoading = false; }); }
+      return;
+    }
+    const st = m.status, ads = m.ads, crm = m.crm;
+    $('metaConn').hidden = false;
+    $('metaConn').innerHTML = metaConnCard(st);
+    $('metaSetup').innerHTML = !st.configured || st.tokenError ? metaSetupCard(st) : '';
+    $('metaBody').hidden = !ads && !crm.leads;
+    if (m.adsError) $('metaSetup').innerHTML += `<div class="card" style="margin-bottom:16px"><div class="err" style="margin:0">Advertentieresultaten ophalen mislukt: ${esc(m.adsError)}. Heeft de token de rechten <span class="mono">ads_read</span> en toegang tot het advertentieaccount?</div></div>`;
+
+    const t = ads ? ads.totals : { spend: 0, impressions: 0, reach: 0, clicks: 0, linkClicks: 0, leads: 0 };
+    const ser = k => (ads ? ads.series.map(s => s[k] || 0) : []);
+    const tiles = [
+      { label: 'Uitgegeven', v: money(t.spend), s: ser('spend') },
+      { label: 'Bereik', v: fmtN(t.reach), tip: 'Unieke mensen die je advertentie zagen' },
+      { label: 'Weergaven', v: fmtN(t.impressions), s: ser('impressions'), d: `<div class="k-d">${t.reach ? (t.impressions / t.reach).toFixed(1).replace('.', ',') + '× per persoon' : '—'}</div>` },
+      { label: 'Klikken', v: fmtN(t.linkClicks || t.clicks), s: ser('linkClicks'), d: `<div class="k-d">CTR ${t.impressions ? (per(t.linkClicks || t.clicks, t.impressions) * 100).toFixed(2).replace('.', ',') : '0'}% · ${t.linkClicks ? money(per(t.spend, t.linkClicks)) + ' per klik' : '—'}</div>` },
+      { label: 'Leads (Meta)', v: fmtN(t.leads), s: ser('leads'), d: `<div class="k-d">${fmtN(crm.leads)} in je CRM</div>` },
+      { label: 'Kosten per lead', v: t.leads ? money(per(t.spend, t.leads)) : '—', d: `<div class="k-d">${crm.won ? money(per(t.spend, crm.won)) + ' per klant' : 'nog geen klant'}</div>` },
+    ];
+    $('metaKpis').innerHTML = tiles.map(k => `<div class="card kpi" ${k.tip ? tipAttr(k.label, k.tip) : ''}><div class="k-l">${esc(k.label)}</div><div class="k-v num">${k.v}</div>${k.d || '<div class="k-d">&nbsp;</div>'}${k.s ? spark(k.s) : '<svg class="spark" viewBox="0 0 100 30" aria-hidden="true"></svg>'}</div>`).join('');
+
+    document.querySelectorAll('#metaMetric button').forEach(b => b.classList.toggle('on', b.dataset.m === metaMetric));
+    const mm = META_M[metaMetric];
+    $('metaChartTitle').textContent = mm[0] + ' per dag';
+    if (ads && ads.series.length) areaChart($('metaChart'), ads.series.map(s => ({ label: SHORTF.format(dayDate(s.day)), title: DAYF.format(dayDate(s.day)), v: s[metaMetric] || 0 })), mm[1]);
+    else $('metaChart').innerHTML = '<div class="empty">Nog geen advertentieresultaten in deze periode.</div>';
+
+    const steps = [['Leads binnen', crm.leads], ['Contact gehad', crm.contacted + crm.won], ['Klant geworden', crm.won]];
+    $('metaFunnel').innerHTML = `<div class="minis">
+        <div class="mini"><b>${fmtN(crm.new)}</b><span>Nog te bellen</span></div>
+        <div class="mini"><b>${fmtN(crm.won)}</b><span>Klant geworden</span></div>
+        <div class="mini"><b>${crm.leads ? pct(crm.won, crm.leads) + '%' : '—'}</b><span>Lead → klant</span></div>
+      </div>` + (crm.leads ? '<div class="steps">' + steps.map(([l, n], i) => `<div class="stepr"><span class="lab">${l}</span><span class="t"><i style="width:${Math.max(1, pct(n, crm.leads))}%;animation-delay:${i * 40}ms"></i></span><span class="n">${fmtN(n)}<small>${pct(n, crm.leads)}%</small></span></div>`).join('') + '</div>'
+        : '<div class="empty">Nog geen leads uit advertenties in deze periode. Zodra iemand het formulier invult, staat de lead binnen een paar minuten hier en in Aanvragen.</div>');
+
+    const campRows = ads ? ads.campaigns : [];
+    $('metaCampNote').textContent = ads ? ads.account.name || '' : '';
+    $('metaCampaigns').innerHTML = campRows.length ? `<table class="tbl"><thead><tr><th>Campagne</th><th class="r">Uitgaven</th><th class="r">Bereik</th><th class="r">Klikken</th><th class="r">Leads</th><th class="r">Per lead</th></tr></thead><tbody>` +
+      campRows.map(c => `<tr><td>${esc(c.name)}</td><td class="r">${money(c.spend)}</td><td class="r">${fmtN(c.reach)}</td><td class="r">${fmtN(c.linkClicks || c.clicks)}</td><td class="r">${fmtN(c.leads)}</td><td class="r">${c.leads ? money(per(c.spend, c.leads)) : '—'}</td></tr>`).join('') + '</tbody></table>'
+      : '<div class="empty">Geen campagnes met resultaten in deze periode.</div>';
+    const plats = ads ? ads.platforms : [];
+    const pTot = plats.reduce((a, p) => a + p.impressions, 0);
+    $('metaPlatforms').innerHTML = plats.length ? `<div class="share">${plats.map((p, i) => `<i style="width:${pct(p.impressions, pTot)}%;background:${[C.amber, C.teal, C.clay, C.grey][i % 4]}"></i>`).join('')}</div>
+      <div class="legend">${plats.map((p, i) => `<div><span class="sw" style="background:${[C.amber, C.teal, C.clay, C.grey][i % 4]}"></span>${esc(p.name)}<span class="v">${fmtN(p.impressions)}</span><span class="p">${fmtN(p.leads)} lds</span></div>`).join('')}</div>
+      <div class="sub-h" style="margin-top:14px">${plats.map(p => `${esc(p.name)}: ${money(p.spend)}${p.leads ? ' · ' + money(per(p.spend, p.leads)) + ' per lead' : ''}`).join(' &nbsp;·&nbsp; ')}</div>`
+      : '<div class="empty">Nog geen weergaven in deze periode.</div>';
+    const adRows = ads ? ads.ads : [];
+    $('metaAds').innerHTML = adRows.length ? `<table class="tbl"><thead><tr><th>Advertentie</th><th class="r">Uitgaven</th><th class="r">CTR</th><th class="r">Leads</th><th class="r">Per lead</th></tr></thead><tbody>` +
+      adRows.map(a => `<tr><td>${esc(a.name)}<small style="display:block;color:var(--faint)">${esc(a.campaign || '')}</small></td><td class="r">${money(a.spend)}</td><td class="r">${a.impressions ? (per(a.linkClicks || a.clicks, a.impressions) * 100).toFixed(2).replace('.', ',') + '%' : '—'}</td><td class="r">${fmtN(a.leads)}</td><td class="r">${a.leads ? money(per(a.spend, a.leads)) : '—'}</td></tr>`).join('') + '</tbody></table>'
+      : '<div class="empty">Nog geen advertenties met resultaten in deze periode.</div>';
+    const sv = crm.siteVisits;
+    $('metaSite').innerHTML = `<div class="minis">
+        <div class="mini"><b>${fmtN(sv.ads.visits)}</b><span>Via betaalde advertenties</span></div>
+        <div class="mini"><b>${fmtN(sv.instagram.visits)}</b><span>Via Instagram (organisch)</span></div>
+        <div class="mini"><b>${fmtN(sv.facebook.visits)}</b><span>Via Facebook (organisch)</span></div>
+      </div><p style="color:var(--muted);font-size:13px">${fmtN(sv.ads.conv + sv.instagram.conv + sv.facebook.conv)} van deze bezoeken stuurden een aanvraag via de site. Je huidige advertentie stuurt mensen naar een formulier in Instagram, niet naar je site — die leads tellen hierboven bij “Leads”. Bezoeken via advertenties worden herkend aan <span class="mono" style="text-transform:none">utm_source=meta</span> in de advertentielink.</p>`;
+    $('metaLeads').innerHTML = crm.latest.length ? crm.latest.map(r => `<button class="row-link" data-go="aanvragen"><b>${esc(r.name)}</b><span class="status st-${esc(r.status)}">${esc(L_STATUS[r.status] || r.status)}</span><small>${esc([r.company, r.platform, r.ad || r.campaign].filter(Boolean).join(' · '))}</small><small>${esc(ago(r.created_at))}</small></button>`).join('')
+      : '<div class="empty">Nog geen leads uit advertenties in deze periode.</div>';
+  }
+  function metaConnCard(st) {
+    const exp = st.expiresAt ? (st.expiresAt - Date.now() < 14 * 86400000 ? `<b style="color:var(--bad)">verloopt ${esc(ago(st.expiresAt).replace(' geleden', ''))} (${esc(when(st.expiresAt))})</b>` : 'geldig tot ' + esc(when(st.expiresAt))) : (st.configured ? 'verloopt niet' : '—');
+    const hook = location.origin + st.webhookPath;
+    return `<div class="card-h"><h2>Koppeling met Meta</h2><span class="note">${st.configured ? (st.tokenError ? 'probleem' : 'verbonden') : 'niet gekoppeld'}</span></div>
+      <div class="kv">
+        <span>Token</span><b>${st.configured ? esc(st.tokenName || 'ingesteld') + (st.source === 'env' ? ' · via Render' : ' · via admin') + ' · ' + exp : 'nog niet ingesteld'}</b>
+        <span>Pagina</span><b>${esc(st.pageName || st.pageId)}</b>
+        <span>Advertentieaccount</span><b>${esc(st.adAccount)}</b>
+        <span>Leads ophalen</span><b>${st.lastSync ? 'laatst ' + esc(ago(st.lastSync)) + (st.lastAdded ? ' · ' + plural(st.lastAdded, 'nieuwe lead', 'nieuwe leads') : '') : 'nog niet'} · elke 5 minuten automatisch</b>
+        ${st.lastError ? `<span>Fout</span><b style="color:var(--bad)">${esc(st.lastError)}</b>` : ''}
+        ${st.permissions ? `<span>Rechten</span><b class="mono" style="text-transform:none;font-size:11.5px">${esc(st.permissions.join(', '))}</b>` : ''}
+      </div>
+      <div class="actions" style="margin-bottom:14px">${st.configured ? `<button class="btn primary sm" id="metaSyncBtn">${ic('download')}Leads nu ophalen</button>` : ''}<button class="btn ghost sm" id="metaTokenBtn">${st.configured ? 'Token vervangen' : 'Token instellen'}</button></div>
+      <details><summary class="note" style="cursor:pointer">Direct binnenkrijgen via webhook (optioneel)</summary>
+        <p style="color:var(--muted);font-size:13px;margin:10px 0">Zonder webhook komen leads binnen 5 minuten binnen. Wil je ze binnen seconden: in je Meta-app → Webhooks → <b>Page</b> → veld <b>leadgen</b> abonneren met deze gegevens${st.webhookSigned ? '' : ', en zet <span class="mono" style="text-transform:none">META_APP_SECRET</span> in Render zodat de berichten worden gecontroleerd'}.</p>
+        <div class="kv"><span>Callback-URL</span><div class="linkbox"><span>${esc(hook)}</span><button class="btn ghost sm" data-copytext="${esc(hook)}">Kopieer</button></div>
+        <span>Verify token</span><div class="linkbox"><span>${esc(st.verifyToken)}</span><button class="btn ghost sm" data-copytext="${esc(st.verifyToken)}">Kopieer</button></div></div>
+      </details>`;
+  }
+  function metaSetupCard(st) {
+    return `<div class="card" style="margin-bottom:16px">
+      <div class="card-h"><h2>${st.tokenError ? 'De koppeling met Meta werkt niet meer' : 'Koppel je Meta-account'}</h2></div>
+      ${st.tokenError ? `<p class="err" style="margin:0 0 12px">${esc(st.tokenError)}</p>` : ''}
+      <p style="color:var(--muted);font-size:14px;max-width:760px;margin-bottom:12px">Hiermee komen leads uit je Instagram-formulier automatisch in Aanvragen, en zie je hier uitgaven, bereik, klikken en kosten per lead. Eenmalig, ±5 minuten:</p>
+      <ol style="color:var(--muted);font-size:14px;max-width:760px;padding-left:20px;display:grid;gap:6px;margin-bottom:14px">
+        <li>Nog geen Meta-app? Maak er één op <a href="https://developers.facebook.com/apps/creation/" target="_blank" rel="noopener">developers.facebook.com</a>: type <b>Zakelijk</b>, naam <b>BMM website</b>, gekoppeld aan portfolio <b>Brown Media</b>.</li>
+        <li>Ga naar <a href="https://business.facebook.com/settings/system-users" target="_blank" rel="noopener">Bedrijfsinstellingen → Systeemgebruikers</a> (portfolio <b>Brown Media</b>) en maak een systeemgebruiker <b>BMM website</b> met rol <b>Beheerder</b>.</li>
+        <li>Klik <b>Assets toewijzen</b>: pagina <b>Brown Media Management</b> en advertentieaccount <b>Brown Media Management</b>, beide met volledige controle.</li>
+        <li>Klik <b>Token genereren</b>, kies je app, vervaldatum <b>Nooit</b>, en vink aan: <span class="mono" style="text-transform:none">ads_read, leads_retrieval, pages_show_list, pages_read_engagement, pages_manage_metadata, pages_manage_ads, business_management</span>.</li>
+        <li>Kopieer de token en plak hem hieronder (of in Render als <span class="mono" style="text-transform:none">META_ACCESS_TOKEN</span>).</li>
+      </ol>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="input" id="metaTokenIn" type="password" autocomplete="off" placeholder="Plak je Meta-token" style="max-width:420px"><button class="btn primary" id="metaTokenSave">Koppelen</button></div>
+      <div class="err" id="metaTokenErr"></div>
+    </div>`;
+  }
+  $('metaMetric').addEventListener('click', e => { const b = e.target.closest('button[data-m]'); if (!b) return; metaMetric = b.dataset.m; store.set('bmm_meta_metric', metaMetric); renderMeta(); });
+  $('pg-meta').addEventListener('click', async e => {
+    const cp = e.target.closest('[data-copytext]');
+    if (cp) return copy(cp.dataset.copytext);
+    if (e.target.closest('#metaTokenBtn')) {
+      $('metaSetup').innerHTML = metaSetupCard({ ...D.meta.status, tokenError: '' });
+      $('metaTokenIn').focus(); window.scrollTo(0, 0); return;
+    }
+    if (e.target.closest('#metaSyncBtn')) {
+      const b = e.target.closest('#metaSyncBtn'); b.disabled = true;
+      try {
+        const r = await api('/api/admin/meta/sync', { method: 'POST' });
+        if (!r.ok) throw new Error(r.error || 'mislukt');
+        toast(r.added ? plural(r.added, 'nieuwe lead', 'nieuwe leads') + ' opgehaald' : 'Geen nieuwe leads');
+        await Promise.all([loadMeta(), loadRequests()]); renderMeta();
+      } catch (err) { toast('Ophalen mislukt: ' + err.message, true); }
+      finally { b.disabled = false; }
+      return;
+    }
+    if (e.target.closest('#metaTokenSave')) {
+      const b = e.target.closest('#metaTokenSave'); b.disabled = true; $('metaTokenErr').textContent = '';
+      try {
+        const r = await api('/api/admin/meta/token', { method: 'POST', body: JSON.stringify({ token: $('metaTokenIn').value }) });
+        toast('Gekoppeld' + (r.sync && r.sync.added ? ' · ' + plural(r.sync.added, 'lead', 'leads') + ' opgehaald' : ''));
+        await Promise.all([loadMeta(), loadRequests()]); renderMeta();
+      } catch (err) { $('metaTokenErr').textContent = err.message; }
+      finally { b.disabled = false; }
+    }
+  });
+
   // ---------- Aanvragen ----------
   function requests() {
-    const L = D.leads.map(r => ({ ...r, table: 'leads', kind: r.source === 'quiz' || /^VIDEO-CHECK/.test(r.message || '') ? 'check' : 'vraag', open: r.status === 'new' }));
+    const L = D.leads.map(r => ({ ...r, table: 'leads', kind: r.source === 'meta' ? 'meta' : r.source === 'quiz' || /^VIDEO-CHECK/.test(r.message || '') ? 'check' : 'vraag', open: r.status === 'new' }));
     const B = D.bookings.map(r => ({ ...r, table: 'bookings', kind: 'gesprek', open: r.status === 'pending' }));
     return [...L, ...B].sort((a, b) => (toDate(b.created_at) || 0) - (toDate(a.created_at) || 0));
   }
@@ -565,11 +705,11 @@
     const all = requests();
     if (reqFirst) { reqFirst = false; if (!all.some(r => r.open)) reqFilter = 'all'; }
     const F = [['open', 'Open', r => r.open], ['all', 'Alles', () => true], ['gesprek', 'Gesprekken', r => r.kind === 'gesprek'], ['vraag', 'Vragen', r => r.kind === 'vraag'],
-      ['check', 'Video-check', r => r.kind === 'check'], ['closed', 'Afgehandeld', r => !r.open]];
+      ['check', 'Video-check', r => r.kind === 'check'], ['meta', 'Advertenties', r => r.kind === 'meta'], ['closed', 'Afgehandeld', r => !r.open]];
     $('reqFilters').innerHTML = F.map(([id, label, fn]) => `<button data-rf="${id}" class="${reqFilter === id ? 'on' : ''}">${label}<span>${all.filter(fn).length}</span></button>`).join('');
     const fn = (F.find(f => f[0] === reqFilter) || F[1])[2];
     const q = reqQuery.toLowerCase();
-    const list = all.filter(fn).filter(r => !q || [r.name, r.email, r.phone, r.company, r.message, r.details, r.location, r.note].join(' ').toLowerCase().includes(q));
+    const list = all.filter(fn).filter(r => !q || [r.name, r.email, r.phone, r.company, r.message, r.details, r.location, r.note, r.campaign, r.ad].join(' ').toLowerCase().includes(q));
     $('reqList').innerHTML = list.length ? list.map(reqCard).join('')
       : `<div class="card empty">${all.length ? 'Geen aanvragen in deze selectie.' : 'Nog geen aanvragen. Zodra iemand het formulier of de video-check invult, verschijnt die hier — met locatie, apparaat en hoe ze je vonden.'}</div>`;
   }
@@ -582,6 +722,9 @@
       body = `<div class="qa">${qa.map(([qq, a]) => `<div><span>${esc(qq)}</span><b>${esc(a)}</b></div>`).join('')}</div>${advice ? `<div class="adv">Advies: ${esc(advice)}</div>` : ''}`;
     } else if (r.kind === 'gesprek') {
       body = `<div class="msg">${esc(r.details || '')}</div>`;
+    } else if (r.kind === 'meta') {
+      const qa = String(r.message || '').split('\n').filter(Boolean).map(l => { const i = l.indexOf('? '); return i > 0 ? [l.slice(0, i + 1), l.slice(i + 2)] : ['', l]; });
+      body = qa.length ? `<div class="qa">${qa.map(([qq, a]) => `<div><span>${esc(qq)}</span><b>${esc(a)}</b></div>`).join('')}</div>` : '';
     } else body = `<div class="msg">${esc(r.message || '')}</div>`;
     const svc = r.service ? SERVICE[r.service] || r.service : '';
     return `<article class="rq${r.open ? ' is-new' : ''}" data-table="${r.table}" data-id="${Number(r.id)}">
@@ -594,15 +737,17 @@
           ${place(r) ? `<span class="chip">${ic('pin')}${esc(place(r))}</span>` : ''}
           ${r.device ? `<span class="chip">${ic('device')}${esc(DEVICE[r.device] || r.device)}</span>` : ''}
           ${r.traffic ? `<span class="chip">via ${esc(r.traffic)}</span>` : ''}
+          ${r.campaign ? `<span class="chip" title="Campagne">${esc(r.campaign)}</span>` : ''}
+          ${r.ad ? `<span class="chip" title="Advertentie">${esc(r.ad)}</span>` : ''}
         </div>
         ${body}
-        <div class="meta" style="margin:12px 0 0;color:var(--muted);font-size:13px">${esc(r.email)}${r.phone ? ' · ' + esc(r.phone) : ''}</div>
+        <div class="meta" style="margin:12px 0 0;color:var(--muted);font-size:13px">${[r.email, r.phone].filter(Boolean).map(esc).join(' · ')}</div>
       </div>
       <div class="side-col">
         <div class="when">${esc(when(r.created_at))} · ${esc(ago(r.created_at))}</div>
         <select class="select" data-status aria-label="Status">${Object.entries(statuses).map(([k, v]) => `<option value="${k}"${k === r.status ? ' selected' : ''}>${v}</option>`).join('')}</select>
         <div class="actions">
-          <a class="btn ghost sm" href="mailto:${esc(r.email)}?subject=${encodeURIComponent('Je aanvraag bij Brown Media')}">${ic('mail')}Mail</a>
+          ${r.email ? `<a class="btn ghost sm" href="mailto:${esc(r.email)}?subject=${encodeURIComponent('Je aanvraag bij Brown Media')}">${ic('mail')}Mail</a>` : ''}
           ${wa ? `<a class="btn ghost sm" href="https://wa.me/${wa}" target="_blank" rel="noopener">${ic('wa')}WhatsApp</a>` : ''}
           ${wa ? `<a class="btn ghost sm" href="tel:+${wa}">${ic('phone')}Bel</a>` : ''}
         </div>
