@@ -603,7 +603,9 @@
       : '<div class="empty">Nog geen leads uit advertenties in deze periode.</div>';
   }
   function metaConnCard(st) {
-    const exp = st.expiresAt ? (st.expiresAt - Date.now() < 14 * 86400000 ? `<b style="color:var(--bad)">verloopt ${esc(ago(st.expiresAt).replace(' geleden', ''))} (${esc(when(st.expiresAt))})</b>` : 'geldig tot ' + esc(when(st.expiresAt))) : (st.configured ? 'verloopt niet' : '—');
+    const left = st.expiresAt ? st.expiresAt - Date.now() : 0;
+    const inTime = left < 0 ? 'is verlopen' : left < 2 * 3600000 ? `verloopt over ${Math.max(1, Math.round(left / 60000))} min` : left < 2 * 86400000 ? `verloopt over ${Math.round(left / 3600000)} uur` : `verloopt over ${Math.round(left / 86400000)} dagen`;
+    const exp = st.expiresAt ? (left < 14 * 86400000 ? `<b style="color:var(--bad)">${inTime} (${esc(when(st.expiresAt))})</b>${left < 2 * 86400000 ? ' — plak de verlengde token (Extend Access Token)' : ''}` : 'geldig tot ' + esc(when(st.expiresAt))) : (st.configured ? 'verloopt niet' : '—');
     const hook = location.origin + st.webhookPath;
     return `<div class="card-h"><h2>Koppeling met Meta</h2><span class="note">${st.configured ? (st.tokenError ? 'probleem' : 'verbonden') : 'niet gekoppeld'}</span></div>
       <div class="kv">
