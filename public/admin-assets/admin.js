@@ -628,10 +628,10 @@
       <p style="color:var(--muted);font-size:14px;max-width:760px;margin-bottom:12px">Hiermee komen leads uit je Instagram-formulier automatisch in Aanvragen, en zie je hier uitgaven, bereik, klikken en kosten per lead. Eenmalig, ±5 minuten:</p>
       <ol style="color:var(--muted);font-size:14px;max-width:760px;padding-left:20px;display:grid;gap:6px;margin-bottom:14px">
         <li>Nog geen Meta-app? Maak er één op <a href="https://developers.facebook.com/apps/creation/" target="_blank" rel="noopener">developers.facebook.com</a>: type <b>Zakelijk</b>, naam <b>BMM website</b>, gekoppeld aan portfolio <b>Brown Media</b>.</li>
-        <li>Ga naar <a href="https://business.facebook.com/settings/system-users" target="_blank" rel="noopener">Bedrijfsinstellingen → Systeemgebruikers</a> (portfolio <b>Brown Media</b>) en maak een systeemgebruiker <b>BMM website</b> met rol <b>Beheerder</b>.</li>
-        <li>Klik <b>Assets toewijzen</b>: pagina <b>Brown Media Management</b> en advertentieaccount <b>Brown Media Management</b>, beide met volledige controle.</li>
-        <li>Klik <b>Token genereren</b>, kies je app, vervaldatum <b>Nooit</b>, en vink aan: <span class="mono" style="text-transform:none">ads_read, leads_retrieval, pages_show_list, pages_read_engagement, pages_manage_metadata, pages_manage_ads, business_management</span>.</li>
-        <li>Kopieer de token en plak hem hieronder (of in Render als <span class="mono" style="text-transform:none">META_ACCESS_TOKEN</span>).</li>
+        <li>Open de <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a> en kies rechts je app <b>BMM website</b> en <b>User Token</b>.</li>
+        <li>Voeg deze rechten toe: <span class="mono" style="text-transform:none">ads_read, leads_retrieval, pages_show_list, pages_read_engagement, pages_manage_ads, pages_manage_metadata, business_management</span>, klik <b>Generate Access Token</b> en keur goed (kies je pagina <b>Brown Media Management</b> en je advertentieaccount).</li>
+        <li>Klik op het <b>i</b>-icoontje naast de token → <b>Open in Access Token Tool</b> → <b>Extend Access Token</b>. Kopieer de lange token die verschijnt.</li>
+        <li>Plak hem hieronder. Leads blijven daarna altijd binnenkomen; de advertentiecijfers vragen na 60 dagen om een nieuwe token (je ziet hier een waarschuwing). Een token van een systeemgebruiker (Bedrijfsinstellingen → Systeemgebruikers, vervaldatum <b>Nooit</b>) werkt ook en verloopt nooit.</li>
       </ol>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="input" id="metaTokenIn" type="password" autocomplete="off" placeholder="Plak je Meta-token" style="max-width:420px"><button class="btn primary" id="metaTokenSave">Koppelen</button></div>
       <div class="err" id="metaTokenErr"></div>

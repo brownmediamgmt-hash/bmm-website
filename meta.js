@@ -59,6 +59,8 @@ module.exports = function createMeta({ app, getDb, h, requireAuth, rateLimit, US
   }
 
   // The lead endpoints want a Page token. A user or system-user token can fetch one; a Page token is used as is.
+  // A Page token fetched with a long-lived user token never expires, so it's kept: leads keep coming in
+  // after the 60-day user token runs out (only the ad numbers need a fresh token then).
   async function pageToken() {
     const tok = await token();
     if (!tok) throw new Error('not_configured');
@@ -67,8 +69,9 @@ module.exports = function createMeta({ app, getDb, h, requireAuth, rateLimit, US
       const p = await graph(PAGE_ID, { fields: 'access_token,name' }, tok);
       state.pageToken = p.access_token || tok;
       state.pageName = p.name || '';
+      if (p.access_token && p.access_token !== await getSetting('meta_page_token')) await setSetting('meta_page_token', p.access_token);
     } catch (e) {
-      state.pageToken = tok;   // probably already a Page token
+      state.pageToken = await getSetting('meta_page_token') || tok;   // expired user token: use the saved Page token; else it may already be a Page token
     }
     state.pageTokenFor = tok;
     return state.pageToken;
