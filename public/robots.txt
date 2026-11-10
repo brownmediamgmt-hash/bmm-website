@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 
-Sitemap: https://bmm-website.onrender.com/sitemap.xml
+Sitemap: https://brown-media.nl/sitemap.xml
