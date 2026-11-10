@@ -170,6 +170,10 @@ app.use(express.json({ limit: '200kb' }));
 const createUploadsRouter = require('./r2-uploads-router');
 app.use(createUploadsRouter({ requireAuth }));
 app.use(express.static(path.join(__dirname, 'public')));
+// service pages: one clean URL per service (the .html file lives in public/)
+for (const slug of ['bedrijfsvideo-groningen', 'social-media-video-groningen', 'brand-film-groningen']) {
+  app.get('/' + slug, (req, res) => res.sendFile(path.join(__dirname, 'public', slug + '.html')));
+}
 
 const clean = (v, max = 2000) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
